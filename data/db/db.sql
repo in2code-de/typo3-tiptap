@@ -220,7 +220,7 @@ CREATE TABLE `cache_pages` (
   `content` longblob DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(180),`expires`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -237,7 +237,7 @@ CREATE TABLE `cache_pages_tags` (
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(191)),
   KEY `cache_tag` (`tag`(191))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -254,7 +254,7 @@ CREATE TABLE `cache_rootline` (
   `content` longblob DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(180),`expires`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -271,7 +271,7 @@ CREATE TABLE `cache_rootline_tags` (
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(191)),
   KEY `cache_tag` (`tag`(191))
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -972,7 +972,7 @@ CREATE TABLE `sys_file_storage` (
   `configuration` longtext DEFAULT NULL,
   PRIMARY KEY (`uid`),
   KEY `parent` (`pid`,`deleted`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1020,7 +1020,7 @@ CREATE TABLE `sys_history` (
   PRIMARY KEY (`uid`),
   KEY `recordident_1` (`tablename`(100),`recuid`),
   KEY `recordident_2` (`tablename`(100),`tstamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1069,7 +1069,7 @@ CREATE TABLE `sys_lockedrecords` (
   `feuserid` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`uid`),
   KEY `event` (`userid`,`tstamp`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1111,7 +1111,7 @@ CREATE TABLE `sys_log` (
   KEY `errorcount` (`tstamp`,`error`),
   KEY `index_channel` (`channel`),
   KEY `index_level` (`level`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1330,7 +1330,7 @@ CREATE TABLE `tt_content` (
   KEY `t3ver_oid` (`t3ver_oid`,`t3ver_wsid`),
   KEY `language` (`l18n_parent`,`sys_language_uid`),
   KEY `translation_source` (`l10n_source`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1455,7 +1455,7 @@ CREATE TABLE `tx_scheduler_task_group` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-04 11:51:19
+-- Dump completed on 2025-07-04 11:53:45
 /*M!999999\- enable the sandbox mode */ 
 -- MariaDB dump 10.19  Distrib 10.11.11-MariaDB, for debian-linux-gnu (x86_64)
 --
@@ -1509,7 +1509,7 @@ UNLOCK TABLES;
 LOCK TABLES `be_users` WRITE;
 /*!40000 ALTER TABLE `be_users` DISABLE KEYS */;
 INSERT INTO `be_users` VALUES
-(1,0,1751622449,1751622449,0,0,0,0,NULL,'default','a:5:{s:10:\"moduleData\";a:1:{s:28:\"dashboard/current_dashboard/\";s:40:\"54d2bacbb7e23dfa5d30e16d0e0c5753e3966203\";}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";s:15:\"moduleSessionID\";a:1:{s:28:\"dashboard/current_dashboard/\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";}}',0,NULL,'','admin','$argon2i$v=19$m=65536,t=16,p=1$SHRvd3duUlJuNjFCRndFTA$uubdApo8DCWUrSRhe0oVDzT5ZA7WDwLuBSgdy15FHC0','',0,NULL,'','','',1,3,NULL,1,NULL,'',NULL,1751622462,NULL);
+(1,0,1751622449,1751622449,0,0,0,0,NULL,'default','a:5:{s:10:\"moduleData\";a:3:{s:28:\"dashboard/current_dashboard/\";s:40:\"54d2bacbb7e23dfa5d30e16d0e0c5753e3966203\";s:10:\"FormEngine\";a:2:{i:0;a:1:{s:32:\"c312013d83c1a6ad7fec8b36a37ba3c8\";a:5:{i:0;s:13:\"ckeditor test\";i:1;a:5:{s:4:\"edit\";a:1:{s:10:\"tt_content\";a:1:{i:1;s:4:\"edit\";}}s:7:\"defVals\";N;s:12:\"overrideVals\";N;s:11:\"columnsOnly\";N;s:6:\"noView\";N;}i:2;s:33:\"&edit%5Btt_content%5D%5B1%5D=edit\";i:3;a:5:{s:5:\"table\";s:10:\"tt_content\";s:3:\"uid\";i:1;s:3:\"pid\";i:1;s:3:\"cmd\";s:4:\"edit\";s:12:\"deleteAccess\";b:1;}i:4;s:76:\"/typo3/module/web/layout?token=e2cbbb6d11521759690fc0cfba2c5b4b14c6d747&id=1\";}}i:1;s:32:\"c312013d83c1a6ad7fec8b36a37ba3c8\";}s:57:\"TYPO3\\CMS\\Backend\\Utility\\BackendUtility::getUpdateSignal\";a:0:{}}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";s:15:\"moduleSessionID\";a:3:{s:28:\"dashboard/current_dashboard/\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:10:\"FormEngine\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:57:\"TYPO3\\CMS\\Backend\\Utility\\BackendUtility::getUpdateSignal\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";}}',0,NULL,'','admin','$argon2i$v=19$m=65536,t=16,p=1$SHRvd3duUlJuNjFCRndFTA$uubdApo8DCWUrSRhe0oVDzT5ZA7WDwLuBSgdy15FHC0','',0,NULL,'','','',1,3,NULL,1,NULL,'',NULL,1751622462,NULL);
 /*!40000 ALTER TABLE `be_users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1610,7 +1610,7 @@ UNLOCK TABLES;
 LOCK TABLES `pages` WRITE;
 /*!40000 ALTER TABLE `pages` DISABLE KEYS */;
 INSERT INTO `pages` VALUES
-(1,0,1751622457,1751622457,0,0,0,0,'0',0,NULL,0,0,0,0,NULL,NULL,0,0,0,0,1,1,31,31,1,0,0,0,0,0,0.5,1,'Home','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','','','',0,0,'','','',NULL,0,'',NULL,0,'');
+(1,0,1751622457,1751622457,0,0,0,0,'0',0,NULL,0,0,0,0,NULL,NULL,0,0,0,0,1,1,31,31,1,1751622807,0,0,0,0,0.5,1,'Home','/',NULL,0,0,0,0,'',0,'','','',0,0,0,'',0,0,NULL,NULL,NULL,'','',0,1,0,'',0,'','','','',0,0,'','','',NULL,0,'',NULL,0,'');
 /*!40000 ALTER TABLE `pages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1692,6 +1692,8 @@ UNLOCK TABLES;
 
 LOCK TABLES `sys_file_storage` WRITE;
 /*!40000 ALTER TABLE `sys_file_storage` DISABLE KEYS */;
+INSERT INTO `sys_file_storage` VALUES
+(1,0,1751622791,1751622791,0,'This is the local fileadmin/ directory. This storage mount has been created automatically by TYPO3.',1,NULL,'fileadmin',1,1,1,1,1,'Local','<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n<T3FlexForms>\n    <data>\n        <sheet index=\"sDEF\">\n            <language index=\"lDEF\">\n                <field index=\"basePath\">\n                    <value index=\"vDEF\">fileadmin/</value>\n                </field>\n                <field index=\"pathType\">\n                    <value index=\"vDEF\">relative</value>\n                </field>\n                <field index=\"caseSensitive\">\n                    <value index=\"vDEF\">1</value>\n                </field>\n            </language>\n        </sheet>\n    </data>\n</T3FlexForms>');
 /*!40000 ALTER TABLE `sys_file_storage` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1710,6 +1712,8 @@ UNLOCK TABLES;
 
 LOCK TABLES `sys_history` WRITE;
 /*!40000 ALTER TABLE `sys_history` DISABLE KEYS */;
+INSERT INTO `sys_history` VALUES
+(1,1751622807,1,'BE',1,0,1,'tt_content','{\"CType\":\"textmedia\",\"categories\":\"0\",\"layout\":\"0\",\"frame_class\":\"default\",\"space_before_class\":\"\",\"space_after_class\":\"\",\"colPos\":\"0\",\"date\":0,\"header_layout\":\"0\",\"header_position\":\"\",\"imagewidth\":0,\"imageheight\":0,\"imageorient\":\"0\",\"imagecols\":\"2\",\"recursive\":\"0\",\"list_type\":\"\",\"sectionIndex\":\"1\",\"hidden\":\"0\",\"starttime\":0,\"endtime\":0,\"sys_language_uid\":0,\"l18n_parent\":0,\"l18n_diffsource\":\"\",\"bullets_type\":\"0\",\"cols\":\"0\",\"table_class\":\"\",\"table_delimiter\":\"124\",\"table_enclosure\":\"0\",\"table_header_position\":\"0\",\"table_tfoot\":0,\"target\":\"\",\"uploads_description\":0,\"uploads_type\":\"0\",\"pid\":1,\"sorting\":256,\"header\":\"ckeditor test\",\"header_link\":\"\",\"subheader\":\"\",\"bodytext\":\"<p><strong>styled<\\/strong> text<\\/p>\",\"imageborder\":\"0\",\"image_zoom\":\"0\",\"linkToTop\":\"0\",\"fe_group\":\"\",\"editlock\":\"0\",\"rowDescription\":\"\",\"crdate\":1751622807,\"t3ver_stage\":0,\"tstamp\":1751622807,\"uid\":1}',0,'0400$b41f60dbb1cb0b19ebce99a1aec6e7da:7fa2c035f26826fe83eeecaaeddc4d40');
 /*!40000 ALTER TABLE `sys_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1728,6 +1732,8 @@ UNLOCK TABLES;
 
 LOCK TABLES `sys_lockedrecords` WRITE;
 /*!40000 ALTER TABLE `sys_lockedrecords` DISABLE KEYS */;
+INSERT INTO `sys_lockedrecords` VALUES
+(2,1,1751622808,'tt_content',1,1,'admin',0);
 /*!40000 ALTER TABLE `sys_lockedrecords` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1738,7 +1744,8 @@ UNLOCK TABLES;
 LOCK TABLES `sys_log` WRITE;
 /*!40000 ALTER TABLE `sys_log` DISABLE KEYS */;
 INSERT INTO `sys_log` VALUES
-(1,1751622462,1,1,0,'',0,0,'User %s logged in from ###IP###',255,'user',0,'172.20.0.5','[\"admin\"]',-1,-99,'',0,'','info',NULL,NULL);
+(1,1751622462,1,1,0,'',0,0,'User %s logged in from ###IP###',255,'user',0,'172.20.0.5','[\"admin\"]',-1,-99,'',0,'','info',NULL,NULL),
+(2,1751622807,1,1,1,'tt_content',0,0,'Record {table}:{uid} was inserted on page {pid}',1,'content',0,'172.20.0.5','{\"table\":\"tt_content\",\"uid\":1,\"pid\":1}',1,0,'',0,'','info',NULL,NULL);
 /*!40000 ALTER TABLE `sys_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1809,6 +1816,8 @@ UNLOCK TABLES;
 
 LOCK TABLES `tt_content` WRITE;
 /*!40000 ALTER TABLE `tt_content` DISABLE KEYS */;
+INSERT INTO `tt_content` VALUES
+(1,1,1751622807,1751622807,0,0,0,0,'',256,'',0,0,0,0,NULL,'',0,0,0,0,'default',0,NULL,0,'textmedia',0,0,'','',0,'ckeditor test',0,'','','','<p><strong>styled</strong> text</p>',0,0,0,0,0,0,0,2,NULL,0,'',0,NULL,1,0,NULL,NULL,'',0,0,'',124,0,0,0,NULL,0,'','','',0,0);
 /*!40000 ALTER TABLE `tt_content` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1856,4 +1865,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-04 11:51:19
+-- Dump completed on 2025-07-04 11:53:45
