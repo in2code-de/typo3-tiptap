@@ -27,6 +27,7 @@ defined('TYPO3') or die();
             'bodytext' => [
                 'config' => [
                     'enableRichtext' => true,
+                    'editor' => 'tiptap',
                 ],
             ],
         ],

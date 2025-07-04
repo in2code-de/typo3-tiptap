@@ -11,3 +11,10 @@ defined('TYPO3') or die();
 \TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptConstants(
     '@import "EXT:in2tiptap/Configuration/TypoScript/constants.typoscript"'
 );
+
+// Overwrite FormEngine node type resolver hook to render RTE in FormEngine if enabled
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'][1480314091] = [
+    'nodeName' => 'text',
+    'priority' => 50,
+    'class' => \In2code\In2TipTap\Form\Resolver\RteNodeResolver::class,
+];
