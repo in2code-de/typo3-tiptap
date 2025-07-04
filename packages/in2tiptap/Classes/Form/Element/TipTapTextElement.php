@@ -114,7 +114,11 @@ class TipTapTextElement extends AbstractFormElement
         $html[] =   '<div class="form-control-wrap">';
         $html[] =       '<div class="form-wizards-wrap">';
         $html[] =           '<div class="form-wizards-item-element">';
-        $html[] =           '<h3>This is a tiptap editor</h3>';
+        $html[] =           '<editor-tiptap>';
+        $html[] =                 '<textarea ' . $textareaAttributes . '>';
+        $html[] =                   htmlspecialchars($value);
+        $html[] =                 '</textarea>';
+        $html[] =           '</editor-tiptap>';
         $html[] =           '</div>';
         if (!empty($fieldControlHtml)) {
             $html[] =           '<div class="form-wizards-item-aside form-wizards-item-aside--field-control">';
@@ -133,19 +137,8 @@ class TipTapTextElement extends AbstractFormElement
         $html[] = '</div>';
 
         $resultArray['html'] = $this->wrapWithFieldsetAndLegend(implode(LF, $html));
-        $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3/rte-ckeditor/ckeditor5.js');
-
-        $uiLanguage = $ckeditorConfiguration['language']['ui'];
-        if ($this->translationExists($uiLanguage)) {
-            $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3/ckeditor5/translations/' . $uiLanguage . '.js');
-        }
-
-        $contentLanguage = $ckeditorConfiguration['language']['content'];
-        if ($this->translationExists($contentLanguage)) {
-            $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3/ckeditor5/translations/' . $contentLanguage . '.js');
-        }
-
-        $resultArray['stylesheetFiles'][] = 'EXT:rte_ckeditor/Resources/Public/Css/editor.css';
+        $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@in2tiptap/tiptap/index.js');
+        $resultArray['stylesheetFiles'][] = 'EXT:in2tiptap/Resources/Public/TipTap/index.css';
 
         return $resultArray;
     }
