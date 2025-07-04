@@ -1,6 +1,6 @@
 import { defineTipTapPlugin } from '../configuration.ts'
 
-export function tablePlugin() {
+export default function () {
   defineTipTapPlugin({
     styleSheets: ['table.css'],
     commands: [
