@@ -1,3 +1,12 @@
+import { css, html, LitElement } from 'lit'
+import { customElement } from 'lit/decorators.js'
 import './styles.css'
 
-console.log('Hello, world!')
+@customElement('editor-tiptap')
+export class EditorTipTap extends LitElement {
+  static styles = css`p { color: blue }`
+
+  render() {
+    return html`<p>Hello, I'm TipTap!</p>`
+  }
+}

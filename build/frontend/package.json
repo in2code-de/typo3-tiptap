@@ -5,6 +5,9 @@
   "scripts": {
     "build": "tsdown"
   },
+  "dependencies": {
+    "lit": "^3.3.0"
+  },
   "devDependencies": {
     "@antfu/eslint-config": "^4.16.2",
     "eslint": "^9.30.1",
