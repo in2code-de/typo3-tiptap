@@ -6,7 +6,11 @@
     "build": "tsdown"
   },
   "dependencies": {
-    "lit": "^3.3.0"
+    "@tiptap/core": "^2.24.2",
+    "@tiptap/pm": "^2.24.2",
+    "@tiptap/starter-kit": "^2.24.2",
+    "lit": "^3.3.0",
+    "ts-deepmerge": "^7.0.3"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.16.2",
