@@ -1,0 +1,2 @@
+# Import constants from fluid_styled_content
+@import 'EXT:fluid_styled_content/Configuration/TypoScript/constants.typoscript'

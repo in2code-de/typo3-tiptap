@@ -1,0 +1,2 @@
+# Import all content element TypoScript
+@import './ContentElement/Tiptap.typoscript'
