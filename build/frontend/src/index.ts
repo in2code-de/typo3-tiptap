@@ -18,6 +18,8 @@ function init() {
   window.customElements.define('editor-tiptap', EditorTipTap)
 }
 
+window.customElements.define('editor-tiptap', EditorTipTap)
+
 export {
   defineTipTapPlugin,
   init,
