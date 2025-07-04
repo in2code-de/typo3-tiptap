@@ -1,0 +1,12 @@
+/bin/
+/public/*
+/var/
+/vendor/
+/typo3_core/
+*.idea
+*.project
+*.vscode
+.env
+.DS_Store
+.history
+/node_modules/

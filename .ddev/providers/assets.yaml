@@ -1,0 +1,48 @@
+db_pull_command:
+  service: web
+  command: |
+    cp "/var/www/html/data/db/db.sql" /var/www/html/.ddev/.downloads/db.sql
+
+files_import_command:
+  service: web
+  command: |
+    set -eu -o pipefail
+    mkdir -p /var/www/html/public/fileadmin/
+    mkdir -p /var/www/html/data/files/public/fileadmin/
+    rsync -avz --delete "/var/www/html/data/files/public/fileadmin/" /var/www/html/public/fileadmin/
+
+db_push_command:
+  command: |
+    # set -x   # You can enable bash debugging output by uncommenting
+    set -eu -o pipefail
+    ls /var/www/html/.ddev >/dev/null # This just refreshes stale NFS if possible
+    [ -d   /var/www/html/data/db/ ] || mkdir -p  /var/www/html/data/db/
+    mysqldump db --no-data > /var/www/html/data/db/db.sql
+    mysqldump db --no-create-info \
+      --ignore-table db.be_sessions \
+      --ignore-table db.cache_adminpanel_requestcache \
+      --ignore-table db.cache_adminpanel_requestcache_tags \
+      --ignore-table db.cache_extbase_object \
+      --ignore-table db.cache_extbase_object_tags \
+      --ignore-table db.cache_hash \
+      --ignore-table db.cache_hash_tags \
+      --ignore-table db.cache_imagesizes \
+      --ignore-table db.cache_imagesizes_tags \
+      --ignore-table db.cache_pages \
+      --ignore-table db.cache_pagesection \
+      --ignore-table db.cache_pagesection_tags \
+      --ignore-table db.cache_pages_tags \
+      --ignore-table db.cache_rootline \
+      --ignore-table db.cache_rootline_tags \
+      --ignore-table db.cache_treelist \
+      --ignore-table db.fe_sessions \
+      --ignore-table db.sys_file_processedfile \
+      >> /var/www/html/data/db/db.sql
+
+files_push_command:
+  command: |
+    # set -x   # You can enable bash debugging output by uncommenting
+    set -eu -o pipefail
+    mkdir -p /var/www/html/public/fileadmin/
+    mkdir -p /var/www/html/data/files/public/fileadmin/
+    rsync -avz --exclude '_processed_/*' --exclude '**/_processed_/*' --exclude '**/_temp_/*'  --delete "/var/www/html/public/fileadmin/" "/var/www/html/data/files/public/fileadmin/"
