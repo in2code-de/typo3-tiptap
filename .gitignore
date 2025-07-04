@@ -9,4 +9,5 @@
 .env
 .DS_Store
 .history
-/node_modules/
+node_modules
+packages/in2tiptap/Resources/Public/TipTap
