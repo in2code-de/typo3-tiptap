@@ -6,3 +6,10 @@ services:
 
   In2code\In2TipTap\:
     resource: '../Classes/*'
+
+  _instanceof:
+    In2code\In2TipTap\Editor\Mapper\MapperInterface:
+      tags: [ 'mappers' ]
+
+  In2code\In2TipTap\Editor\Mapper\ConfigurationService:
+    arguments: [ !tagged_iterator mappers ]
