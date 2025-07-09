@@ -9,8 +9,9 @@ export default function () {
         label: 'Insert Table',
         iconIdentifier: 'table',
         sortAfter: 'insertImage',
-        action: () => {
+        action: ({ editor }) => {
           console.log('Insert Table command executed')
+          console.log(1751965862803, { editor })
         },
       },
     ],

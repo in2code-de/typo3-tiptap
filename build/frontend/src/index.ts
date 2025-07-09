@@ -1,6 +1,6 @@
 import { defineTipTapPlugin } from './configuration.ts'
-import './tiptap/index.ts'
-import './styles.css'
+import './web-component.ts'
+import './icon.ts'
 
 export {
   defineTipTapPlugin,

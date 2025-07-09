@@ -12,7 +12,7 @@ interface TipTapPluginOptions {
     id: string
     label: string
     iconIdentifier: string
-    sortAfter: string
+    sortAfter?: string
     action: (data: { editor: Editor }) => void
   }[]
 }

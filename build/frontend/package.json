@@ -3,10 +3,12 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "tsdown"
+    "build": "tsdown",
+    "dev": "vite"
   },
   "dependencies": {
     "@tiptap/core": "^2.24.2",
+    "@tiptap/extension-color": "^2.25.0",
     "@tiptap/pm": "^2.24.2",
     "@tiptap/starter-kit": "^2.24.2",
     "lit": "^3.3.0",
