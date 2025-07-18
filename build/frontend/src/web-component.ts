@@ -9,6 +9,8 @@ interface PluginImport {
   exports?: string[]
 }
 
+const executedFunctions: (() => void)[] = []
+
 @customElement('editor-tiptap')
 export class EditorTipTap extends LitElement {
   @property({ type: String })
@@ -24,7 +26,6 @@ export class EditorTipTap extends LitElement {
     return this.querySelector<HTMLTextAreaElement>('textarea')
   }
 
-  private importedPluginConfiguration: Record<string, { exports: string[] }> = {}
   private editor: Editor | undefined
 
   async firstUpdated() {
@@ -81,7 +82,11 @@ export class EditorTipTap extends LitElement {
           if (!(typeof fn === 'function'))
             return
 
+          if (executedFunctions.includes(fn))
+            return
+
           fn()
+          executedFunctions.push(fn)
         })
       })
     }
@@ -147,7 +152,7 @@ export class EditorTipTap extends LitElement {
         ${configuration?.commands && configuration.commands.length > 0
             ? html`
             <div class="control-group">
-              <nav>
+              <div>
                 <nav
                   class="button-group"
                   style="list-style: none"
@@ -163,7 +168,7 @@ export class EditorTipTap extends LitElement {
                     </button>
                   `)}
                 </nav>
-              </nav>
+              </div>
             </div>
           `
             : html``
