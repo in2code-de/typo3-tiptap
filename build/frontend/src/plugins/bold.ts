@@ -8,8 +8,7 @@ export default function () {
         label: 'Bold',
         iconIdentifier: 'bold',
         action: ({ editor }) => {
-          editor.chain().focus().toggleUnderline().run()
-          console.log(1751967237624, 'bold called')
+          editor.chain().focus().toggleBold().run()
         },
       },
     ],
