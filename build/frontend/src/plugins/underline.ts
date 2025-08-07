@@ -1,15 +1,16 @@
+import Underline from '@tiptap/extension-underline'
 import { defineTipTapPlugin } from '../configuration.ts'
 
 export default function () {
   defineTipTapPlugin({
+    extension: [Underline],
     commands: [
       {
-        id: 'bold',
-        label: 'Bold',
-        iconIdentifier: 'bold',
+        id: 'underline',
+        label: 'Underline',
+        iconIdentifier: 'underline',
         action: ({ editor }) => {
           editor.chain().focus().toggleUnderline().run()
-          console.log(1751967237624, 'bold called')
         },
       },
     ],

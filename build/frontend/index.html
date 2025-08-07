@@ -11,11 +11,43 @@
 </head>
 <body>
 
-<editor-tiptap plugins='[
-	{ "path": "/src/plugins/undo.ts" },
-	{ "path": "/src/plugins/redo.ts" },
-	{ "path": "/src/plugins/bold.ts" }
-]'>
+<script type="module">
+	import { defineTipTapPlugin } from '/src/configuration.ts';
+
+	defineTipTapPlugin({
+		styles: [
+			{
+				name: 'Blue Box',
+				allowedTags: ['p'],
+				attributes: {
+					class: 'blue-box',
+				},
+			},
+			{
+				name: 'Red Box',
+				allowedTags: ['p'],
+				attributes: {
+					class: 'red-box',
+				},
+			}
+		]
+	})
+</script>
+
+<editor-tiptap
+	plugins='[
+		{ "path": "/src/plugins/undo.ts" },
+		{ "path": "/src/plugins/redo.ts" },
+		{ "path": "/src/plugins/bold.ts" },
+		{ "path": "/src/plugins/underline.ts" },
+		{ "path": "/src/plugins/italic.ts" },
+		{ "path": "/src/plugins/strike.ts" },
+		{ "path": "/src/plugins/link.ts" },
+		{ "path": "/src/plugins/list.ts" },
+		{ "path": "/src/plugins/blockquote.ts" },
+		{ "path": "/src/plugins/source.ts" }
+	]'
+>
 	<textarea>
 <h2>Hi there,</h2><p>this is a <em>basic</em> example of <strong>Tiptap</strong>. Sure, there are all kind of basic text styles you’d probably expect from a text editor. But wait until you see the lists:</p><ul><li><p>That’s a bullet list with one …</p></li><li><p>… or two list items.</p></li></ul><p>Isn’t that great? And all of that is editable. But wait, there’s more. Let’s try a code block:</p><pre><code class="language-css">body {
   display: none;

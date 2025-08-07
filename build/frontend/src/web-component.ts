@@ -1,3 +1,4 @@
+import type { Extension } from '@tiptap/core'
 import { Editor } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
 import { html, LitElement } from 'lit'
@@ -113,7 +114,10 @@ export class EditorTipTap extends LitElement {
 
     this.editor = new Editor({
       element: tipTapContainer,
-      extensions: [StarterKit],
+      extensions: [
+        StarterKit,
+        ...(getConfiguration()?.extension ?? []) as Extension[],
+      ],
       content: textArea.value,
       onUpdate: () => {
         if (textArea && this.editor) {
@@ -138,10 +142,13 @@ export class EditorTipTap extends LitElement {
   render() {
     // Only show commands after plugins are loaded
     if (!this.pluginsLoaded) {
-      return html`<slot></slot>`
+      return html`
+        <slot></slot>`
     }
 
     const configuration = getConfiguration()
+
+    const shouldRenderStyles = configuration.styles && configuration.styles.length > 0
 
     return html`
       <slot></slot>
@@ -152,6 +159,16 @@ export class EditorTipTap extends LitElement {
         ${configuration?.commands && configuration.commands.length > 0
             ? html`
             <div class="control-group">
+              ${shouldRenderStyles
+                ? html`
+                  <select>
+                    ${configuration.styles!.map(style => html`
+                        <option>${style.name}</option>
+                    `)}
+                  </select>
+                `
+                : ''}
+
               <div>
                 <nav
                   class="button-group"

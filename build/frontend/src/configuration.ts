@@ -15,6 +15,7 @@ interface TipTapPluginOptions {
     sortAfter?: string
     action: (data: { editor: Editor }) => void
   }[]
+  extension?: unknown[]
 }
 
 let configuration: TipTapPluginOptions = {}
