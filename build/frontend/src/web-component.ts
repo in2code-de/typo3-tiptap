@@ -143,7 +143,12 @@ export class EditorTipTap extends LitElement {
     // Only show commands after plugins are loaded
     if (!this.pluginsLoaded) {
       return html`
-        <slot></slot>`
+        <slot></slot>
+        <div class="container">
+          <div
+            id="tiptap-container"
+            class="tip-tap-container"></div>
+        </div>`
     }
 
     const configuration = getConfiguration()
