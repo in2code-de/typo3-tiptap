@@ -48,6 +48,15 @@ async function loadPluginConfiguration() {
   hasPluginConfigurationBeenLoaded = true
 }
 
+function isGroupCommand(commandId: string) {
+  return configuration.value.groupCommands
+    && Object.keys(configuration.value.groupCommands).includes(commandId)
+}
+
+// const navbar = computed(() => {
+//   const groupCommands
+// })
+
 onMounted(async () => {
   await loadPluginConfiguration()
   configuration.value = getConfiguration()
@@ -81,54 +90,105 @@ onUnmounted(() => editor.value?.destroy())
 </script>
 
 <template>
+  <div
+    v-if="editor"
+    class="tiptap-container"
+  >
+    <nav
+      v-if="configuration.commands"
+      class="tiptap-toolbar"
+    >
+      <button
+        v-for="command in configuration.commands"
+        :key="command.id"
+        class="tiptap-command-button"
+        :class="{
+          'is-active': command?.isActive?.({ editor }) ?? false,
+        }"
+        :disabled="command?.isDisabled?.({ editor }) ?? false"
+        @click="command.action({ editor })"
+      >
+        <Icon
+          :icon="command.iconIdentifier"
+          size="16px"
+        />
+        <span class="tiptap-sr-only">{{ command.label }}</span>
+      </button>
+    </nav>
+  </div>
+
+  <EditorContent :editor="editor" />
+
   <slot ref="slotRef" />
-
-  <template v-if="editor">
-    <div class="container">
-      <div class="control-group">
-        <div
-          v-if="configuration?.commands"
-          class="commands-group"
-        >
-          <nav class="button-group">
-            <button
-              v-for="command in configuration.commands"
-              :key="command.id"
-              :class="{
-                'is-active': command?.isActive?.({ editor }) ?? false,
-              }"
-              :disabled="command?.isDisabled?.({ editor }) ?? false"
-              @click="command.action({ editor })"
-            >
-              <Icon
-                :icon="command.iconIdentifier"
-                size="16px"
-              />
-              {{ command.label }}
-            </button>
-          </nav>
-        </div>
-      </div>
-    </div>
-
-    <EditorContent
-      :editor="editor"
-      class="tip-tap-container"
-    />
-  </template>
 </template>
 
 <style>
+.tiptap-container {
+  --tiptap-primary: #4c51bf;
+  --tiptap-neutral-light: light-dark(#efefef, #333);
+}
+
 .tiptap {
-  min-height: 500px;
+  padding: 3rem;
+  min-block-size: 300px;
+  outline: none;
+}
+
+.tiptap-toolbar {
+  border-block-end: 1px solid var(--tiptap-neutral-light);
+}
+
+.tiptap-command-button {
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  aspect-ratio: 1/1;
+  block-size: 100%;
+  transition: ease 0.2s;
+  transition-property: background-color, color;
+
+  &:is(:hover, :focus):not(:disabled) {
+    background-color: var(--tiptap-neutral-light);
+  }
+
+  &:not(:disabled) {
+    cursor: pointer;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+  }
+
+  &.is-active {
+    background-color: var(--tiptap-neutral-light);
+    color: var(--tiptap-primary);
+  }
+}
+
+.tiptap-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.icon-wrapper {
+  display: inline-block;
+  position: relative;
+}
+
+.icon-wrapper svg {
+  inline-size: 100%;
+  block-size: 100%;
 }
 
 /* Basic editor styles */
-editor-tiptap {
-  .tiptap {
-    min-height: 500px;
-  }
-
+.tiptap {
   :first-child {
     margin-top: 0;
   }
@@ -217,49 +277,5 @@ editor-tiptap {
     border-top: 1px solid var(--gray-2);
     margin: 2rem 0;
   }
-}
-
-.control-group {
-  margin-block-end: 2rem;
-}
-
-.button-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1rem;
-
-  button {
-    border-radius: 8px;
-    border: 1px solid transparent;
-    padding: 0.6em 1.2em;
-    font-size: 1em;
-    font-weight: 500;
-    font-family: inherit;
-    background-color: #f9f9f9;
-    cursor: pointer;
-    transition: border-color 0.25s;
-
-    &:hover {
-      border-color: #646cff;
-    }
-  }
-
-  button[disabled] {
-    cursor: not-allowed;
-  }
-
-  .is-active {
-    background-color: red;
-  }
-}
-
-.icon-wrapper {
-  display: inline-block;
-  position: relative;
-}
-
-.icon-wrapper svg {
-  inline-size: 100%;
-  block-size: 100%;
 }
 </style>

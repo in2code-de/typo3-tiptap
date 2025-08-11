@@ -17,6 +17,11 @@ interface TipTapPluginOptions {
     isActive?: (data: { editor: Editor }) => boolean
     isDisabled?: (data: { editor: Editor }) => boolean
   }[]
+  groupCommands?: Record<string, {
+    ids: string[]
+    label: string
+    iconIdentifier: string
+  }>
   extension?: unknown[]
 }
 

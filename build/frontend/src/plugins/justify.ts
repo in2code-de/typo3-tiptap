@@ -12,6 +12,13 @@ function ensureTextAlignPluginSetup() {
       // Specify the types you want to apply text alignment to
       types: ['heading', 'paragraph'],
     })],
+    groupCommands: {
+      'text-align': {
+        ids: ['justify-left', 'justify-center', 'justify-right'],
+        label: 'Text Alignment',
+        iconIdentifier: 'text-align',
+      },
+    },
   })
 
   hasTextAlignExtensionBeenSetup = true

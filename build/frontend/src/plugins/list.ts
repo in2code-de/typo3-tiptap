@@ -1,16 +1,31 @@
 import { BulletList, OrderedList } from '@tiptap/extension-list'
 import { defineTipTapPlugin } from '../configuration.ts'
 
-/**
- * This plugin defines bullet and ordered list commands for TipTap editor.
- * Bullet extension is installed by TipTap starterkit.
- */
-export default function () {
+const hasBulletListExtensionBeenSetup = false
+
+function ensureListPluginSetup() {
+  if (hasBulletListExtensionBeenSetup)
+    return
+
   defineTipTapPlugin({
     extension: [
       BulletList,
       OrderedList,
     ],
+    groupCommands: {
+      list: {
+        ids: ['list-bullet', 'list-ordered'],
+        label: 'List',
+        iconIdentifier: 'list',
+      },
+    },
+  })
+}
+
+export function setupBulletList() {
+  ensureListPluginSetup()
+
+  defineTipTapPlugin({
     commands: [
       {
         id: 'list-bullet',
@@ -22,6 +37,15 @@ export default function () {
         isActive: ({ editor }) => editor.isActive('bulletList'),
         isDisabled: ({ editor }) => !editor.can().toggleBulletList(),
       },
+    ],
+  })
+}
+
+export function setupOrderedList() {
+  ensureListPluginSetup()
+
+  defineTipTapPlugin({
+    commands: [
       {
         id: 'list-ordered',
         label: 'Ordered List',
