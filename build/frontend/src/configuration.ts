@@ -14,6 +14,8 @@ interface TipTapPluginOptions {
     iconIdentifier: string
     sortAfter?: string
     action: (data: { editor: Editor }) => void
+    isActive?: (data: { editor: Editor }) => boolean
+    isDisabled?: (data: { editor: Editor }) => boolean
   }[]
   extension?: unknown[]
 }

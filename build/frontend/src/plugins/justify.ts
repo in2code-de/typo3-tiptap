@@ -29,6 +29,8 @@ export function setupJustifyLeft() {
         action: ({ editor }) => {
           editor.chain().focus().setTextAlign('left').run()
         },
+        isActive: ({ editor }) => editor.isActive({ textAlign: 'left' }),
+        isDisabled: ({ editor }) => !editor.can().setTextAlign('left'),
       },
     ],
   })
@@ -46,6 +48,8 @@ export function setupJustifyCenter() {
         action: ({ editor }) => {
           editor.chain().focus().setTextAlign('center').run()
         },
+        isActive: ({ editor }) => editor.isActive({ textAlign: 'center' }),
+        isDisabled: ({ editor }) => !editor.can().setTextAlign('center'),
       },
     ],
   })
@@ -64,6 +68,8 @@ export function setupJustifyRight() {
           console.log(1754577632277, 'called1')
           editor.chain().focus().setTextAlign('right').run()
         },
+        isActive: ({ editor }) => editor.isActive({ textAlign: 'right' }),
+        isDisabled: ({ editor }) => !editor.can().setTextAlign('right'),
       },
     ],
   })

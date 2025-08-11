@@ -1,6 +1,11 @@
 import Link from '@tiptap/extension-link'
 import { defineTipTapPlugin } from '../configuration.ts'
 
+/**
+ * This plugin adds support for links in the editor.
+ * It allows users to create and update links.
+ * Link extension installed by TipTap starterkit
+ */
 export default function () {
   defineTipTapPlugin({
     extension: [
@@ -39,6 +44,8 @@ export default function () {
             }
           }
         },
+        isActive: ({ editor }) => editor.isActive('link'),
+        isDisabled: ({ editor }) => !editor.can().setLink({ href: '' }),
       },
     ],
   })

@@ -3,20 +3,14 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "tsdown",
-    "dev": "vite --config vite.config.js"
+    "build": "tsdown  --platform browser",
+    "dev": "vite --config vite.config.ts"
   },
   "dependencies": {
     "@tiptap/core": "^3.0.9",
-    "@tiptap/extension-blockquote": "^3.0.9",
-    "@tiptap/extension-color": "^3.0.9",
-    "@tiptap/extension-italic": "^3.0.9",
-    "@tiptap/extension-list": "^3.0.9",
-    "@tiptap/extension-strike": "^3.0.9",
     "@tiptap/extension-text-align": "^3.0.9",
-    "@tiptap/extension-underline": "^3.0.9",
     "@tiptap/pm": "^3.0.9",
-    "@tiptap/starter-kit": "^3.0.9",
+    "@tiptap/starter-kit": "^3.1.0",
     "@tiptap/vue-3": "^3.0.9",
     "ts-deepmerge": "^7.0.3",
     "vue": "^3.5.18"

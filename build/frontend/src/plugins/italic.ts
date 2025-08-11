@@ -1,9 +1,11 @@
-import Italic from '@tiptap/extension-italic'
 import { defineTipTapPlugin } from '../configuration.ts'
 
+/**
+ * This plugin adds support for italic text in the editor.
+ * Italic extension installed by TipTap starterkit
+ */
 export default function () {
   defineTipTapPlugin({
-    extension: [Italic],
     commands: [
       {
         id: 'italic',
@@ -12,6 +14,8 @@ export default function () {
         action: ({ editor }) => {
           editor.chain().focus().toggleItalic().run()
         },
+        isActive: ({ editor }) => editor.isActive('italic'),
+        isDisabled: ({ editor }) => !editor.can().toggleItalic(),
       },
     ],
   })

@@ -1,9 +1,11 @@
-import Blockquote from '@tiptap/extension-blockquote'
 import { defineTipTapPlugin } from '../configuration.ts'
 
+/**
+ * This plugin adds support for blockquotes in the editor.
+ * Blockquote extension installed by TipTap starterkit
+ */
 export default function () {
   defineTipTapPlugin({
-    extension: [Blockquote],
     commands: [
       {
         id: 'blockquote',
@@ -12,6 +14,7 @@ export default function () {
         action: ({ editor }) => {
           editor.chain().focus().toggleBlockquote().run()
         },
+        isActive: ({ editor }) => editor.isActive('blockquote'),
       },
     ],
   })

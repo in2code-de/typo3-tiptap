@@ -18,8 +18,7 @@ const props = defineProps<{
 const slotRef = ref<HTMLSlotElement | undefined>()
 const textarea = ref<HTMLTextAreaElement | undefined>()
 
-const editor = ref<Editor | undefined>()
-const activePlugins = ref<string[]>()
+const editor = ref<Editor>()
 const configuration = ref<any>()
 
 let hasPluginConfigurationBeenLoaded = false
@@ -75,16 +74,6 @@ onMounted(async () => {
 
       textarea.value.value = editor.value.getHTML()
     },
-    onSelectionUpdate: () => {
-      if (!editor.value || !configuration.value)
-        return
-
-      if (configuration.value.commands) {
-        activePlugins.value = configuration.value.commands
-          .filter(command => editor.value.isActive(command.id))
-          .map(command => command.id)
-      }
-    },
   })
 })
 
@@ -105,7 +94,10 @@ onUnmounted(() => editor.value?.destroy())
             <button
               v-for="command in configuration.commands"
               :key="command.id"
-              :class="{ 'is-active': activePlugins?.includes(command.id) }"
+              :class="{
+                'is-active': command?.isActive?.({ editor }) ?? false,
+              }"
+              :disabled="command?.isDisabled?.({ editor }) ?? false"
               @click="command.action({ editor })"
             >
               <Icon
@@ -250,6 +242,14 @@ editor-tiptap {
     &:hover {
       border-color: #646cff;
     }
+  }
+
+  button[disabled] {
+    cursor: not-allowed;
+  }
+
+  .is-active {
+    background-color: red;
   }
 }
 

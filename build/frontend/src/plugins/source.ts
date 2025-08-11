@@ -1,8 +1,9 @@
+import { ref } from 'vue'
 import { defineTipTapPlugin } from '../configuration.ts'
 
-let isHTMLViewActive = false
-
 export default function () {
+  const isHtmlActive = ref(false)
+
   defineTipTapPlugin({
     commands: [
       {
@@ -10,13 +11,14 @@ export default function () {
         label: 'Source',
         iconIdentifier: 'source',
         action: ({ editor }) => {
-          const editorContent = isHTMLViewActive
+          const editorContent = isHtmlActive.value
             ? editor.getText()
             : `<textarea>${editor.getHTML()}</textarea>`
 
           editor.commands.setContent(editorContent)
-          isHTMLViewActive = !isHTMLViewActive
+          isHtmlActive.value = !isHtmlActive.value
         },
+        isActive: () => isHtmlActive.value,
       },
     ],
   })

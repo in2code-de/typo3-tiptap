@@ -1,5 +1,9 @@
 import { defineTipTapPlugin } from '../configuration.ts'
 
+/**
+ * This plugin adds support for undoing the last action in the editor.
+ * Undo extension installed by TipTap starterkit
+ */
 export default function () {
   defineTipTapPlugin({
     commands: [
@@ -10,6 +14,7 @@ export default function () {
         action: ({ editor }) => {
           editor.chain().focus().undo().run()
         },
+        isDisabled: ({ editor }) => !editor.can().undo(),
       },
     ],
   })
