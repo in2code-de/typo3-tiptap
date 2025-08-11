@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@tiptap/core": "^3.0.9",
+    "@tiptap/extension-code": "^3.1.0",
     "@tiptap/extension-text-align": "^3.0.9",
     "@tiptap/pm": "^3.0.9",
     "@tiptap/starter-kit": "^3.1.0",
@@ -18,7 +19,9 @@
   "devDependencies": {
     "@antfu/eslint-config": "^4.16.2",
     "@vitejs/plugin-vue": "^6.0.1",
+    "esbuild-plugin-inline-import": "^1.1.0",
     "eslint": "^9.30.1",
+    "glob": "^11.0.3",
     "tsdown": "^0.12.9",
     "unplugin-vue": "^7.0.1",
     "vite": "^7.1.1"
