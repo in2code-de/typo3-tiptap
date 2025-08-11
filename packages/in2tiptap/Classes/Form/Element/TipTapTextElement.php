@@ -100,7 +100,6 @@ class TipTapTextElement extends AbstractFormElement
         ], true);
 
         $textareaAttributes = GeneralUtility::implodeAttributes([
-            'slot' => 'textarea',
             'id' => $fieldId,
             'name' => $itemFormElementName,
             'rows' => '18',
@@ -114,7 +113,7 @@ class TipTapTextElement extends AbstractFormElement
         $html[] =   '<div class="form-control-wrap">';
         $html[] =       '<div class="form-wizards-wrap">';
         $html[] =           '<div class="form-wizards-item-element">';
-        $html[] =           '<editor-tiptap>';
+        $html[] =           '<editor-tiptap plugins="[{ \'path\': \'@in2tiptap/tiptap/plugins/undo.js\' }, { \'path\': \'@in2tiptap/tiptap/plugins/redo.js\' }]">';
         $html[] =                 '<textarea ' . $textareaAttributes . '>';
         $html[] =                   htmlspecialchars($value);
         $html[] =                 '</textarea>';
