@@ -17,6 +17,7 @@ const plugins = glob.sync('./src/plugins/*.ts').reduce((entries, file) => {
 
 export default defineConfig({
   build: {
+    target: 'esnext',
     lib: {
       entry: {
         index: resolve(__dirname, './src/index.ts'),
@@ -27,6 +28,7 @@ export default defineConfig({
     outDir: '../../packages/in2tiptap/Resources/Public/TipTap',
     emptyOutDir: true,
   },
+  define: { 'process.env.NODE_ENV': '"production"' },
   plugins: [
     vue({}),
   ],
