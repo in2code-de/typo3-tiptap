@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsdown",
-    "dev": "vite"
+    "dev": "vite --config vite.config.js"
   },
   "dependencies": {
     "@tiptap/core": "^3.0.9",
@@ -17,14 +17,16 @@
     "@tiptap/extension-underline": "^3.0.9",
     "@tiptap/pm": "^3.0.9",
     "@tiptap/starter-kit": "^3.0.9",
-    "html": "^1.0.0",
-    "lit": "^3.3.0",
-    "ts-deepmerge": "^7.0.3"
+    "@tiptap/vue-3": "^3.0.9",
+    "ts-deepmerge": "^7.0.3",
+    "vue": "^3.5.18"
   },
   "devDependencies": {
     "@antfu/eslint-config": "^4.16.2",
+    "@vitejs/plugin-vue": "^6.0.1",
     "eslint": "^9.30.1",
     "tsdown": "^0.12.9",
-    "vite": "^7.0.4"
+    "unplugin-vue": "^7.0.1",
+    "vite": "^7.1.1"
   }
 }

@@ -25,7 +25,7 @@ let configuration: TipTapPluginOptions = {}
  */
 export function defineTipTapPlugin(plugin: TipTapPluginOptions) {
   configuration = merge.withOptions(
-    { mergeArrays: true },
+    { mergeArrays: true, uniqueArrayItems: true },
     configuration,
     plugin,
   )
