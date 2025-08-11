@@ -24,6 +24,8 @@ export default defineConfig({
       },
       formats: ['es'],
     },
+    outDir: '../../packages/in2tiptap/Resources/Public/TipTap',
+    emptyOutDir: true,
   },
   plugins: [
     vue({}),
