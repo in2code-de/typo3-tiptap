@@ -23,6 +23,13 @@ export default defineConfig({
         index: resolve(__dirname, './src/index.ts'),
         ...plugins,
       },
+      fileName: (_, entryName) => {
+        if (entryName === 'index') {
+          return 'index.js'
+        }
+
+        return `plugins/${entryName}.js`
+      },
       formats: ['es'],
     },
     outDir: '../../packages/in2tiptap/Resources/Public/TipTap',
