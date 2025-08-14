@@ -130,6 +130,7 @@ return [
             'extbase.consistentDateTimeHandling' => true,
             'frontend.cache.autoTagging' => true,
             'security.system.enforceAllowedFileExtensions' => true,
+            'rte.tiptap' => true,
         ],
         'sitename' => 'Startseite',
         'systemMaintainers' => [

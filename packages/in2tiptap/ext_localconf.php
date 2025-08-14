@@ -12,6 +12,9 @@ defined('TYPO3') or die();
     '@import "EXT:in2tiptap/Configuration/TypoScript/constants.typoscript"'
 );
 
+// Register feature toggle
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['features']['rte.tiptap'] ??= false;
+
 // Overwrite FormEngine node type resolver hook to render RTE in FormEngine if enabled
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'][1480314091] = [
     'nodeName' => 'text',
