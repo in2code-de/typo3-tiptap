@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace In2code\In2TipTap\Form\Element;
 
+use In2code\In2TipTap\Exception\MissingEditorConfigurationException;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -68,7 +69,11 @@ class TipTapTextElement extends AbstractFormElement
         $fieldWizardHtml = $fieldWizardResult['html'];
         $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldWizardResult, false);
 
-        $editorConfiguration = $config['richtextConfiguration']['editor']['config'] ?? [];
+        $editorConfiguration = $config['richtextConfiguration']['editor']['tiptap']['config'] ??
+            throw new MissingEditorConfigurationException(
+                'Missing editor configuration for tiptap',
+                1755159351
+            );;
 
         $editorAttributes = GeneralUtility::implodeAttributes([
             'id' => $fieldId . 'tiptap',

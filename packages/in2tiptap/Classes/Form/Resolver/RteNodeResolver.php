@@ -38,29 +38,11 @@ class RteNodeResolver implements NodeResolverInterface
         }
 
         if ($this->features->isFeatureEnabled('rte.tiptap')) {
-            $this->setProperRichtextConfiguration('tiptap');
             return TipTapTextElement::class;
         }
 
         return RichTextElement::class;
 
-    }
-
-    /**
-     * Could be extended in the future to split up editor configurations like: editor.tiptap, editor.ckeditor, ...
-     * @throws MissingEditorConfigurationException
-     */
-    private function setProperRichtextConfiguration(string $editor): void
-    {
-        if (!isset($this->data['parameterArray']['fieldConf']['config']['richtextConfiguration']['editor'][$editor]['config'])) {
-            throw new MissingEditorConfigurationException(
-                'Missing editor configuration for editor: ' . $editor,
-                1755159351
-            );
-        }
-
-        $this->data['parameterArray']['fieldConf']['config']['richtextConfiguration']['editor'] =
-            $this->data['parameterArray']['fieldConf']['config']['richtextConfiguration']['editor'][$editor];
     }
 
     private function shouldRenderRichtext(array $parameterArray): bool
