@@ -92,11 +92,11 @@ class TipTapTextElement extends AbstractFormElement
         $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldWizardResult, false);
 
         $this->rteConfiguration = $config['richtextConfiguration']['editor'] ?? [];
-        $ckeditorConfiguration = $this->resolveCkEditorConfiguration();
+        $editorConfiguration = $this->resolveEditorConfiguration();
 
-        $ckeditorAttributes = GeneralUtility::implodeAttributes([
-            'id' => $fieldId . 'ckeditor5',
-            'options' => GeneralUtility::jsonEncodeForHtmlAttribute($ckeditorConfiguration, false),
+        $editorAttributes = GeneralUtility::implodeAttributes([
+            'id' => $fieldId . 'tiptap',
+            'plugins' => GeneralUtility::jsonEncodeForHtmlAttribute($editorConfiguration['plugins'] ?? [], false),
         ], true);
 
         $textareaAttributes = GeneralUtility::implodeAttributes([
@@ -113,7 +113,7 @@ class TipTapTextElement extends AbstractFormElement
         $html[] =   '<div class="form-control-wrap">';
         $html[] =       '<div class="form-wizards-wrap">';
         $html[] =           '<div class="form-wizards-item-element">';
-        $html[] =           '<editor-tiptap plugins="[{ \'path\': \'@in2tiptap/tiptap/plugins/undo.js\' }, { \'path\': \'@in2tiptap/tiptap/plugins/redo.js\' }]">';
+        $html[] =           '<editor-tiptap ' . $editorAttributes . '>';
         $html[] =                 '<textarea ' . $textareaAttributes . '>';
         $html[] =                   htmlspecialchars($value);
         $html[] =                 '</textarea>';
@@ -167,7 +167,7 @@ class TipTapTextElement extends AbstractFormElement
         return $contentLanguage;
     }
 
-    protected function resolveCkEditorConfiguration(): array
+    protected function resolveEditorConfiguration(): array
     {
         $configuration = $this->prepareConfigurationForEditor();
 
