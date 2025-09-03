@@ -16,6 +16,7 @@ export default function () {
         },
         isActive: ({ editor }) => editor.isActive('strike'),
         isDisabled: ({ editor }) => !editor.can().toggleStrike(),
+        isAvailableInBubbleMenu: true,
       },
     ],
   })

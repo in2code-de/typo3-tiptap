@@ -16,6 +16,7 @@ export default function () {
         },
         isActive: ({ editor }) => editor.isActive('bold'),
         isDisabled: ({ editor }) => !editor.can().toggleBold(),
+        isAvailableInBubbleMenu: true,
       },
     ],
   })

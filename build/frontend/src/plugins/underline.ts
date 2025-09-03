@@ -18,6 +18,7 @@ export default function () {
         },
         isActive: ({ editor }) => editor.isActive('underline'),
         isDisabled: ({ editor }) => !editor.can().toggleUnderline(),
+        isAvailableInBubbleMenu: true,
       },
     ],
   })

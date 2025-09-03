@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { Extension } from '@tiptap/core'
+import type { TipTapPluginOptions } from './types'
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
+import { BubbleMenu } from '@tiptap/vue-3/menus'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import Icon from './components/Icon.vue'
 import { getConfiguration } from './configuration.ts'
@@ -19,7 +21,9 @@ const slotRef = ref<HTMLSlotElement | undefined>()
 const textarea = ref<HTMLTextAreaElement | undefined>()
 
 const editor = ref<Editor>()
-const configuration = ref<any>()
+const configuration = ref<TipTapPluginOptions>()
+
+const hasDarkModeEnabled = ref(false)
 
 let hasPluginConfigurationBeenLoaded = false
 async function loadPluginConfiguration() {
@@ -48,15 +52,6 @@ async function loadPluginConfiguration() {
   hasPluginConfigurationBeenLoaded = true
 }
 
-function isGroupCommand(commandId: string) {
-  return configuration.value.groupCommands
-    && Object.keys(configuration.value.groupCommands).includes(commandId)
-}
-
-// const navbar = computed(() => {
-//   const groupCommands
-// })
-
 onMounted(async () => {
   await loadPluginConfiguration()
   configuration.value = getConfiguration()
@@ -84,6 +79,12 @@ onMounted(async () => {
       textarea.value.value = editor.value.getHTML()
     },
   })
+
+  // call onMounted plugin callback functions
+  configuration.value.commands?.forEach((command) => {
+    if (command.onEditorMounted && editor.value)
+      command.onEditorMounted({ editor: editor.value })
+  })
 })
 
 onUnmounted(() => editor.value?.destroy())
@@ -93,6 +94,9 @@ onUnmounted(() => editor.value?.destroy())
   <div
     v-if="editor"
     class="tiptap-container"
+    :style="{
+      colorScheme: hasDarkModeEnabled ? 'dark' : 'light',
+    }"
   >
     <nav
       v-if="configuration.commands"
@@ -115,17 +119,70 @@ onUnmounted(() => editor.value?.destroy())
         <span class="tiptap-sr-only">{{ command.label }}</span>
       </button>
     </nav>
+
+    <nav v-if="configuration.commands">
+      <BubbleMenu :editor="editor">
+        <div class="tiptap-toolbar-floating">
+          <template
+            v-for="command in configuration.commands"
+            :key="command.id"
+          >
+            <button
+              v-if="command.isAvailableInBubbleMenu && command.isDisabled"
+              v-show="!command.isDisabled({ editor })"
+              class="tiptap-command-button"
+              :class="{
+                'is-active': command?.isActive?.({ editor }) ?? false,
+              }"
+              :disabled="command?.isDisabled?.({ editor }) ?? false"
+              @click="command.action({ editor })"
+            >
+              <Icon
+                :icon="command.iconIdentifier"
+                size="16px"
+              />
+              <span class="tiptap-sr-only">{{ command.label }}</span>
+            </button>
+          </template>
+        </div>
+      </BubbleMenu>
+    </nav>
+
+    <EditorContent :editor="editor" />
   </div>
 
-  <EditorContent :editor="editor" />
-
   <slot ref="slotRef" />
+
+  <button @click="hasDarkModeEnabled = !hasDarkModeEnabled">
+    {{ hasDarkModeEnabled ? 'Switch to Light Mode' : 'Switch to Dark Mode' }}
+  </button>
 </template>
 
 <style>
 .tiptap-container {
-  --tiptap-primary: #4c51bf;
-  --tiptap-neutral-light: light-dark(#efefef, #333);
+  /* Primitive colors */
+  --tiptap-color-primary: #4c51bf;
+  --tiptap-color-neutral-white: hsl(0deg 0% 100%);
+  --tiptap-color-neutral-10: hsl(0deg 0% 10%);
+  --tiptap-color-neutral-20: hsl(0deg 0% 20%);
+  --tiptap-color-neutral-30: hsl(0deg 0% 30%);
+  --tiptap-color-neutral-80: hsl(0deg 0% 80%);
+  --tiptap-color-neutral-90: hsl(0deg 0% 90%);
+
+  /* Semantic colors */
+  --tiptap-color-surface: light-dark(var(--tiptap-color-neutral-white), var(--tiptap-color-neutral-10));
+  --tiptap-color-surface-highlight: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
+  --tiptap-color-surface-border: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
+
+  /* Utility variables */
+  --tiptap-border-radius: 0.7rem;
+  --tiptap-border-radius-inner-gap: 0.25rem;
+  --tiptap-border-inner-radius: calc(var(--tiptap-border-radius) - var(--tiptap-border-radius-inner-gap));
+  --tiptap-toolbar-gap: 0.25rem;
+
+  /* Temporary styling before implementation into TYPO3 */
+  background-color: light-dark(white, var(--tiptap-color-neutral-10));
+  color: light-dark(black, white);
 }
 
 .tiptap {
@@ -135,20 +192,26 @@ onUnmounted(() => editor.value?.destroy())
 }
 
 .tiptap-toolbar {
-  border-block-end: 1px solid var(--tiptap-neutral-light);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tiptap-toolbar-gap);
+  padding: var(--tiptap-border-radius-inner-gap);
+  background-color: var(--tiptap-color-surface);
+  border-block-end: 1px solid var(--tiptap-color-surface-border);
 }
 
 .tiptap-command-button {
   padding: 0.5rem;
   background: none;
   border: none;
+  border-radius: var(--tiptap-border-inner-radius);
   aspect-ratio: 1/1;
   block-size: 100%;
   transition: ease 0.2s;
   transition-property: background-color, color;
 
   &:is(:hover, :focus):not(:disabled) {
-    background-color: var(--tiptap-neutral-light);
+    background-color: var(--tiptap-color-surface-highlight);
   }
 
   &:not(:disabled) {
@@ -160,8 +223,8 @@ onUnmounted(() => editor.value?.destroy())
   }
 
   &.is-active {
-    background-color: var(--tiptap-neutral-light);
-    color: var(--tiptap-primary);
+    background-color: var(--tiptap-color-surface-highlight);
+    color: var(--tiptap-color-primary);
   }
 }
 
@@ -187,95 +250,17 @@ onUnmounted(() => editor.value?.destroy())
   block-size: 100%;
 }
 
-/* Basic editor styles */
-.tiptap {
-  :first-child {
-    margin-top: 0;
-  }
+.tiptap-toolbar-floating {
+  display: flex;
+  padding: var(--tiptap-border-radius-inner-gap);
+  background-color: var(--tiptap-color-surface);
+  border: 1px solid var(--tiptap-color-surface-border);
+  border-radius: var(--tiptap-border-radius);
+  box-shadow: 0 0.1rem 0.3rem rgb(0 0 0 / 0.1);
+  gap: var(--tiptap-toolbar-gap);
 
-  /* List styles */
-  ul,
-  ol {
-    padding: 0 1rem;
-    margin: 1.25rem 1rem 1.25rem 0.4rem;
-
-    li p {
-      margin-top: 0.25em;
-      margin-bottom: 0.25em;
-    }
-  }
-
-  /* Heading styles */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    line-height: 1.1;
-    margin-top: 2.5rem;
-    text-wrap: pretty;
-  }
-
-  h1,
-  h2 {
-    margin-top: 3.5rem;
-    margin-bottom: 1.5rem;
-  }
-
-  h1 {
-    font-size: 1.4rem;
-  }
-
-  h2 {
-    font-size: 1.2rem;
-  }
-
-  h3 {
-    font-size: 1.1rem;
-  }
-
-  h4,
-  h5,
-  h6 {
-    font-size: 1rem;
-  }
-
-  /* Code and preformatted text styles */
-  code {
-    background-color: var(--purple-light);
-    border-radius: 0.4rem;
-    color: var(--black);
-    font-size: 0.85rem;
-    padding: 0.25em 0.3em;
-  }
-
-  pre {
-    background: var(--black);
-    border-radius: 0.5rem;
-    color: var(--white);
-    font-family: 'JetBrainsMono', monospace;
-    margin: 1.5rem 0;
-    padding: 0.75rem 1rem;
-
-    code {
-      background: none;
-      color: inherit;
-      font-size: 0.8rem;
-      padding: 0;
-    }
-  }
-
-  blockquote {
-    border-left: 3px solid var(--gray-3);
-    margin: 1.5rem 0;
-    padding-left: 1rem;
-  }
-
-  hr {
-    border: none;
-    border-top: 1px solid var(--gray-2);
-    margin: 2rem 0;
+  .tiptap-command-button {
+    border-radius: var(--tiptap-border-inner-radius);
   }
 }
 </style>
