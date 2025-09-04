@@ -161,7 +161,7 @@ onUnmounted(() => editor.value?.destroy())
 <style>
 .tiptap-container {
   /* Primitive colors */
-  --tiptap-color-primary: #4c51bf;
+  --tiptap-color-primary: light-dark(hsl(220deg 90% 56%), hsl(220deg 90% 66%));
   --tiptap-color-neutral-white: hsl(0deg 0% 100%);
   --tiptap-color-neutral-10: hsl(0deg 0% 10%);
   --tiptap-color-neutral-20: hsl(0deg 0% 20%);
