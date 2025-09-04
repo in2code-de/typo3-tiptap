@@ -76,7 +76,7 @@ const selectedIcon = computed(() => icons[props.icon] || '')
 </script>
 
 <template>
-  <div
+  <span
     class="icon-wrapper"
     :style="{
       width: props.size,
