@@ -30,7 +30,7 @@ export function setupBulletList() {
         },
         status: {
           isActive: ({ editor }) => editor.isActive('bulletList'),
-          isDisabled: ({ editor }) => !editor.can().toggleBulletList(),
+          isDisabled: ({ editor }) => !editor.can().toggleBulletList() && !editor.can().toggleOrderedList(),
         },
         onExecute: ({ editor }) => {
           editor.chain().focus().toggleBulletList().run()
@@ -55,7 +55,7 @@ export function setupOrderedList() {
         },
         status: {
           isActive: ({ editor }) => editor.isActive('orderedList'),
-          isDisabled: ({ editor }) => !editor.can().toggleOrderedList(),
+          isDisabled: ({ editor }) => !editor.can().toggleOrderedList() && !editor.can().toggleBulletList(),
         },
         onExecute: ({ editor }) => {
           editor.chain().focus().toggleOrderedList().run()
