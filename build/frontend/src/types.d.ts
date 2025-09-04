@@ -3,11 +3,19 @@ import type { Editor } from '@tiptap/core'
 export type TipTapToolbar = {
   id: string
   commands: TipTapCommand[]
+  dropdown?: {
+    label: string
+    iconIdentifier: string
+  }
 }[]
 
 export type TipTapBubbleMenu = {
   id: string
   commands: TipTapCommand[]
+  dropdown?: {
+    label: string
+    iconIdentifier: string
+  }
 }[]
 
 interface TipTapCommand {

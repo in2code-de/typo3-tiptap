@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { Extension } from '@tiptap/core'
 import type { TipTapConfiguration } from './types'
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
 import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 import Icon from './components/Icon.vue'
 import { getConfiguration } from './configuration.ts'
+import { getEditorSourceViewActiveStatus } from './plugins/source.ts'
 
 interface PluginImport {
   path: string
@@ -110,7 +112,10 @@ onMounted(async () => {
       if (!editor.value || !textarea.value)
         return
 
-      textarea.value.value = editor.value.getHTML()
+      const isHtmlSourceViewActive = getEditorSourceViewActiveStatus(editor.value)
+      textarea.value.value = isHtmlSourceViewActive
+        ? editor.value.getText()
+        : editor.value.getHTML()
     },
   })
 
@@ -137,30 +142,66 @@ onUnmounted(() => editor.value?.destroy())
         v-for="(group, groupIndex) in configuration.toolbar"
         :key="`tiptap-command-group-${groupIndex}`"
       >
-        <ol
-          v-if="group.commands.length > 0"
-          class="tiptap-toolbar__group"
-        >
-          <li
-            v-for="command in group.commands"
-            :key="`tiptap-group-${group.id}-command-${command.id}`"
+        <template v-if="group.commands.length > 0">
+          <Menu
+            v-if="group.dropdown"
+            class="tiptap-toolbar__group"
+            as="div"
           >
-            <button
-              class="tiptap-toolbar__group-command"
-              :class="{
-                'is-active': command?.status?.isActive?.({ editor }) ?? false,
-              }"
-              :disabled="command?.status?.isDisabled?.({ editor }) ?? false"
-              @click="command.onExecute({ editor })"
-            >
+            <MenuButton class="tiptap-toolbar__group-command">
               <Icon
-                :icon="command.iconIdentifier"
+                :icon="group.dropdown.iconIdentifier"
                 size="16px"
               />
-              <span class="tiptap-sr-only">{{ command.label }}</span>
-            </button>
-          </li>
-        </ol>
+              <span class="tiptap-sr-only">{{ group.dropdown.label }}</span>
+            </MenuButton>
+
+            <MenuItems>
+              <MenuItem
+                v-for="command in group.commands"
+                :key="`tiptap-dropdown-${group.id}-command-${command.id}`"
+                as="button"
+                class="tiptap-toolbar__group-command"
+                :class="{
+                  'is-active': command?.status?.isActive?.({ editor }) ?? false,
+                }"
+                :disabled="command?.status?.isDisabled?.({ editor }) ?? false"
+                @click="command.onExecute({ editor })"
+              >
+                <Icon
+                  :icon="command.iconIdentifier"
+                  size="16px"
+                />
+                <span class="tiptap-sr-only">{{ command.label }}</span>
+              </MenuItem>
+            </MenuItems>
+          </Menu>
+
+          <ol
+            v-else
+            class="tiptap-toolbar__group"
+          >
+            <li
+              v-for="command in group.commands"
+              :key="`tiptap-group-${group.id}-command-${command.id}`"
+            >
+              <button
+                class="tiptap-toolbar__group-command"
+                :class="{
+                  'is-active': command?.status?.isActive?.({ editor }) ?? false,
+                }"
+                :disabled="command?.status?.isDisabled?.({ editor }) ?? false"
+                @click="command.onExecute({ editor })"
+              >
+                <Icon
+                  :icon="command.iconIdentifier"
+                  size="16px"
+                />
+                <span class="tiptap-sr-only">{{ command.label }}</span>
+              </button>
+            </li>
+          </ol>
+        </template>
       </template>
     </nav>
 

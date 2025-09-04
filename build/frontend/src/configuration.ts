@@ -1,4 +1,4 @@
-import type { TipTapConfiguration, TipTapPluginOptions, TipTapToolbar } from './types'
+import type { TipTapBubbleMenu, TipTapConfiguration, TipTapPluginOptions, TipTapToolbar } from './types'
 import { mergeArrays } from './utils.ts'
 
 const toolbar: TipTapToolbar = [
@@ -17,6 +17,10 @@ const toolbar: TipTapToolbar = [
   {
     id: 'textAlignment',
     commands: [],
+    dropdown: {
+      label: 'Text alignment',
+      iconIdentifier: 'justify-left',
+    },
   },
   {
     id: 'developer',
@@ -25,7 +29,7 @@ const toolbar: TipTapToolbar = [
 ]
 
 // TODO: implement bubble menu groups
-const bubbleMenu: TipTapToolbar = [
+const bubbleMenu: TipTapBubbleMenu = [
   {
     id: 'formatting',
     commands: [],
