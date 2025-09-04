@@ -1,27 +1,48 @@
 import type { Editor } from '@tiptap/core'
 
+export type TipTapToolbar = {
+  id: string
+  commands: TipTapCommand[]
+}[]
+
+export type TipTapBubbleMenu = {
+  id: string
+  commands: TipTapCommand[]
+}[]
+
+interface TipTapCommand {
+  id: string
+  label: string
+  iconIdentifier: string
+  position: {
+    toolbarGroupId: string | false
+    bubbleMenuGroupId: string | false
+  }
+  status: Partial<{
+    isActive: (data: { editor: Editor }) => boolean
+    isDisabled: (data: { editor: Editor }) => boolean
+  }>
+  hooks?: Partial<{
+    onEditorMounted: (data: { editor: Editor }) => void
+  }>
+  onExecute: (data: { editor: Editor }) => void
+}
+
 export interface TipTapPluginOptions {
-  styleSheets?: string[]
-  styles?: {
+  styleSheets: string[]
+  styles: {
     name: string
     allowedTags: string[]
     attributes: Record<string, string>
   }[]
-  commands?: {
-    id: string
-    label: string
-    iconIdentifier: string
-    sortAfter?: string
-    action: (data: { editor: Editor }) => void
-    isActive?: (data: { editor: Editor }) => boolean
-    isDisabled?: (data: { editor: Editor }) => boolean
-    isAvailableInBubbleMenu?: boolean
-    onEditorMounted?: (data: { editor: Editor }) => void
-  }[]
-  groupCommands?: Record<string, {
-    ids: string[]
-    label: string
-    iconIdentifier: string
-  }>
-  extension?: unknown[]
+  commands: TipTapCommand[]
+  extensions: unknown[]
+}
+
+export interface TipTapConfiguration {
+  styleSheets: TipTapPluginOptions['styleSheets']
+  styles: TipTapPluginOptions['styles']
+  toolbar: TipTapToolbar
+  bubbleMenu: TipTapBubbleMenu
+  extensions: TipTapPluginOptions['extensions']
 }

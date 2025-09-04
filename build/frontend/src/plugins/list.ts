@@ -8,17 +8,10 @@ function ensureListPluginSetup() {
     return
 
   defineTipTapPlugin({
-    extension: [
+    extensions: [
       BulletList,
       OrderedList,
     ],
-    groupCommands: {
-      list: {
-        ids: ['list-bullet', 'list-ordered'],
-        label: 'List',
-        iconIdentifier: 'list',
-      },
-    },
   })
 }
 
@@ -31,11 +24,17 @@ export function setupBulletList() {
         id: 'list-bullet',
         label: 'Bullet List',
         iconIdentifier: 'list-bullet',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'formatting',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive('bulletList'),
+          isDisabled: ({ editor }) => !editor.can().toggleBulletList(),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().toggleBulletList().run()
         },
-        isActive: ({ editor }) => editor.isActive('bulletList'),
-        isDisabled: ({ editor }) => !editor.can().toggleBulletList(),
       },
     ],
   })
@@ -50,11 +49,17 @@ export function setupOrderedList() {
         id: 'list-ordered',
         label: 'Ordered List',
         iconIdentifier: 'list-ordered',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'formatting',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive('orderedList'),
+          isDisabled: ({ editor }) => !editor.can().toggleOrderedList(),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().toggleOrderedList().run()
         },
-        isActive: ({ editor }) => editor.isActive('orderedList'),
-        isDisabled: ({ editor }) => !editor.can().toggleOrderedList(),
       },
     ],
   })

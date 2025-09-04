@@ -11,10 +11,16 @@ export default function () {
         id: 'blockquote',
         label: 'Blockquote',
         iconIdentifier: 'blockquote',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'formatting',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive('blockquote'),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().toggleBlockquote().run()
         },
-        isActive: ({ editor }) => editor.isActive('blockquote'),
       },
     ],
   })

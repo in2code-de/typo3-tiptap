@@ -11,12 +11,17 @@ export default function () {
         id: 'strike',
         label: 'strike',
         iconIdentifier: 'strike',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'formatting',
+          bubbleMenuGroupId: 'formatting',
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive('strike'),
+          isDisabled: ({ editor }) => !editor.can().toggleStrike(),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().toggleStrike().run()
         },
-        isActive: ({ editor }) => editor.isActive('strike'),
-        isDisabled: ({ editor }) => !editor.can().toggleStrike(),
-        isAvailableInBubbleMenu: true,
       },
     ],
   })

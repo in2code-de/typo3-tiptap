@@ -11,10 +11,16 @@ export default function () {
         id: 'redo',
         label: 'Redo last action',
         iconIdentifier: 'redo',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'history',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isDisabled: ({ editor }) => !editor.can().redo(),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().redo().run()
         },
-        isDisabled: ({ editor }) => !editor.can().redo(),
       },
     ],
   })

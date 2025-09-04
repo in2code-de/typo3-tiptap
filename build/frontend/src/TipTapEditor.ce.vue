@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Extension } from '@tiptap/core'
-import type { TipTapPluginOptions } from './types'
+import type { TipTapConfiguration } from './types'
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
@@ -21,7 +21,7 @@ const slotRef = ref<HTMLSlotElement | undefined>()
 const textarea = ref<HTMLTextAreaElement | undefined>()
 
 const editor = ref<Editor>()
-const configuration = ref<TipTapPluginOptions>()
+const configuration = ref<TipTapConfiguration>()
 
 const hasDarkModeEnabled = ref(false)
 
@@ -52,6 +52,40 @@ async function loadPluginConfiguration() {
   hasPluginConfigurationBeenLoaded = true
 }
 
+function executeCommandHooks() {
+  if (!editor.value)
+    throw new Error('Editor is not initialized yet.')
+
+  if (!configuration.value)
+    throw new Error('Configuration is not initialized yet.')
+
+  const executedCommandHooksId: string[] = []
+
+  configuration.value.toolbar.forEach((group) => {
+    group.commands.forEach((command) => {
+      if (
+        command.hooks?.onEditorMounted
+        && !executedCommandHooksId.includes(command.id)
+      ) {
+        command.hooks.onEditorMounted({ editor: editor.value! })
+        executedCommandHooksId.push(command.id)
+      }
+    })
+  })
+
+  configuration.value.bubbleMenu.forEach((group) => {
+    group.commands.forEach((command) => {
+      if (
+        command.hooks?.onEditorMounted
+        && !executedCommandHooksId.includes(command.id)
+      ) {
+        command.hooks.onEditorMounted({ editor: editor.value! })
+        executedCommandHooksId.push(command.id)
+      }
+    })
+  })
+}
+
 onMounted(async () => {
   await loadPluginConfiguration()
   configuration.value = getConfiguration()
@@ -70,7 +104,7 @@ onMounted(async () => {
     content: textarea.value.value,
     extensions: [
       StarterKit,
-      ...(configuration.value?.extension ?? []) as Extension[],
+      ...(configuration.value?.extensions ?? []) as Extension[],
     ],
     onUpdate: () => {
       if (!editor.value || !textarea.value)
@@ -80,11 +114,7 @@ onMounted(async () => {
     },
   })
 
-  // call onMounted plugin callback functions
-  configuration.value.commands?.forEach((command) => {
-    if (command.onEditorMounted && editor.value)
-      command.onEditorMounted({ editor: editor.value })
-  })
+  executeCommandHooks()
 })
 
 onUnmounted(() => editor.value?.destroy())
@@ -98,44 +128,30 @@ onUnmounted(() => editor.value?.destroy())
       colorScheme: hasDarkModeEnabled ? 'dark' : 'light',
     }"
   >
+    <!-- Command Bar -->
     <nav
-      v-if="configuration.commands"
+      v-if="configuration.toolbar.some(group => group.commands.length > 0)"
       class="tiptap-toolbar"
     >
-      <button
-        v-for="command in configuration.commands"
-        :key="command.id"
-        class="tiptap-command-button"
-        :class="{
-          'is-active': command?.isActive?.({ editor }) ?? false,
-        }"
-        :disabled="command?.isDisabled?.({ editor }) ?? false"
-        @click="command.action({ editor })"
+      <template
+        v-for="(group, groupIndex) in configuration.toolbar"
+        :key="`tiptap-command-group-${groupIndex}`"
       >
-        <Icon
-          :icon="command.iconIdentifier"
-          size="16px"
-        />
-        <span class="tiptap-sr-only">{{ command.label }}</span>
-      </button>
-    </nav>
-
-    <nav v-if="configuration.commands">
-      <BubbleMenu :editor="editor">
-        <div class="tiptap-toolbar-floating">
-          <template
-            v-for="command in configuration.commands"
-            :key="command.id"
+        <ol
+          v-if="group.commands.length > 0"
+          class="tiptap-toolbar__group"
+        >
+          <li
+            v-for="command in group.commands"
+            :key="`tiptap-group-${group.id}-command-${command.id}`"
           >
             <button
-              v-if="command.isAvailableInBubbleMenu && command.isDisabled"
-              v-show="!command.isDisabled({ editor })"
-              class="tiptap-command-button"
+              class="tiptap-toolbar__group-command"
               :class="{
-                'is-active': command?.isActive?.({ editor }) ?? false,
+                'is-active': command?.status?.isActive?.({ editor }) ?? false,
               }"
-              :disabled="command?.isDisabled?.({ editor }) ?? false"
-              @click="command.action({ editor })"
+              :disabled="command?.status?.isDisabled?.({ editor }) ?? false"
+              @click="command.onExecute({ editor })"
             >
               <Icon
                 :icon="command.iconIdentifier"
@@ -143,6 +159,43 @@ onUnmounted(() => editor.value?.destroy())
               />
               <span class="tiptap-sr-only">{{ command.label }}</span>
             </button>
+          </li>
+        </ol>
+      </template>
+    </nav>
+
+    <!-- Bubble Menu -->
+    <nav v-if="configuration.bubbleMenu.some(group => group.commands.length > 0)">
+      <BubbleMenu :editor="editor">
+        <div class="tiptap-bubble-menu">
+          <template
+            v-for="(group, groupIndex) in configuration.bubbleMenu"
+            :key="`tiptap-command-group-${groupIndex}`"
+          >
+            <ol
+              v-if="group.commands.length > 0"
+              class="tiptap-toolbar__group"
+            >
+              <li
+                v-for="command in group.commands"
+                :key="`tiptap-group-${group.id}-command-${command.id}`"
+              >
+                <button
+                  class="tiptap-toolbar__group-command"
+                  :class="{
+                    'is-active': command?.status?.isActive?.({ editor }) ?? false,
+                  }"
+                  :disabled="command?.status?.isDisabled?.({ editor }) ?? false"
+                  @click="command.onExecute({ editor })"
+                >
+                  <Icon
+                    :icon="command.iconIdentifier"
+                    size="16px"
+                  />
+                  <span class="tiptap-sr-only">{{ command.label }}</span>
+                </button>
+              </li>
+            </ol>
           </template>
         </div>
       </BubbleMenu>
@@ -194,13 +247,27 @@ onUnmounted(() => editor.value?.destroy())
 .tiptap-toolbar {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--tiptap-toolbar-gap);
   padding: var(--tiptap-border-radius-inner-gap);
   background-color: var(--tiptap-color-surface);
   border-block-end: 1px solid var(--tiptap-color-surface-border);
 }
 
-.tiptap-command-button {
+.tiptap-toolbar__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--tiptap-toolbar-gap);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tiptap-toolbar__group:not(:last-child) {
+  margin-inline-end: var(--tiptap-toolbar-gap);
+  padding-inline-end: var(--tiptap-toolbar-gap);
+  border-inline-end: 1px solid var(--tiptap-color-surface-border);
+}
+
+.tiptap-toolbar__group-command {
   padding: 0.5rem;
   background: none;
   border: none;
@@ -250,7 +317,7 @@ onUnmounted(() => editor.value?.destroy())
   block-size: 100%;
 }
 
-.tiptap-toolbar-floating {
+.tiptap-bubble-menu {
   display: flex;
   padding: var(--tiptap-border-radius-inner-gap);
   background-color: var(--tiptap-color-surface);

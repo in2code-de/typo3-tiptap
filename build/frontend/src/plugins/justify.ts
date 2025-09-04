@@ -8,17 +8,12 @@ function ensureTextAlignPluginSetup() {
     return
 
   defineTipTapPlugin({
-    extension: [TextAlign.configure({
-      // Specify the types you want to apply text alignment to
-      types: ['heading', 'paragraph'],
-    })],
-    groupCommands: {
-      'text-align': {
-        ids: ['justify-left', 'justify-center', 'justify-right'],
-        label: 'Text Alignment',
-        iconIdentifier: 'text-align',
-      },
-    },
+    extensions: [
+      TextAlign.configure({
+        // Specify the types you want to apply text alignment to
+        types: ['heading', 'paragraph'],
+      }),
+    ],
   })
 
   hasTextAlignExtensionBeenSetup = true
@@ -33,11 +28,17 @@ export function setupJustifyLeft() {
         id: 'justify-left',
         label: 'Justify Left',
         iconIdentifier: 'justify-left',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'textAlignment',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive({ textAlign: 'left' }),
+          isDisabled: ({ editor }) => !editor.can().setTextAlign('left'),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().setTextAlign('left').run()
         },
-        isActive: ({ editor }) => editor.isActive({ textAlign: 'left' }),
-        isDisabled: ({ editor }) => !editor.can().setTextAlign('left'),
       },
     ],
   })
@@ -52,11 +53,17 @@ export function setupJustifyCenter() {
         id: 'justify-center',
         label: 'Justify Center',
         iconIdentifier: 'justify-center',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'textAlignment',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive({ textAlign: 'center' }),
+          isDisabled: ({ editor }) => !editor.can().setTextAlign('center'),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().setTextAlign('center').run()
         },
-        isActive: ({ editor }) => editor.isActive({ textAlign: 'center' }),
-        isDisabled: ({ editor }) => !editor.can().setTextAlign('center'),
       },
     ],
   })
@@ -71,12 +78,18 @@ export function setupJustifyRight() {
         id: 'justify-right',
         label: 'Justify Right',
         iconIdentifier: 'justify-right',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'textAlignment',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive({ textAlign: 'right' }),
+          isDisabled: ({ editor }) => !editor.can().setTextAlign('right'),
+        },
+        onExecute: ({ editor }) => {
           console.log(1754577632277, 'called1')
           editor.chain().focus().setTextAlign('right').run()
         },
-        isActive: ({ editor }) => editor.isActive({ textAlign: 'right' }),
-        isDisabled: ({ editor }) => !editor.can().setTextAlign('right'),
       },
     ],
   })

@@ -11,12 +11,17 @@ export default function () {
         id: 'bold',
         label: 'Bold',
         iconIdentifier: 'bold',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'formatting',
+          bubbleMenuGroupId: 'formatting',
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive('bold'),
+          isDisabled: ({ editor }) => !editor.can().toggleBold(),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().toggleBold().run()
         },
-        isActive: ({ editor }) => editor.isActive('bold'),
-        isDisabled: ({ editor }) => !editor.can().toggleBold(),
-        isAvailableInBubbleMenu: true,
       },
     ],
   })

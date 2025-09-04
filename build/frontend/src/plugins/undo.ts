@@ -11,10 +11,16 @@ export default function () {
         id: 'undo',
         label: 'Undo last action',
         iconIdentifier: 'undo',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'history',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isDisabled: ({ editor }) => !editor.can().undo(),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().undo().run()
         },
-        isDisabled: ({ editor }) => !editor.can().undo(),
       },
     ],
   })

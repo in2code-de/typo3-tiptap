@@ -10,7 +10,14 @@ export default function () {
         id: 'source',
         label: 'Source',
         iconIdentifier: 'source',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'developer',
+          bubbleMenuGroupId: false,
+        },
+        status: {
+          isActive: () => isHtmlActive.value,
+        },
+        onExecute: ({ editor }) => {
           const editorContent = isHtmlActive.value
             ? editor.getText()
             : `<textarea>${editor.getHTML()}</textarea>`
@@ -18,7 +25,6 @@ export default function () {
           editor.commands.setContent(editorContent)
           isHtmlActive.value = !isHtmlActive.value
         },
-        isActive: () => isHtmlActive.value,
       },
     ],
   })

@@ -7,18 +7,23 @@ import { defineTipTapPlugin } from '../configuration.ts'
  */
 export default function () {
   defineTipTapPlugin({
-    extension: [Underline],
+    extensions: [Underline],
     commands: [
       {
         id: 'underline',
         label: 'Underline',
         iconIdentifier: 'underline',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'formatting',
+          bubbleMenuGroupId: 'formatting',
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive('underline'),
+          isDisabled: ({ editor }) => !editor.can().toggleUnderline(),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().toggleUnderline().run()
         },
-        isActive: ({ editor }) => editor.isActive('underline'),
-        isDisabled: ({ editor }) => !editor.can().toggleUnderline(),
-        isAvailableInBubbleMenu: true,
       },
     ],
   })

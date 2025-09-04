@@ -11,11 +11,17 @@ export default function () {
         id: 'italic',
         label: 'Italic',
         iconIdentifier: 'italic',
-        action: ({ editor }) => {
+        position: {
+          toolbarGroupId: 'formatting',
+          bubbleMenuGroupId: 'formatting',
+        },
+        status: {
+          isActive: ({ editor }) => editor.isActive('italic'),
+          isDisabled: ({ editor }) => !editor.can().toggleItalic(),
+        },
+        onExecute: ({ editor }) => {
           editor.chain().focus().toggleItalic().run()
         },
-        isActive: ({ editor }) => editor.isActive('italic'),
-        isDisabled: ({ editor }) => !editor.can().toggleItalic(),
       },
     ],
   })
