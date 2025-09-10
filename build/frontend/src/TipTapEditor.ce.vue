@@ -28,16 +28,22 @@ const textarea = ref<HTMLTextAreaElement | undefined>()
 
 const editor = ref<Editor>()
 const configuration = ref<TipTapConfiguration>()
+
 const isHtmlSourceViewActive = ref(false)
+const isTopBarDropdownActive = ref(false)
 
 const hasDarkModeEnabled = ref(false)
 
 const parsedTipTapOptions = JSON.parse(props.options || '{}') as unknown
 
-const shouldRenderBubbleMenu = computed(() => {
+const shouldShowBubbleMenu = computed(() => {
   if (!configuration.value)
     return false
+
   if (isHtmlSourceViewActive.value)
+    return false
+
+  if (isTopBarDropdownActive.value)
     return false
 
   return configuration.value.bubbleMenu.some(group => group.commands.length > 0)
@@ -190,6 +196,8 @@ onUnmounted(() => editor.value?.destroy())
                 icon: command.iconIdentifier,
                 action: () => command.onExecute({ editor }),
               }))"
+              @open="isTopBarDropdownActive = true"
+              @close="isTopBarDropdownActive = false"
             />
           </li>
 
@@ -220,7 +228,7 @@ onUnmounted(() => editor.value?.destroy())
     </nav>
 
     <!-- Bubble Menu -->
-    <nav v-if="shouldRenderBubbleMenu">
+    <nav v-if="configuration && shouldShowBubbleMenu">
       <BubbleMenu :editor="editor">
         <div class="tiptap-bubble-menu">
           <template
@@ -486,38 +494,6 @@ onUnmounted(() => editor.value?.destroy())
     z-index: 10;
   }
 
-  &__content-transition {
-    &-enter-active {
-      transition: all 100ms ease-out;
-      transition-property: transform, opacity;
-    }
-
-    &-enter-from {
-      transform: scale(0.95);
-      opacity: 0;
-    }
-
-    &-enter-to {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    &-leave-active {
-      transition: all 75ms ease-in;
-      transition-property: transform, opacity;
-    }
-
-    &-leave-from {
-      transform: scale(1);
-      opacity: 1;
-    }
-
-    &-leave-to {
-      transform: scale(0.95);
-      opacity: 0;
-    }
-  }
-
   &__content-button {
     display: flex;
     align-items: center;
@@ -578,5 +554,35 @@ onUnmounted(() => editor.value?.destroy())
     color: #0d0d0d50;
     border-radius: 0.25rem;
   }
+}
+
+.transition-enter-active {
+  transition: transform 100ms cubic-bezier(0, 0, 0.2, 1),
+  opacity 100ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.transition-enter-from {
+  transform: scale(0.95);
+  opacity: 0;
+}
+
+.transition-enter-to {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.transition-leave-active {
+  transition: transform 75ms cubic-bezier(0.4, 0, 1, 1),
+  opacity 75ms cubic-bezier(0.4, 0, 1, 1);
+}
+
+.transition-leave-from {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.transition-leave-to {
+  transform: scale(0.95);
+  opacity: 0;
 }
 </style>

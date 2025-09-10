@@ -15,7 +15,21 @@ const props = defineProps<{
   }[]
 }>()
 
+const emit = defineEmits<{
+  (e: 'open'): void
+  (e: 'close'): void
+}>()
+
 const hasAvailableOptions = computed(() => props.items.some(item => !item.isDisabled))
+
+function onMenuAction(action: 'open' | 'close') {
+  if (action === 'open') {
+    emit('open')
+  }
+  else {
+    emit('close')
+  }
+}
 </script>
 
 <template>
@@ -36,12 +50,14 @@ const hasAvailableOptions = computed(() => props.items.some(item => !item.isDisa
     </MenuButton>
 
     <transition
-      enter-active-class="tiptap-dropdown__content-transition-enter-active"
-      enter-from-class="tiptap-dropdown__content-transition-enter-from"
-      enter-to-class="tiptap-dropdown__content-transition-enter-to"
-      leave-active-class="tiptap-dropdown__content-transition-leave-active"
-      leave-from-class="tiptap-dropdown__content-transition-leave-from"
-      leave-to-class="tiptap-dropdown__content-transition-leave-to"
+      enter-active-class="transition-enter-active"
+      enter-from-class="transition-enter-from"
+      enter-to-class="transition-enter-to"
+      leave-active-class="transition-leave-active"
+      leave-from-class="transition-leave-from"
+      leave-to-class="transition-leave-to"
+      @after-leave="() => onMenuAction('close')"
+      @after-enter="() => onMenuAction('open')"
     >
       <MenuItems class="tiptap-dropdown__content">
         <template
