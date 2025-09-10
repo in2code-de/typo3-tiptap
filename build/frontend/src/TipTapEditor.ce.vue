@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { Extension } from '@tiptap/core'
+import type { ParentNodeResult } from './plugins/styles.ts'
 import type { TipTapCommand, TipTapConfiguration } from './types'
 import { DragHandle } from '@tiptap/extension-drag-handle-vue-3'
 import NodeRange from '@tiptap/extension-node-range'
+import Typography from '@tiptap/extension-typography'
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
-import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import Dropdown from './components/Dropdown.vue'
 import Icon from './components/Icon.vue'
 import { getConfiguration } from './configuration.ts'
@@ -31,8 +33,9 @@ const configuration = ref<TipTapConfiguration>()
 
 const isHtmlSourceViewActive = ref(false)
 const isTopBarDropdownActive = ref(false)
+const isDarkModeEnabled = ref(false)
 
-const hasDarkModeEnabled = ref(false)
+const stylesParentNode = ref<ParentNodeResult>()
 
 const parsedTipTapOptions = JSON.parse(props.options || '{}') as unknown
 
@@ -140,6 +143,7 @@ onMounted(async () => {
           openOnClick: false,
         },
       }),
+      Typography,
       NodeRange.configure({
         // allow to select only on depth 0
         // depth: 0,
@@ -158,6 +162,20 @@ onMounted(async () => {
     },
   })
 
+  // update parent node to update styles selection
+  editor.value.on('parentNodeChanged', (data) => {
+    if (data.tagName === 'doc') {
+      stylesParentNode.value = undefined
+      return
+    }
+
+    stylesParentNode.value = data
+  })
+
+  watch(stylesParentNode, () => {
+    console.log('Parent node changed:', stylesParentNode.value)
+  })
+
   executeCommandHooks()
 })
 
@@ -169,7 +187,7 @@ onUnmounted(() => editor.value?.destroy())
     v-if="editor"
     class="tiptap-container"
     :style="{
-      colorScheme: hasDarkModeEnabled ? 'dark' : 'light',
+      colorScheme: isDarkModeEnabled ? 'dark' : 'light',
     }"
   >
     <!-- Command Bar -->
@@ -294,8 +312,8 @@ onUnmounted(() => editor.value?.destroy())
 
   <slot ref="slotRef" />
 
-  <button @click="hasDarkModeEnabled = !hasDarkModeEnabled">
-    {{ hasDarkModeEnabled ? 'Switch to Light Mode' : 'Switch to Dark Mode' }}
+  <button @click="isDarkModeEnabled = !isDarkModeEnabled">
+    {{ isDarkModeEnabled ? 'Switch to Light Mode' : 'Switch to Dark Mode' }}
   </button>
 </template>
 

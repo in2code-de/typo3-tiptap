@@ -141,12 +141,16 @@
 		{ "path": "/src/plugins/underline.ts" },
 		{ "path": "/src/plugins/italic.ts" },
 		{ "path": "/src/plugins/strike.ts" },
+		{ "path": "/src/plugins/styles.ts" },
 		{ "path": "/src/plugins/link.ts" },
 		{ "path": "/src/plugins/list.ts", "exports": ["setupBulletList","setupOrderedList"] },
 		{ "path": "/src/plugins/blockquote.ts" },
 		{ "path": "/src/plugins/justify.ts", "exports": ["setupJustifyLeft","setupJustifyCenter","setupJustifyRight"] },
-		{ "path": "/src/plugins/source.ts" }
+		{ "path": "/src/plugins/source.ts" },
+		{ "path": "/src/plugins/headings.ts", "exports": ["setupHeadingLevel1","setupHeadingLevel2","setupHeadingLevel3","setupHeadingLevel4","setupHeadingLevel5","setupHeadingLevel6","finishHeadingLevelSetup"] }
 	]'
+	options=""
+	enable-content-drag-and-drop="true"
 >
 	<textarea style="width: 100%; height: 100px; margin-block-start: 5rem;">
 <h2>Hi there,</h2>
