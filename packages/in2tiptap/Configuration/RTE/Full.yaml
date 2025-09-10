@@ -13,3 +13,4 @@ editor:
         - path: '@in2tiptap/tiptap/plugins/source.js'
         - path: '@in2tiptap/tiptap/plugins/strike.js'
         - path: '@in2tiptap/tiptap/plugins/underline.js'
+        - { path: '@in2tiptap/tiptap/plugins/headings.js', exports: ['setupHeadingLevel1','setupHeadingLevel2','setupHeadingLevel3','setupHeadingLevel4','setupHeadingLevel5','setupHeadingLevel6','finishHeadingLevelSetup'] }
