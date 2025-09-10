@@ -7,6 +7,14 @@ const toolbar: TipTapToolbar = [
     commands: [],
   },
   {
+    id: 'heading',
+    commands: [],
+    dropdown: {
+      label: 'Headings',
+      iconIdentifier: 'heading-1',
+    },
+  },
+  {
     id: 'general',
     commands: [],
   },
@@ -33,6 +41,14 @@ const bubbleMenu: TipTapBubbleMenu = [
   {
     id: 'formatting',
     commands: [],
+  },
+  {
+    id: 'heading',
+    commands: [],
+    dropdown: {
+      label: 'Headings',
+      iconIdentifier: 'heading-1',
+    },
   },
 ]
 
@@ -69,7 +85,7 @@ export function defineTipTapPlugin(plugin: Partial<TipTapPluginOptions>) {
       if (command.position.toolbarGroupId !== false) {
         const toolbarGroupId = configuration.toolbar.find(group => group.id === command.position.toolbarGroupId)
         if (!toolbarGroupId) {
-          throw new Error(`Top bar group ${command.position.toolbarGroupId} not found for command ${command.id}.`)
+          throw new Error(`Top bar group ${command.position.toolbarGroupId} not found for command id ${command.id}.`)
         }
 
         toolbarGroupId.commands.push(command)
@@ -78,7 +94,7 @@ export function defineTipTapPlugin(plugin: Partial<TipTapPluginOptions>) {
       if (command.position.bubbleMenuGroupId !== false) {
         const bubbleMenuGroup = configuration.bubbleMenu.find(group => group.id === command.position.bubbleMenuGroupId)
         if (!bubbleMenuGroup) {
-          throw new Error(`Bubble menu group ${command.position.bubbleMenuGroupId} not found for command ${command.id}.`)
+          throw new Error(`Bubble menu group ${command.position.bubbleMenuGroupId} not found for command id ${command.id}.`)
         }
 
         bubbleMenuGroup.commands.push(command)
