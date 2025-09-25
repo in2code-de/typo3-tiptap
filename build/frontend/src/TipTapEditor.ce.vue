@@ -466,6 +466,10 @@ onUnmounted(() => editor.value?.destroy())
     color: #16a34a;
   }
 
+  .text-blue-600 {
+    color: #2563eb;
+  }
+
   /* list-disc */
   .list-disc {
     list-style-type: disc;
