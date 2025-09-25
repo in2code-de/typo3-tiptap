@@ -29,7 +29,8 @@ function getTagName(node: ProseMirrorNode): string {
 
 function getMarkTagName(mark: Mark): string | null {
   if (mark.type.spec.parseDOM?.[0] && typeof mark.type.spec.parseDOM[0] === 'object' && 'tag' in mark.type.spec.parseDOM[0]) {
-    return mark.type.spec.parseDOM[0].tag || null
+    // some tags include attributes, e.g. 'a[href]', we don't want those
+    return mark.type.spec.parseDOM[0].tag.split('[')[0]
   }
   return null
 }
@@ -79,9 +80,10 @@ function getSelectedParentNode(state: EditorState): ParentNodeResult {
     if (markWithTag) {
       const tagName = getMarkTagName(markWithTag)!
       return {
-        node: $from.parent,
-        tagName,
-        mark: markWithTag,
+        tagName, // 'a' - from the mark
+        mark: markWithTag, // the actual mark
+        // Don't include node when returning a mark
+        // This makes it clear we're dealing with a mark, not a node
       }
     }
 
@@ -94,6 +96,7 @@ function getSelectedParentNode(state: EditorState): ParentNodeResult {
       return {
         node,
         tagName: getTagName(node),
+        // No mark when returning a node
       }
     }
   }
@@ -277,62 +280,84 @@ const UniversalClassExtension = Extension.create({
           .run()
       },
 
-      addNodeClass: (className: string) => ({ editor, commands }: CommandProps): boolean => {
-        const { selection } = editor.state
-        const node = selection.$from.node()
-        const currentClass: string = node.attrs.class || ''
-        const classes: string[] = currentClass.split(' ').filter(Boolean)
-
-        if (!classes.includes(className)) {
-          const newClass: string = [...classes, className].join(' ')
-          return commands.updateAttributes(node.type.name, { class: newClass })
-        }
-        return true
-      },
-
-      removeNodeClass: (className: string) => ({ editor, commands }: CommandProps): boolean => {
-        const { selection } = editor.state
-        const node = selection.$from.node()
-        const currentClass: string = node.attrs.class || ''
-        const newClass: string = currentClass
-          .split(' ')
-          .filter((c: string) => c && c !== className)
-          .join(' ')
-
-        return commands.updateAttributes(node.type.name, { class: newClass || null })
-      },
-
       toggleNodeClass: (className: string) => ({ editor, commands }: CommandProps): boolean => {
         const { selection } = editor.state
         const node = selection.$from.node()
-        const currentClass: string = node.attrs.class || ''
 
-        // Normalize the class strings for comparison
-        const normalizedCurrent = currentClass.trim()
-        const normalizedNew = className.trim()
+        const result = getSelectedParentNode(editor.state)
 
-        // If the exact same classes are present, remove them (toggle off)
-        if (normalizedCurrent === normalizedNew) {
-          return commands.updateAttributes(node.type.name, { class: null })
+        // is mark
+        if (result.mark) {
+          // First extend selection to cover the entire mark
+          commands.extendMarkRange(result.mark.type)
+
+          // Now update the attributes on the entire mark
+          const currentClass: string = result.mark.attrs.class || ''
+
+          // Normalize the class strings for comparison
+          const normalizedCurrent = currentClass.trim()
+          const normalizedNew = className.trim()
+
+          // If the exact same classes are present, remove them (toggle off)
+          if (normalizedCurrent === normalizedNew) {
+            return commands.updateAttributes(result.mark.type.name, { class: null })
+          }
+
+          // Otherwise, replace completely with new classes
+          return commands.updateAttributes(result.mark.type.name, {
+            class: normalizedNew.length > 0 ? normalizedNew : null,
+          })
+        }
+        else if (result.node) {
+          const currentClass: string = node.attrs.class || ''
+
+          // Normalize the class strings for comparison
+          const normalizedCurrent = currentClass.trim()
+          const normalizedNew = className.trim()
+
+          // If the exact same classes are present, remove them (toggle off)
+          if (normalizedCurrent === normalizedNew) {
+            return commands.updateAttributes(node.type.name, { class: null })
+          }
+
+          // Otherwise, replace completely with new classes
+          return commands.updateAttributes(node.type.name, {
+            class: normalizedNew.length > 0 ? normalizedNew : null,
+          })
         }
 
-        // Otherwise, replace completely with new classes
-        return commands.updateAttributes(node.type.name, {
-          class: normalizedNew.length > 0 ? normalizedNew : null,
-        })
+        console.log(1758801241490, result)
+        return false
       },
 
       hasNodeClass: (className: string) => ({ editor }: CommandProps): boolean => {
         const { selection } = editor.state
         const node = selection.$from.node()
-        const currentClass: string = node.attrs.class || ''
-        const classes: string[] = currentClass.split(' ').filter(Boolean)
 
-        // Handle space-separated classes in className parameter
-        const classesToCheck = className.split(' ').filter(Boolean)
+        const result = getSelectedParentNode(editor.state)
 
-        // Check if all classes are present
-        return classesToCheck.every(c => classes.includes(c))
+        if (result.mark) {
+          const currentClass: string = result.mark.attrs.class || ''
+          const classes: string[] = currentClass.split(' ').filter(Boolean).toSorted()
+
+          // Handle space-separated classes in className parameter
+          const classesToCheck = className.split(' ').filter(Boolean).toSorted()
+
+          // Check if all classes are present
+          return classesToCheck.every(c => classes.includes(c))
+        }
+        else if (result.node) {
+          const currentClass: string = node.attrs.class || ''
+          const classes: string[] = currentClass.split(' ').filter(Boolean).toSorted()
+
+          // Handle space-separated classes in className parameter
+          const classesToCheck = className.split(' ').filter(Boolean).toSorted()
+
+          // Check if all classes are present
+          return classesToCheck.every(c => classes.includes(c))
+        }
+
+        return false
       },
     }
   },
@@ -410,14 +435,14 @@ export default function () {
     ],
     commands: styles.map((style, index) => {
       const isActiveThrottledAndCached = createThrottledCache(({ editor }: { editor: Editor }) => {
-        return editor.commands.hasNodeClass(style.classes.join(' '))
+        return editor.commands.hasNodeClass(style.classes.toSorted().join(' '))
       }, 300)
 
       const isVisibleThrottledAndCached = createThrottledCache(() => {
         return currentSelectedParentNode.value?.tagName === style.element
       }, 300)
 
-      const joinedNodeClasses = style.classes.join(' ')
+      const joinedNodeClasses = style.classes.toSorted().join(' ')
 
       return {
         id: generateId(`style:${style.name}`),
@@ -443,6 +468,7 @@ export default function () {
             ? ({ editor }) => {
                 const debouncedEmitPositionChange = throttle(250, () => {
                   const result = getSelectedParentNode(editor.state)
+                  console.log(1758800429576, result)
                   currentSelectedParentNode.value = result
                   editor.emit('parentNodeChanged', result)
                 })
