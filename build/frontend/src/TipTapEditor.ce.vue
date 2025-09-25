@@ -32,7 +32,6 @@ const configuration = ref<TipTapConfiguration>()
 
 const isHtmlSourceViewActive = ref(false)
 const isTopBarDropdownActive = ref(false)
-const isDarkModeEnabled = ref(false)
 
 const stylesParentNode = ref<ParentNodeResult>()
 
@@ -245,9 +244,6 @@ onUnmounted(() => editor.value?.destroy())
   <div
     v-if="editor"
     class="tiptap-container"
-    :style="{
-      colorScheme: isDarkModeEnabled ? 'dark' : 'light',
-    }"
   >
     <!-- Command Bar -->
     <nav
@@ -264,6 +260,7 @@ onUnmounted(() => editor.value?.destroy())
         >
           <li v-if="group.dropdown">
             <Dropdown
+              :key="isHtmlSourceViewActive"
               :label="group.dropdown.label"
               :icon-identifier="group.dropdown.iconIdentifier"
               :items="group.commands
@@ -276,8 +273,6 @@ onUnmounted(() => editor.value?.destroy())
                   action: () => command.onExecute({ editor }),
                 }))
               "
-              @open="isTopBarDropdownActive = true"
-              @close="isTopBarDropdownActive = false"
             />
           </li>
 
@@ -380,10 +375,6 @@ onUnmounted(() => editor.value?.destroy())
   </div>
 
   <slot ref="slotRef" />
-
-  <button @click="isDarkModeEnabled = !isDarkModeEnabled">
-    {{ isDarkModeEnabled ? 'Switch to Light Mode' : 'Switch to Dark Mode' }}
-  </button>
 </template>
 
 <style lang="scss">
@@ -400,7 +391,8 @@ onUnmounted(() => editor.value?.destroy())
   /* Semantic colors */
   --tiptap-color-surface: light-dark(var(--tiptap-color-neutral-white), var(--tiptap-color-neutral-10));
   --tiptap-color-surface-highlight: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
-  --tiptap-color-surface-border: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
+  --tiptap-color-surface-border: light-dark(var(
+      --tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
   --tiptap-color-text-disabled: light-dark(var(--tiptap-color-neutral-30), var(--tiptap-color-neutral-80));
 
   /* Utility variables */
