@@ -306,27 +306,20 @@ const UniversalClassExtension = Extension.create({
         const { selection } = editor.state
         const node = selection.$from.node()
         const currentClass: string = node.attrs.class || ''
-        const classes: string[] = currentClass.split(' ').filter(Boolean)
 
-        // Handle space-separated classes in className parameter
-        const classesToToggle = className.split(' ').filter(Boolean)
+        // Normalize the class strings for comparison
+        const normalizedCurrent = currentClass.trim()
+        const normalizedNew = className.trim()
 
-        // Check if all classes to toggle are present
-        const hasAllClasses = classesToToggle.every(c => classes.includes(c))
-
-        if (hasAllClasses) {
-          // Remove all the classes
-          const newClasses = classes.filter(c => !classesToToggle.includes(c))
-          return commands.updateAttributes(node.type.name, {
-            class: newClasses.length > 0 ? newClasses.join(' ') : null,
-          })
+        // If the exact same classes are present, remove them (toggle off)
+        if (normalizedCurrent === normalizedNew) {
+          return commands.updateAttributes(node.type.name, { class: null })
         }
-        else {
-          // Add missing classes
-          const classesToAdd = classesToToggle.filter(c => !classes.includes(c))
-          const newClass = [...classes, ...classesToAdd].join(' ')
-          return commands.updateAttributes(node.type.name, { class: newClass })
-        }
+
+        // Otherwise, replace completely with new classes
+        return commands.updateAttributes(node.type.name, {
+          class: normalizedNew.length > 0 ? normalizedNew : null,
+        })
       },
 
       hasNodeClass: (className: string) => ({ editor }: CommandProps): boolean => {
@@ -381,6 +374,11 @@ const styles: {
     classes: ['text-green-600'],
   },
   {
+    name: 'Paragraph Blue',
+    element: 'p',
+    classes: ['text-blue-600'],
+  },
+  {
     name: 'Unordered List Blue',
     element: 'ul',
     classes: ['list-disc', 'list-inside', 'text-blue-600'],
@@ -389,6 +387,11 @@ const styles: {
     name: 'Ordered List Blue',
     element: 'ol',
     classes: ['list-disc', 'list-inside', 'text-blue-600'],
+  },
+  {
+    name: 'Strong Blue',
+    element: 'strong',
+    classes: ['text-blue-600'],
   },
 ]
 
