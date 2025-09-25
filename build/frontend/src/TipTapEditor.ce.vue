@@ -3,7 +3,6 @@ import type { Extension } from '@tiptap/core'
 import type { ParentNodeResult } from './plugins/styles.ts'
 import type { TipTapCommand, TipTapConfiguration } from './types'
 import { DragHandle } from '@tiptap/extension-drag-handle-vue-3'
-import NodeRange from '@tiptap/extension-node-range'
 import Typography from '@tiptap/extension-typography'
 import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
@@ -209,11 +208,6 @@ onMounted(async () => {
         },
       }),
       Typography,
-      NodeRange.configure({
-        // allow to select only on depth 0
-        // depth: 0,
-        key: null,
-      }),
       ...(configuration.value?.extensions ?? []) as Extension[],
     ],
     onUpdate: () => {
@@ -698,18 +692,27 @@ onUnmounted(() => editor.value?.destroy())
   }
 }
 
-.custom-drag-handle::after {
+.custom-drag-handle {
+
+  &::after {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 1rem;
     height: 1.25rem;
+    margin-inline-end: 0.5rem;
+    padding: 0.25rem 0.1rem;
     content: '⠿';
     font-weight: 700;
     cursor: grab;
-    background: var(--tiptap-color-surface-highlight);
     color: light-dark(var(--tiptap-color-neutral-10), var(--tiptap-color-neutral-90));
     border-radius: 0.25rem;
+    transition: background-color 0.2s ease-in-out;
+  }
+
+  &:is(:hover, :focus)::after {
+    background: var(--tiptap-color-surface-highlight);
+  }
 }
 
 .transition-enter-active {
