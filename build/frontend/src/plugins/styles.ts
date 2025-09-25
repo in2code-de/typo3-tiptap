@@ -142,8 +142,8 @@ declare module '@tiptap/core' {
   }
 }
 
-// Comprehensive static list of all common Tiptap node and mark types
-const tiptapElementTypes = [
+// List of all TipTap types that should support classes
+const supportedClassTipTapTypes = [
   // Core block nodes (from StarterKit and common extensions)
   'paragraph',
   'heading',
@@ -184,20 +184,6 @@ const tiptapElementTypes = [
   'div',
   'span',
 
-  // Collaboration extensions
-  'mention',
-  'suggestion',
-
-  // Custom block extensions
-  'callout',
-  'alert',
-  'card',
-  'panel',
-  'embed',
-  'iframe',
-  'youtube',
-  'twitter',
-
   // Text marks (inline formatting)
   'bold',
   'italic',
@@ -205,52 +191,16 @@ const tiptapElementTypes = [
   'strike',
   'code',
   'link',
-  'textStyle',
-  'highlight',
-  'color',
-  'fontSize',
-  'fontFamily',
-  'backgroundColor',
-
-  // Additional marks
-  'smallcaps',
-  'keyboard',
-  'mark',
-
-  // Math extensions
-  'mathInline',
-  'mathBlock',
-
-  // Code extensions
-  'codeBlockLowlight',
-  'codeBlockShiki',
-
-  // Dropcursor and Gapcursor (for spacing)
-  'dropcursor',
-  'gapcursor',
-
-  // Comments and annotations
-  'comment',
-  'annotation',
-
-  // Focus extensions
-  'focus',
-
-  // Selection extensions
-  'selection',
-
-  // Placeholder
-  'placeholder',
 ]
 
-const UniversalClassExtension = Extension.create({
-  name: 'universalClass',
+const StyleExtension = Extension.create({
+  name: 'styles',
 
   addGlobalAttributes() {
     return [
       {
         // List all node types that should support classes
-        types: tiptapElementTypes,
+        types: supportedClassTipTapTypes,
         attributes: {
           class: {
             default: null,
@@ -315,13 +265,11 @@ const UniversalClassExtension = Extension.create({
           })
         }
 
-        console.log(1758801241490, result)
         return false
       },
       hasNodeClass: (className: string) => ({ editor }: CommandProps): boolean => {
         const { selection } = editor.state
         const node = selection.$from.node()
-
         const result = getSelectedParentNode(editor.state)
 
         if (result.mark) {
@@ -419,7 +367,7 @@ export default function () {
 
   defineTipTapPlugin({
     extensions: [
-      UniversalClassExtension,
+      StyleExtension,
     ],
     commands: styles.map((style, index) => {
       const isActiveThrottledAndCached = createThrottledCache(({ editor }: { editor: Editor }) => {
@@ -456,7 +404,6 @@ export default function () {
             ? ({ editor }) => {
                 const debouncedEmitPositionChange = throttle(250, () => {
                   const result = getSelectedParentNode(editor.state)
-                  console.log(1758800429576, result)
                   currentSelectedParentNode.value = result
                   editor.emit('parentNodeChanged', result)
                 })
