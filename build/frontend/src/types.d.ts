@@ -18,6 +18,8 @@ export type TipTapBubbleMenu = {
   }
 }[]
 
+export type TipTapStatusCallbackFn = (data: { editor: Editor }) => boolean
+
 interface TipTapCommand {
   id: string
   label: string
@@ -27,8 +29,9 @@ interface TipTapCommand {
     bubbleMenuGroupId: string | false
   }
   status: Partial<{
-    isActive: (data: { editor: Editor }) => boolean
-    isDisabled: (data: { editor: Editor }) => boolean
+    isActive: TipTapStatusCallbackFn
+    isDisabled: TipTapStatusCallbackFn
+    isVisible: TipTapStatusCallbackFn
   }>
   hooks?: Partial<{
     onEditorMounted: (data: { editor: Editor }) => void

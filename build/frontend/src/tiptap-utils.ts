@@ -1,174 +1,132 @@
 import type { Editor } from '@tiptap/core'
-import { getConfiguration } from './configuration.ts'
+import type { Mark, Node as ProseMirrorNode } from '@tiptap/pm/model'
+import type { EditorState } from '@tiptap/pm/state'
 
-function getCurrentNodeType(editor: Editor) {
-  const { $from } = editor.state.selection
-  return $from.node().type.name
+interface NodeWithPos {
+  node: ProseMirrorNode
+  pos: number
 }
 
-export function useTipTapUtils(editor: Editor) {
-  return {
-    getSelectionClasses() {
-      const currentNodeType = getCurrentNodeType(editor)
-      return editor.getAttributes(currentNodeType)
-    },
-    setClasses(classes: string) {
-      const currentNodeType = getCurrentNodeType(editor)
-      console.log(1752825426167, { currentNodeType })
-      editor.chain().focus().updateAttributes(currentNodeType, { class: classes }).run()
-    },
-  }
-}
+export function toggleClassOnSelection(editor: Editor, className: string): void {
+  const { state } = editor
+  const { from, to } = state.selection
 
-/**
- * Get available styles for the currently selected element/node
- */
-export function getAvailableStyles(editor: Editor): Array<{
-  name: string
-  id: string
-  attributes: Record<string, string>
-  isApplied: boolean
-}> {
-  const configuration = getConfiguration()
-  if (!configuration?.styles)
-    return []
+  // First, check if we have any marks in the selection
+  const marks = getMarksInSelection(state, from, to)
 
-  const { from, to } = editor.state.selection
-  const selectedNodes = []
+  // Then check nodes
+  const nodes = getNodesInSelection(state, from, to)
 
-  // Get all nodes in selection
-  editor.state.doc.nodesBetween(from, to, (node) => {
-    selectedNodes.push(node)
+  // Toggle on marks first (they're usually what the user intends)
+  marks.forEach((mark) => {
+    toggleClassOnMark(editor, mark.type.name, className, from, to)
   })
 
-  // If no selection, get the current node
-  const currentNode = selectedNodes[0] || editor.state.selection.$from.node()
-  const nodeName = currentNode?.type?.name
-
-  return configuration.styles
-    .filter((style) => {
-      // Check if current node type is allowed for this style
-      return style.allowedTags.includes(nodeName)
-        || style.allowedTags.includes('*') // wildcard support
-        || (nodeName === 'text' && style.allowedTags.includes('span'))
+  // If no marks, toggle on nodes
+  if (marks.length === 0 && nodes.length > 0) {
+    nodes.forEach(({ node, pos }) => {
+      // FIXED: Don't use setNodeSelection, directly update attributes
+      // for the node type within the current selection
+      editor.chain()
+        .focus()
+        .updateAttributes(node.type.name, {
+          class: toggleClassString(
+            editor.getAttributes(node.type.name).class,
+            className,
+          ),
+        })
+        .run()
     })
-    .map(style => ({
-      name: style.name,
-      id: `style-${style.name.toLowerCase().replace(/\s+/g, '-')}`,
-      attributes: style.attributes,
-      isApplied: isStyleApplied(editor, style.attributes),
-    }))
-}
-
-/**
- * Check if a style (set of attributes) is currently applied to the selection
- */
-export function isStyleApplied(editor: Editor, attributes: Record<string, string>): boolean {
-  const { from, to } = editor.state.selection
-
-  // For class attributes, we need to check if the classes are present
-  if (attributes.class) {
-    const classesToCheck = attributes.class.split(' ')
-    return classesToCheck.every(className =>
-      editor.isActive('textStyle', { class: new RegExp(`\\b${className}\\b`) })
-      || editor.isActive('span', { class: new RegExp(`\\b${className}\\b`) }),
-    )
-  }
-
-  // For other attributes, check if they match exactly
-  return Object.entries(attributes).every(([attr, value]) => {
-    if (attr === 'class')
-      return true // already handled above
-    return editor.isActive('textStyle', { [attr]: value })
-      || editor.isActive('span', { [attr]: value })
-  })
-}
-
-/**
- * Toggle a style on/off for the current selection
- */
-export function toggleStyle(editor: Editor, attributes: Record<string, string>): void {
-  const isCurrentlyApplied = isStyleApplied(editor, attributes)
-
-  if (isCurrentlyApplied) {
-    // Remove the style
-    removeStyle(editor, attributes)
-  }
-  else {
-    // Apply the style
-    applyStyle(editor, attributes)
   }
 }
 
-/**
- * Apply style attributes to the current selection
- */
-export function applyStyle(editor: Editor, attributes: Record<string, string>): void {
-  const { from, to } = editor.state.selection
+// Helper to get all marks in selection
+function getMarksInSelection(state: EditorState, from: number, to: number): Mark[] {
+  const marks: Mark[] = []
+  const markTypes = new Set<string>()
 
-  if (from === to) {
-    // No selection, apply to current position for future typing
-    editor.chain().focus().setTextSelection(from).run()
-  }
-
-  // Handle class attribute specially to merge with existing classes
-  if (attributes.class) {
-    const existingClasses = getExistingClasses(editor)
-    const newClasses = attributes.class.split(' ')
-    const mergedClasses = [...new Set([...existingClasses, ...newClasses])]
-
-    const updatedAttributes = {
-      ...attributes,
-      class: mergedClasses.join(' '),
-    }
-
-    editor.chain().focus().setTextSelection(from, to).updateAttributes('textStyle', updatedAttributes).run()
-  }
-  else {
-    editor.chain().focus().setTextSelection(from, to).updateAttributes('textStyle', attributes).run()
-  }
-}
-
-/**
- * Remove style attributes from the current selection
- */
-export function removeStyle(editor: Editor, attributes: Record<string, string>): void {
-  const { from, to } = editor.state.selection
-
-  // Handle class attribute specially to remove only specific classes
-  if (attributes.class) {
-    const existingClasses = getExistingClasses(editor)
-    const classesToRemove = attributes.class.split(' ')
-    const remainingClasses = existingClasses.filter(cls => !classesToRemove.includes(cls))
-
-    if (remainingClasses.length > 0) {
-      editor.chain().focus().setTextSelection(from, to).updateAttributes('textStyle', {
-        class: remainingClasses.join(' '),
-      }).run()
-    }
-    else {
-      editor.chain().focus().setTextSelection(from, to).unsetTextStyle(['class']).run()
-    }
-  }
-  else {
-    // Remove other attributes
-    const attrsToUnset = Object.keys(attributes)
-    editor.chain().focus().setTextSelection(from, to).unsetTextStyle(attrsToUnset).run()
-  }
-}
-
-/**
- * Get existing classes from the current selection
- */
-function getExistingClasses(editor: Editor): string[] {
-  const { from, to } = editor.state.selection
-  let classes: string[] = []
-
-  editor.state.doc.nodesBetween(from, to, (node) => {
-    if (node.attrs?.class) {
-      classes = [...classes, ...node.attrs.class.split(' ')]
+  state.doc.nodesBetween(from, to, (node) => {
+    if (node.isInline) {
+      node.marks.forEach((mark) => {
+        if (!markTypes.has(mark.type.name)) {
+          markTypes.add(mark.type.name)
+          marks.push(mark)
+        }
+      })
     }
   })
 
-  return [...new Set(classes)].filter(Boolean)
+  return marks
+}
+
+// Helper to get nodes in selection (excluding parent containers)
+function getNodesInSelection(state: EditorState, from: number, to: number): NodeWithPos[] {
+  const nodes: NodeWithPos[] = []
+
+  state.doc.nodesBetween(from, to, (node, pos) => {
+    // Skip document and other high-level containers
+    if (pos >= from && pos < to && !node.isTextblock) {
+      nodes.push({ node, pos })
+    }
+  })
+
+  // If no inline nodes found, get the direct text block
+  if (nodes.length === 0) {
+    const $from = state.doc.resolve(from)
+    const node = $from.node()
+    if (node && node.type.name !== 'doc') {
+      nodes.push({ node, pos: $from.before() })
+    }
+  }
+
+  return nodes
+}
+
+// Toggle class on a specific mark
+function toggleClassOnMark(editor: Editor, markName: string, className: string, from: number, to: number): void {
+  // Get current mark attributes
+  const markAttributes = editor.getAttributes(markName)
+  const currentClasses: string[] = markAttributes.class ? markAttributes.class.split(' ') : []
+
+  // Toggle the class
+  const index = currentClasses.indexOf(className)
+  if (index > -1) {
+    currentClasses.splice(index, 1)
+  }
+  else {
+    currentClasses.push(className)
+  }
+
+  // Update the mark with new classes
+  editor.chain()
+    .setMark(markName, { class: currentClasses.filter(c => c).join(' ') || null })
+    .run()
+}
+
+// Toggle class on a specific node
+function toggleClassOnNode(editor: Editor, nodeName: string, className: string, pos: number): void {
+  editor.chain()
+    .setNodeSelection(pos)
+    .updateAttributes(nodeName, {
+      class: toggleClassString(
+        editor.getAttributes(nodeName).class,
+        className,
+      ),
+    })
+    .run()
+}
+
+// Helper function to toggle a class in a class string
+function toggleClassString(classString: string | undefined, className: string): string | null {
+  const currentClasses = classString ? classString.split(' ').filter(c => c) : []
+  const index = currentClasses.indexOf(className)
+
+  if (index > -1) {
+    currentClasses.splice(index, 1)
+  }
+  else {
+    currentClasses.push(className)
+  }
+
+  return currentClasses.length > 0 ? currentClasses.join(' ') : null
 }

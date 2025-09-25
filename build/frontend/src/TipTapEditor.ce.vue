@@ -52,6 +52,62 @@ const shouldShowBubbleMenu = computed(() => {
   return configuration.value.bubbleMenu.some(group => group.commands.length > 0)
 })
 
+const styles: {
+  name: string
+  element: string
+  classes: string[]
+}[] = [
+  {
+    name: 'Orange Title h1',
+    element: 'h1',
+    classes: ['text-3xl', 'font-bold', 'text-orange-600'],
+  },
+  {
+    name: 'Orange Title H2',
+    element: 'h2',
+    classes: ['text-3xl', 'font-bold', 'text-orange-600'],
+  },
+  {
+    name: 'Blue Title H3',
+    element: 'h3',
+    classes: ['text-2xl', 'font-bold', 'text-blue-600'],
+  },
+  {
+    name: 'Link Blue',
+    element: 'a',
+    classes: ['text-blue-600', 'underline'],
+  },
+  {
+    name: 'Green Title H4',
+    element: 'h4',
+    classes: ['text-xl', 'font-bold', 'text-green-600'],
+  },
+  {
+    name: 'Paragraph Green',
+    element: 'p',
+    classes: ['text-green-600'],
+  },
+  {
+    name: 'Unordered List Blue',
+    element: 'ul',
+    classes: ['list-disc', 'list-inside', 'text-blue-600'],
+  },
+  {
+    name: 'Ordered List Blue',
+    element: 'ol',
+    classes: ['list-disc', 'list-inside', 'text-blue-600'],
+  },
+]
+
+const availableStyles = computed(() => {
+  if (!stylesParentNode.value || !stylesParentNode.value.tagName)
+    return []
+
+  return styles.filter(
+    style => style.element.toLowerCase() === stylesParentNode.value?.tagName.toLowerCase(),
+  )
+})
+
 let hasPluginConfigurationBeenLoaded = false
 async function loadPluginConfiguration() {
   if (hasPluginConfigurationBeenLoaded)
@@ -119,6 +175,15 @@ function getCommandIsDisabledStatus(command: TipTapCommand) {
     return true
 
   return command?.status?.isDisabled?.({ editor: editor.value! }) ?? false
+}
+
+function getCommandIsVisible(command: TipTapCommand) {
+  console.log(1757599058383, { command })
+
+  if (command.status && command.status.isVisible)
+    return command.status.isVisible({ editor: editor.value! })
+
+  return true
 }
 
 onMounted(async () => {
@@ -207,13 +272,16 @@ onUnmounted(() => editor.value?.destroy())
             <Dropdown
               :label="group.dropdown.label"
               :icon-identifier="group.dropdown.iconIdentifier"
-              :items="group.commands.map(command => ({
-                label: command.label,
-                isActive: command?.status?.isActive?.({ editor }) ?? false,
-                isDisabled: getCommandIsDisabledStatus(command),
-                icon: command.iconIdentifier,
-                action: () => command.onExecute({ editor }),
-              }))"
+              :items="group.commands
+                .filter(getCommandIsVisible)
+                .map(command => ({
+                  label: command.label,
+                  isActive: command?.status?.isActive?.({ editor }) ?? false,
+                  isDisabled: getCommandIsDisabledStatus(command),
+                  icon: command.iconIdentifier,
+                  action: () => command.onExecute({ editor }),
+                }))
+              "
               @open="isTopBarDropdownActive = true"
               @close="isTopBarDropdownActive = false"
             />
@@ -225,6 +293,7 @@ onUnmounted(() => editor.value?.destroy())
               :key="`tiptap-group-${group.id}-command-${command.id}`"
             >
               <button
+                v-if="getCommandIsVisible(command)"
                 :key="isHtmlSourceViewActive"
                 class="tiptap-toolbar__group-command"
                 :class="{
@@ -254,7 +323,7 @@ onUnmounted(() => editor.value?.destroy())
             :key="`tiptap-command-group-${groupIndex}`"
           >
             <ol
-              v-if="group.commands.length > 0"
+              v-if="group.commands.some(command => !getCommandIsDisabledStatus(command))"
               class="tiptap-toolbar__group"
             >
               <li v-if="group.dropdown">
@@ -262,13 +331,16 @@ onUnmounted(() => editor.value?.destroy())
                   :key="isHtmlSourceViewActive"
                   :label="group.dropdown.label"
                   :icon-identifier="group.dropdown.iconIdentifier"
-                  :items="group.commands.map(command => ({
-                    label: command.label,
-                    isActive: command?.status?.isActive?.({ editor }) ?? false,
-                    isDisabled: getCommandIsDisabledStatus(command),
-                    icon: command.iconIdentifier,
-                    action: () => command.onExecute({ editor }),
-                  }))"
+                  :items="group.commands
+                    .filter(getCommandIsVisible)
+                    .map(command => ({
+                      label: command.label,
+                      isActive: command?.status?.isActive?.({ editor }) ?? false,
+                      isDisabled: getCommandIsDisabledStatus(command),
+                      icon: command.iconIdentifier,
+                      action: () => command.onExecute({ editor }),
+                    }))
+                  "
                 />
               </li>
 
@@ -278,6 +350,7 @@ onUnmounted(() => editor.value?.destroy())
                   :key="`tiptap-group-${group.id}-command-${command.id}`"
                 >
                   <button
+                    v-if="getCommandIsVisible(command)"
                     :key="isHtmlSourceViewActive"
                     class="tiptap-toolbar__group-command"
                     :class="{
@@ -308,6 +381,8 @@ onUnmounted(() => editor.value?.destroy())
     </DragHandle>
 
     <EditorContent :editor="editor" />
+
+    <pre>{{ availableStyles }}</pre>
   </div>
 
   <slot ref="slotRef" />
@@ -332,6 +407,7 @@ onUnmounted(() => editor.value?.destroy())
   --tiptap-color-surface: light-dark(var(--tiptap-color-neutral-white), var(--tiptap-color-neutral-10));
   --tiptap-color-surface-highlight: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
   --tiptap-color-surface-border: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
+  --tiptap-color-text-disabled: light-dark(var(--tiptap-color-neutral-30), var(--tiptap-color-neutral-80));
 
   /* Utility variables */
   --tiptap-border-radius: 0.7rem;
@@ -340,16 +416,64 @@ onUnmounted(() => editor.value?.destroy())
   --tiptap-toolbar-gap: 0.25rem;
   --tiptap-box-shadow: 0 0.1rem 0.3rem rgb(0 0 0 / 0.1);
 
-  /* Temporary styling before implementation into TYPO3 */
-  background-color: light-dark(white, var(--tiptap-color-neutral-10));
-  color: light-dark(black, white);
-
   /* Button reset */
   :where(& button) {
     padding: 0;
     color: inherit;
     background-color: transparent;
     border: none;
+  }
+
+  /* Temporary styling before implementation into TYPO3 */
+  background-color: light-dark(white, var(--tiptap-color-neutral-10));
+  color: light-dark(black, white);
+
+  /* text-3xl */
+  .text-3xl {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+  }
+
+  /* text-2xl */
+  .text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  /* text-xl */
+  .text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  /* font-bold */
+  .font-bold {
+    font-weight: 700;
+  }
+
+  /* text-orange-600 */
+  .text-orange-600 {
+    color: #ea580c;
+  }
+
+  /* text-blue-600 */
+  .text-blue-600 {
+    color: #2563eb;
+  }
+
+  /* text-green-600 */
+  .text-green-600 {
+    color: #16a34a;
+  }
+
+  /* list-disc */
+  .list-disc {
+    list-style-type: disc;
+  }
+
+  /* list-inside */
+  .list-inside {
+    list-style-position: inside;
   }
 }
 
@@ -399,6 +523,7 @@ onUnmounted(() => editor.value?.destroy())
   }
 
   &:disabled {
+    color: var(--tiptap-color-text-disabled);
     cursor: not-allowed;
   }
 
@@ -468,6 +593,7 @@ onUnmounted(() => editor.value?.destroy())
 .tiptap-dropdown {
   --chevron-rotation: 0deg;
 
+  display: inline-block;
   position: relative;
 
   &:has(&__button[aria-expanded='true']) {
@@ -483,9 +609,19 @@ onUnmounted(() => editor.value?.destroy())
     gap: 0.25rem;
     border: none;
     cursor: pointer;
+    transition: color 0.2s ease-in-out;
 
     * {
       flex-shrink: 0;
+    }
+
+    &--active {
+      color: var(--tiptap-color-primary);
+    }
+
+    &:disabled {
+      color: var(--tiptap-color-text-disabled);
+      cursor: not-allowed;
     }
   }
 
@@ -558,8 +694,7 @@ onUnmounted(() => editor.value?.destroy())
   }
 }
 
-.custom-drag-handle {
-  &::after {
+.custom-drag-handle::after {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -568,10 +703,9 @@ onUnmounted(() => editor.value?.destroy())
     content: '⠿';
     font-weight: 700;
     cursor: grab;
-    background: #0d0d0d10;
-    color: #0d0d0d50;
+    background: var(--tiptap-color-surface-highlight);
+    color: light-dark(var(--tiptap-color-neutral-10), var(--tiptap-color-neutral-90));
     border-radius: 0.25rem;
-  }
 }
 
 .transition-enter-active {

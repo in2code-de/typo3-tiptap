@@ -27,7 +27,12 @@ export function finishHeadingLevelSetup() {
         isDisabled: ({ editor }) => !editor.can().toggleHeading({ level }),
       },
       onExecute: ({ editor }) => {
-        editor.chain().focus().toggleHeading({ level }).run()
+        editor
+          .chain()
+          .focus()
+          .toggleHeading({ level })
+          .updateAttributes('heading', { class: null })
+          .run()
       },
     })),
   })

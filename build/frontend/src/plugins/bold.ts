@@ -20,7 +20,12 @@ export default function () {
           isDisabled: ({ editor }) => !editor.can().toggleBold(),
         },
         onExecute: ({ editor }) => {
-          editor.chain().focus().toggleBold().run()
+          editor
+            .chain()
+            .focus()
+            .toggleBold()
+            .updateAttributes('strong', { class: null })
+            .run()
         },
       },
     ],

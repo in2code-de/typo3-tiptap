@@ -21,6 +21,7 @@ const emit = defineEmits<{
 }>()
 
 const hasAvailableOptions = computed(() => props.items.some(item => !item.isDisabled))
+const hasActiveOption = computed(() => props.items.some(item => item.isActive))
 
 function onMenuAction(action: 'open' | 'close') {
   if (action === 'open') {
@@ -36,6 +37,9 @@ function onMenuAction(action: 'open' | 'close') {
   <Menu as="div" class="tiptap-dropdown">
     <MenuButton
       class="tiptap-dropdown__button"
+      :class="{
+        'tiptap-dropdown__button--active': hasActiveOption,
+      }"
       :disabled="!hasAvailableOptions"
     >
       <span class="tiptap-sr-only">{{ label }}</span>

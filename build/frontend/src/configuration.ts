@@ -7,6 +7,14 @@ const toolbar: TipTapToolbar = [
     commands: [],
   },
   {
+    id: 'styles',
+    commands: [],
+    dropdown: {
+      label: 'Styles',
+      iconIdentifier: 'styles',
+    },
+  },
+  {
     id: 'heading',
     commands: [],
     dropdown: {
@@ -50,6 +58,14 @@ const bubbleMenu: TipTapBubbleMenu = [
       iconIdentifier: 'heading-1',
     },
   },
+  {
+    id: 'styles',
+    commands: [],
+    dropdown: {
+      label: 'Styles',
+      iconIdentifier: 'styles',
+    },
+  },
 ]
 
 const configuration: TipTapConfiguration = {
@@ -78,10 +94,6 @@ export function defineTipTapPlugin(plugin: Partial<TipTapPluginOptions>) {
 
   if (plugin.commands && plugin.commands.length > 0) {
     plugin.commands.forEach((command) => {
-      if (!command.position.toolbarGroupId && !command.position.bubbleMenuGroupId) {
-        throw new Error(`Command ${command.id} must have a position defined.`)
-      }
-
       if (command.position.toolbarGroupId !== false) {
         const toolbarGroupId = configuration.toolbar.find(group => group.id === command.position.toolbarGroupId)
         if (!toolbarGroupId) {
