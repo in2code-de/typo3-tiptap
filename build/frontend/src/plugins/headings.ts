@@ -30,6 +30,7 @@ export function finishHeadingLevelSetup() {
         editor
           .chain()
           .focus()
+          .unsetMark('bold') // remove bold mark, when we switch headings
           .toggleHeading({ level })
           .updateAttributes('heading', { class: null })
           .run()
