@@ -269,17 +269,6 @@ const UniversalClassExtension = Extension.create({
 
   addCommands() {
     return {
-      setNodeClass: (className: string) => ({ editor }: CommandProps): boolean => {
-        const { selection } = editor.state
-        const node = selection.$from.node()
-
-        return editor
-          .chain()
-          .focus()
-          .updateAttributes(node.type.name, { class: className })
-          .run()
-      },
-
       toggleNodeClass: (className: string) => ({ editor, commands }: CommandProps): boolean => {
         const { selection } = editor.state
         const node = selection.$from.node()
@@ -329,7 +318,6 @@ const UniversalClassExtension = Extension.create({
         console.log(1758801241490, result)
         return false
       },
-
       hasNodeClass: (className: string) => ({ editor }: CommandProps): boolean => {
         const { selection } = editor.state
         const node = selection.$from.node()
