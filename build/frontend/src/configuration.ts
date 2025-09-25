@@ -19,7 +19,7 @@ const toolbar: TipTapToolbar = [
     commands: [],
     dropdown: {
       label: 'Headings',
-      iconIdentifier: 'heading-1',
+      iconIdentifier: 'heading',
     },
   },
   {
@@ -55,7 +55,7 @@ const bubbleMenu: TipTapBubbleMenu = [
     commands: [],
     dropdown: {
       label: 'Headings',
-      iconIdentifier: 'heading-1',
+      iconIdentifier: 'heading',
     },
   },
   {
