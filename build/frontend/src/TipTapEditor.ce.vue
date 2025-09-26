@@ -405,6 +405,10 @@ onUnmounted(() => editor.value?.destroy())
   --tiptap-toolbar-gap: 0.25rem;
   --tiptap-box-shadow: 0 0.1rem 0.3rem rgb(0 0 0 / 0.1);
 
+  border: 1px solid var(--tiptap-color-surface-border);
+  border-radius: var(--tiptap-border-radius);
+  overflow: hidden;
+
   /* Button reset */
   :where(& button) {
     padding: 0;
