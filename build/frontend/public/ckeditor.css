@@ -1,0 +1,485 @@
+/* Base typography and spacing */
+:is(h1, h2, h3, h4, h5, h6, p, blockquote, ul, ol, li) {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color: #2d3748;
+}
+
+/* Headings with modern scaling */
+:is(h1, h2, h3, h4, h5, h6) {
+  font-weight: 700;
+  line-height: 1.25;
+  margin-block: 1.5rem 0.75rem;
+  color: #1a202c;
+  letter-spacing: -0.025em;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-block-start: 0;
+}
+
+h2 {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.875rem);
+}
+
+h4 {
+  font-size: clamp(1.125rem, 2vw, 1.5rem);
+}
+
+h5 {
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+}
+
+h6 {
+  font-size: clamp(0.875rem, 1.25vw, 1.125rem);
+  color: #4a5568;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+/* Paragraphs */
+p {
+  margin-block: 0 1rem;
+  max-width: 65ch;
+}
+
+p:last-child {
+  margin-block-end: 0;
+}
+
+/* Links with smooth interactions */
+a {
+  color: #3182ce;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease-in-out;
+  position: relative;
+}
+
+a:hover {
+  color: #2c5282;
+  border-bottom-color: currentColor;
+}
+
+a:focus {
+  outline: 2px solid #63b3ed;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+a:active {
+  transform: translateY(1px);
+}
+
+/* External links indicator */
+a[href^="http"]:not([href*="localhost"]):not([href*="127.0.0.1"])::after {
+  content: "↗";
+  font-size: 0.75em;
+  margin-inline-start: 0.25em;
+  opacity: 0.7;
+}
+
+/* Blockquotes */
+blockquote {
+  margin: 1.5rem 0;
+  padding: 1rem 1.5rem;
+  border-inline-start: 4px solid #e2e8f0;
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  font-style: italic;
+  position: relative;
+  border-radius: 0 8px 8px 0;
+}
+
+blockquote::before {
+  content: '"';
+  font-size: 4rem;
+  color: #cbd5e0;
+  position: absolute;
+  top: -0.5rem;
+  left: 0.5rem;
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+
+blockquote p {
+  margin-block: 0.5rem;
+  color: #4a5568;
+  position: relative;
+  z-index: 1;
+}
+
+blockquote p:first-child {
+  margin-block-start: 0;
+}
+
+blockquote p:last-child {
+  margin-block-end: 0;
+}
+
+/* Citation in blockquotes */
+blockquote cite {
+  display: block;
+  font-style: normal;
+  font-size: 0.875rem;
+  color: #718096;
+  margin-block-start: 0.75rem;
+  font-weight: 500;
+}
+
+blockquote cite::before {
+  content: "— ";
+}
+
+/* Lists */
+:is(ul, ol) {
+  margin: 1rem 0;
+  padding-inline-start: 1.5rem;
+}
+
+:is(ul, ol) :is(ul, ol) {
+  margin: 0.25rem 0;
+}
+
+li {
+  margin-block: 0.25rem;
+  line-height: 1.6;
+}
+
+ul li {
+  list-style-type: none;
+  position: relative;
+}
+
+ul li::before {
+  content: "•";
+  color: #718096;
+  position: absolute;
+  left: -1rem;
+  font-weight: bold;
+}
+
+/* Nested list styling */
+ul ul li::before {
+  content: "◦";
+}
+
+ul ul ul li::before {
+  content: "▪";
+}
+
+ol {
+  counter-reset: item;
+}
+
+ol li {
+  counter-increment: item;
+  list-style-type: none;
+  position: relative;
+}
+
+ol li::before {
+  content: counter(item) ".";
+  color: #718096;
+  font-weight: 600;
+  position: absolute;
+  left: -1.5rem;
+  width: 1.25rem;
+  text-align: right;
+}
+
+/* Code elements */
+:is(code, kbd, samp) {
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 0.875em;
+  background: #f1f5f9;
+  color: #e53e3e;
+  padding: 0.125rem 0.375rem;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+}
+
+pre {
+  background: #1a202c;
+  color: #e2e8f0;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+  border: 1px solid #2d3748;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  border: none;
+  font-size: 0.875rem;
+}
+
+/* Emphasis and strong */
+em {
+  font-style: italic;
+  color: #2d3748;
+}
+
+strong {
+  font-weight: 700;
+  color: #1a202c;
+}
+
+/* Mark and selection */
+mark {
+  background: linear-gradient(120deg, #fef08a 0%, #fde047 100%);
+  color: #92400e;
+  padding: 0.125rem 0.25rem;
+  border-radius: 3px;
+}
+
+::selection {
+  background: #bee3f8;
+  color: #1a365d;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+:is(th, td) {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+  font-weight: 600;
+  color: #2d3748;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+tbody tr:hover {
+  background: #f8fafc;
+}
+
+/* Horizontal rule */
+hr {
+  border: none;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #cbd5e0, transparent);
+  margin: 2rem 0;
+}
+
+/* Small text */
+small {
+  font-size: 0.875em;
+  color: #718096;
+}
+
+/* Subscript and superscript */
+:is(sub, sup) {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sup {
+  top: -0.5em;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+/* Abbreviations */
+abbr[title] {
+  border-bottom: 1px dotted #718096;
+  text-decoration: none;
+  cursor: help;
+}
+
+/* Address */
+address {
+  font-style: italic;
+  color: #4a5568;
+  margin: 1rem 0;
+}
+
+/* Definition lists */
+dl {
+  margin: 1rem 0;
+}
+
+dt {
+  font-weight: 600;
+  color: #2d3748;
+  margin-block-start: 1rem;
+}
+
+dt:first-child {
+  margin-block-start: 0;
+}
+
+dd {
+  margin-inline-start: 1.5rem;
+  margin-block: 0.25rem 0.5rem;
+  color: #4a5568;
+}
+
+/* Figure and figcaption */
+figure {
+  margin: 1.5rem 0;
+}
+
+figcaption {
+  font-size: 0.875rem;
+  color: #718096;
+  text-align: center;
+  margin-block-start: 0.5rem;
+  font-style: italic;
+}
+
+/* Focus styles for accessibility */
+:focus-visible {
+  outline: 2px solid #3182ce;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Print styles */
+@media print {
+  :is(h1, h2, h3, h4, h5, h6) {
+    break-after: avoid;
+  }
+
+  blockquote, pre, table {
+    break-inside: avoid;
+  }
+
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #1a202c;
+    color: #e2e8f0;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6) {
+    color: #f7fafc;
+  }
+
+  h6 {
+    color: #a0aec0;
+  }
+
+  a {
+    color: #63b3ed;
+  }
+
+  a:hover {
+    color: #90cdf4;
+  }
+
+  blockquote {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    border-inline-start-color: #4a5568;
+    color: #cbd5e0;
+  }
+
+  blockquote::before {
+    color: #4a5568;
+  }
+
+  blockquote p {
+    color: #cbd5e0;
+  }
+
+  blockquote cite {
+    color: #a0aec0;
+  }
+
+  :is(ul, ol) li::before {
+    color: #a0aec0;
+  }
+
+  :is(code, kbd, samp) {
+    background: #2d3748;
+    color: #f56565;
+    border-color: #4a5568;
+  }
+
+  th {
+    background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+    color: #e2e8f0;
+  }
+
+  tbody tr:hover {
+    background: #2d3748;
+  }
+
+  :is(th, td) {
+    border-bottom-color: #4a5568;
+  }
+
+  hr {
+    background: linear-gradient(90deg, transparent, #4a5568, transparent);
+  }
+
+  small {
+    color: #a0aec0;
+  }
+
+  abbr[title] {
+    border-bottom-color: #a0aec0;
+  }
+
+  address {
+    color: #cbd5e0;
+  }
+
+  dt {
+    color: #e2e8f0;
+  }
+
+  dd {
+    color: #cbd5e0;
+  }
+
+  figcaption {
+    color: #a0aec0;
+  }
+
+  mark {
+    background: linear-gradient(120deg, #d69e2e 0%, #b7791f 100%);
+    color: #1a202c;
+  }
+
+  ::selection {
+    background: #3182ce;
+    color: #f7fafc;
+  }
+}

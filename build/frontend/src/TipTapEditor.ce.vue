@@ -10,6 +10,7 @@ import { BubbleMenu } from '@tiptap/vue-3/menus'
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import Dropdown from './components/Dropdown.vue'
 import Icon from './components/Icon.vue'
+import Stylesheets from './components/Stylesheets.vue'
 import { getConfiguration } from './configuration.ts'
 import { getEditorSourceViewActiveStatus } from './plugins/source.ts'
 
@@ -371,6 +372,10 @@ onUnmounted(() => editor.value?.destroy())
 
     <EditorContent :editor="editor" />
 
+    <Stylesheets
+      v-if="configuration && configuration.styleSheets"
+      :stylesheets="configuration.styleSheets"
+    />
     <pre>{{ availableStyles }}</pre>
   </div>
 
@@ -471,6 +476,10 @@ onUnmounted(() => editor.value?.destroy())
   padding: 3rem;
   min-block-size: 300px;
   outline: none;
+
+  > :first-child {
+    margin-block-start: 0;
+  }
 }
 
 .tiptap-toolbar {
