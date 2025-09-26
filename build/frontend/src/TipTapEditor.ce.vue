@@ -394,8 +394,7 @@ onUnmounted(() => editor.value?.destroy())
   /* Semantic colors */
   --tiptap-color-surface: light-dark(var(--tiptap-color-neutral-white), var(--tiptap-color-neutral-10));
   --tiptap-color-surface-highlight: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
-  --tiptap-color-surface-border: light-dark(var(
-      --tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
+  --tiptap-color-surface-border: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
   --tiptap-color-text-disabled: light-dark(var(--tiptap-color-neutral-30), var(--tiptap-color-neutral-80));
 
   /* Utility variables */
@@ -420,63 +419,11 @@ onUnmounted(() => editor.value?.destroy())
   /* Temporary styling before implementation into TYPO3 */
   background-color: light-dark(white, var(--tiptap-color-neutral-10));
   color: light-dark(black, white);
-
-  /* text-3xl */
-  .text-3xl {
-    font-size: 1.875rem;
-    line-height: 2.25rem;
-  }
-
-  /* text-2xl */
-  .text-2xl {
-    font-size: 1.5rem;
-    line-height: 2rem;
-  }
-
-  /* text-xl */
-  .text-xl {
-    font-size: 1.25rem;
-    line-height: 1.75rem;
-  }
-
-  /* font-bold */
-  .font-bold {
-    font-weight: 700;
-  }
-
-  /* text-orange-600 */
-  .text-orange-600 {
-    color: #ea580c;
-  }
-
-  /* text-blue-600 */
-  .text-blue-600 {
-    color: #2563eb;
-  }
-
-  /* text-green-600 */
-  .text-green-600 {
-    color: #16a34a;
-  }
-
-  .text-blue-600 {
-    color: #2563eb;
-  }
-
-  /* list-disc */
-  .list-disc {
-    list-style-type: disc;
-  }
-
-  /* list-inside */
-  .list-inside {
-    list-style-position: inside;
-  }
 }
 
 .tiptap {
   padding: 3rem;
-  min-block-size: 300px;
+  min-block-size: 20rem;
   outline: none;
 
   > :first-child {
