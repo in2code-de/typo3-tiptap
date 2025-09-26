@@ -33,6 +33,7 @@ const configuration = ref<TipTapConfiguration>()
 
 const isHtmlSourceViewActive = ref(false)
 const isTopBarDropdownActive = ref(false)
+const selectionCharacterCount = ref(0)
 
 const stylesParentNode = ref<ParentNodeResult>()
 
@@ -47,6 +48,10 @@ const shouldShowBubbleMenu = computed(() => {
 
   if (isTopBarDropdownActive.value)
     return false
+
+  if (selectionCharacterCount.value <= 50) {
+    return false
+  }
 
   return configuration.value.bubbleMenu.some(group => group.commands.length > 0)
 })
@@ -225,6 +230,7 @@ onMounted(async () => {
     }
 
     stylesParentNode.value = data
+    selectionCharacterCount.value = editor.value?.state.selection.$from.pos ?? 0
   })
 
   watch(stylesParentNode, () => {
@@ -238,6 +244,8 @@ onUnmounted(() => editor.value?.destroy())
 </script>
 
 <template>
+  <pre>{{ selectionCharacterCount }}</pre>
+
   <div
     v-if="editor"
     class="tiptap-container"
