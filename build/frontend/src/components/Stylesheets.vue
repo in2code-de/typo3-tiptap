@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { TipTapPluginOptions } from '../types'
 import { nextTick, onUnmounted, ref, watch } from 'vue'
 
 const props = defineProps<{
-  stylesheets: string[]
+  stylesheets: TipTapPluginOptions['styleSheets']
 }>()
 
 const componentRef = ref<HTMLElement | null>(null)
