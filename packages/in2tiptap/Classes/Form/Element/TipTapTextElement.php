@@ -78,6 +78,7 @@ class TipTapTextElement extends AbstractFormElement
         $editorAttributes = GeneralUtility::implodeAttributes([
             'id' => $fieldId . 'tiptap',
             'plugins' => GeneralUtility::jsonEncodeForHtmlAttribute($editorConfiguration['plugins'] ?? [], false),
+            'enable-content-drag-and-drop' => 'true',
         ], true);
 
         $textareaAttributes = GeneralUtility::implodeAttributes([
