@@ -8,7 +8,7 @@ editor:
         - path: '@in2tiptap/tiptap/plugins/bold.js'
         - path: '@in2tiptap/tiptap/plugins/underline.js'
         - path: '@in2tiptap/tiptap/plugins/italic.js'
-        - path: '@in2tiptap/tiptap/plugins/strike.js'
+        - path: '@in2tiptap/tiptap/plugins/strikethrough.js'
         - path: '@in2tiptap/tiptap/plugins/link.js'
         - { path: '@in2tiptap/tiptap/plugins/list.js', exports: ['setupBulletList','setupOrderedList'] }
         - path: '@in2tiptap/tiptap/plugins/blockquote.js'
