@@ -205,10 +205,6 @@ onMounted(async () => {
           openOnClick: false,
         },
       }),
-      Focus.configure({
-        className: 'has-focus',
-        mode: 'all',
-      }),
       Typography,
       ...(configuration.value?.extensions ?? []) as Extension[],
     ],
