@@ -205,6 +205,10 @@ onMounted(async () => {
           openOnClick: false,
         },
       }),
+      Focus.configure({
+        className: 'has-focus',
+        mode: 'all',
+      }),
       Typography,
       ...(configuration.value?.extensions ?? []) as Extension[],
     ],
@@ -261,6 +265,7 @@ onUnmounted(() => editor.value?.destroy())
             <Dropdown
               :key="isHtmlSourceViewActive"
               :label="group.dropdown.label"
+              :editor-dom-node="editor.view.dom"
               :icon-identifier="group.dropdown.iconIdentifier"
               :items="group.commands
                 .filter(getCommandIsVisible)
@@ -319,6 +324,7 @@ onUnmounted(() => editor.value?.destroy())
                   :key="isHtmlSourceViewActive"
                   :label="group.dropdown.label"
                   :icon-identifier="group.dropdown.iconIdentifier"
+                  :editor-dom-node="editor.view.dom"
                   :items="group.commands
                     .filter(getCommandIsVisible)
                     .map(command => ({
@@ -368,7 +374,12 @@ onUnmounted(() => editor.value?.destroy())
       <div class="custom-drag-handle" />
     </DragHandle>
 
-    <EditorContent :editor="editor" />
+    <EditorContent
+      :editor="editor"
+      :class="{
+        'pl-9': enableContentDragAndDrop,
+      }"
+    />
 
     <Stylesheets
       v-if="configuration && configuration.styleSheets"
@@ -524,10 +535,7 @@ onUnmounted(() => editor.value?.destroy())
     margin-top: 0.75em;
   }
 
-  > * {
-    margin-left: 3rem;
-  }
-
+  >
   .ProseMirror-widget * {
     margin-top: auto;
   }
@@ -586,14 +594,27 @@ onUnmounted(() => editor.value?.destroy())
   &__content {
     display: grid;
     position: absolute;
-    inset-inline-end: 0;
-    transform-origin: top right;
     padding-block: 0.25rem;
     background-color: var(--tiptap-color-surface);
     border: 1px solid var(--tiptap-color-surface-border);
     border-radius: var(--tiptap-border-radius);
     box-shadow: var(--tiptap-box-shadow);
     z-index: 10;
+
+    &:not(&--bottom-left):not(&--bottom-right) {
+      visibility: hidden;
+      opacity: 0;
+    }
+
+    &--bottom-left {
+      inset-inline-start: 0;
+      transform-origin: top left;
+    }
+
+    &--bottom-right {
+      inset-inline-end: 0;
+      transform-origin: top right;
+    }
   }
 
   &__content-button {
@@ -663,6 +684,10 @@ onUnmounted(() => editor.value?.destroy())
   &:is(:hover, :focus)::after {
     background: var(--tiptap-color-surface-highlight);
   }
+}
+
+.pl-9 {
+  padding-left: 2.25rem;
 }
 
 .transition-enter-active {

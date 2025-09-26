@@ -1,11 +1,15 @@
 <script setup lang="ts">
+import type { Editor } from '@tiptap/core'
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import Icon from './Icon.vue'
+
+type ContentDirection = 'bottom-left' | 'bottom-right' | 'not-calculated'
 
 const props = defineProps<{
   label: string
   iconIdentifier: string
+  editorDomNode: Editor['view']['dom']
   items: {
     label: string
     icon: string
@@ -20,8 +24,28 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
+const dropdownContentRef = ref<InstanceType<typeof MenuItems> | null>(null)
+const dropdownButtonRef = ref<InstanceType<typeof MenuButton> | null>(null)
+const contentDirection = ref<ContentDirection>('not-calculated')
+
 const hasAvailableOptions = computed(() => props.items.some(item => !item.isDisabled))
 const hasActiveOption = computed(() => props.items.some(item => item.isActive))
+
+function calculateContentDirection(): ContentDirection {
+  if (!dropdownButtonRef.value)
+    return 'bottom-left'
+
+  const tipTapContainer = props.editorDomNode.getBoundingClientRect()
+  const dropdownButtonRect = dropdownButtonRef.value.$el.getBoundingClientRect()
+
+  // check if there is more than 200px space to the left of the button
+  const canOpenToTheLeft = dropdownButtonRect.left - tipTapContainer.left > 200
+  return canOpenToTheLeft ? 'bottom-right' : 'bottom-left'
+}
+
+onMounted(() => {
+  contentDirection.value = calculateContentDirection()
+})
 
 function onMenuAction(action: 'open' | 'close') {
   if (action === 'open') {
@@ -36,6 +60,7 @@ function onMenuAction(action: 'open' | 'close') {
 <template>
   <Menu as="div" class="tiptap-dropdown">
     <MenuButton
+      ref="dropdownButtonRef"
       class="tiptap-dropdown__button"
       :class="{
         'tiptap-dropdown__button--active': hasActiveOption,
@@ -61,7 +86,14 @@ function onMenuAction(action: 'open' | 'close') {
       @after-leave="() => onMenuAction('close')"
       @after-enter="() => onMenuAction('open')"
     >
-      <MenuItems class="tiptap-dropdown__content">
+      <MenuItems
+        ref="dropdownContentRef"
+        class="tiptap-dropdown__content"
+        :class="{
+          'tiptap-dropdown__content--bottom-left': contentDirection === 'bottom-left',
+          'tiptap-dropdown__content--bottom-right': contentDirection === 'bottom-right',
+        }"
+      >
         <template
           v-for="(item, index) in items"
           :key="`item-${index}`"
