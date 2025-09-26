@@ -177,8 +177,6 @@ function getCommandIsDisabledStatus(command: TipTapCommand) {
 }
 
 function getCommandIsVisible(command: TipTapCommand) {
-  console.log(1757599058383, { command })
-
   if (command.status && command.status.isVisible)
     return command.status.isVisible({ editor: editor.value! })
 
