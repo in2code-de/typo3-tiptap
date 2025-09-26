@@ -1,5 +1,6 @@
 import type { Editor } from '@tiptap/core'
 import Link from '@tiptap/extension-link'
+import { default as modalObject } from '@typo3/backend/modal.js';
 import { defineTipTapPlugin } from '../configuration.ts'
 
 /**
@@ -9,14 +10,18 @@ import { defineTipTapPlugin } from '../configuration.ts'
  */
 export default function () {
   // TODO: this function should open the TYPO3 link modal in the background and return the selected link
-  function getLinkUserInput(currentHref?: string) {
-    if (currentHref) {
-      // eslint-disable-next-line no-alert
-      return prompt('Update link URL:', currentHref) || ''
-    }
-
-    // eslint-disable-next-line no-alert
-    return prompt('Enter link URL:') || ''
+  function getLinkUserInput(editor: Editor, currentHref?: string) {
+    const linkBrowserRoute = document.querySelector('editor-tiptap').getAttribute('data-link-browser-url')
+    modalObject.advanced({
+      type: modalObject.types.iframe,
+      title: 'Set Link',
+      content: linkBrowserRoute +`${currentHref ? `&P[curUrl][url]=${(encodeURIComponent(currentHref))}` : ''}`,
+      size: modalObject.sizes.large,
+      callback: (currentModal) => {
+        // We pass the editor instance to the modal
+        currentModal.userData.editor = editor;
+      }
+    });
   }
 
   function handleLinkAction(editor: Editor) {
@@ -27,12 +32,10 @@ export default function () {
       const currentAttributes = editor.getAttributes('link')
       const currentHref = currentAttributes.href || ''
 
-      const newHref = getLinkUserInput(currentHref)
-      editor.chain().focus().extendMarkRange('link').setLink({ href: newHref }).run()
+      getLinkUserInput(editor, currentHref)
     }
     else {
-      const href = getLinkUserInput()
-      editor.chain().focus().setLink({ href }).run()
+      getLinkUserInput(editor)
     }
   }
 
@@ -41,6 +44,7 @@ export default function () {
       Link.configure({
         openOnClick: false,
         defaultProtocol: 'https',
+        protocols: ['http', 'https', 't3']
       }),
     ],
     commands: [
