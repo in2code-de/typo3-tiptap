@@ -21,6 +21,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, './src/index.ts'),
+        'rte-link-browser': resolve(__dirname, './src/rte-link-browser.ts'),
         ...plugins,
       },
       fileName: (_, entryName) => {
@@ -28,9 +29,16 @@ export default defineConfig({
           return 'index.js'
         }
 
+        if (entryName === 'rte-link-browser') {
+          return 'rte-link-browser.js'
+        }
+
         return `plugins/${entryName}.js`
       },
       formats: ['es'],
+    },
+    rollupOptions: {
+      external: ['@typo3/backend/link-browser.js', '@typo3/backend/modal.js', '@typo3/core/event/regular-event.js']
     },
     outDir: '../../packages/in2tiptap/Resources/Public/TipTap',
     emptyOutDir: true,
