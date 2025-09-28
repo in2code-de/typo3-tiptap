@@ -1,6 +1,6 @@
 import type { Editor } from '@tiptap/core'
 import Link from '@tiptap/extension-link'
-import { default as modalObject } from '@typo3/backend/modal.js';
+import { default as modalObject } from '@typo3/backend/modal.js'
 import { defineTipTapPlugin } from '../configuration.ts'
 
 /**
@@ -15,13 +15,13 @@ export default function () {
     modalObject.advanced({
       type: modalObject.types.iframe,
       title: 'Set Link',
-      content: linkBrowserRoute +`${currentHref ? `&P[curUrl][url]=${(encodeURIComponent(currentHref))}` : ''}`,
+      content: `${linkBrowserRoute}${currentHref ? `&P[curUrl][url]=${(encodeURIComponent(currentHref))}` : ''}`,
       size: modalObject.sizes.large,
       callback: (currentModal) => {
         // We pass the editor instance to the modal
-        currentModal.userData.editor = editor;
-      }
-    });
+        currentModal.userData.editor = editor
+      },
+    })
   }
 
   function handleLinkAction(editor: Editor) {
@@ -44,7 +44,7 @@ export default function () {
       Link.configure({
         openOnClick: false,
         defaultProtocol: 'https',
-        protocols: ['http', 'https', 't3']
+        protocols: ['http', 'https', 't3'],
       }),
     ],
     commands: [
