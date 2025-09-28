@@ -76,11 +76,15 @@
   border-radius: var(--tiptap-border-inner-radius);
   aspect-ratio: 1/1;
   block-size: 100%;
-  transition: ease 0.2s;
-  transition-property: background-color, color;
+  transition: ease 0.15s;
+  transition-property: background-color, color, transform;
 
-  &:is(:hover, :focus):not(:disabled) {
-    background-color: var(--tiptap-color-surface-highlight);
+  &:is(:hover, :focus):not(:disabled, .is-active) {
+    background-color: color-mix(in hsl, var(--tiptap-color-surface-highlight) 50%, transparent);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.8);
   }
 
   &:not(:disabled) {
@@ -171,7 +175,9 @@
     gap: 0.25rem;
     border: none;
     cursor: pointer;
-    transition: color 0.2s ease-in-out;
+    transition:
+      color 0.2s ease-in-out,
+      transform 0.1s ease-in-out;
 
     * {
       flex-shrink: 0;
@@ -296,32 +302,36 @@
   padding-left: 2.25rem;
 }
 
-.transition-enter-active {
-  transition: transform 100ms cubic-bezier(0, 0, 0.2, 1),
-  opacity 100ms cubic-bezier(0, 0, 0.2, 1);
-}
+.transition-dropdown {
+  --scale: 1;
+  --translate-y: 0;
+  --opacity: 1;
 
-.transition-enter-from {
-  transform: scale(0.95);
-  opacity: 0;
-}
+  $this: &;
 
-.transition-enter-to {
-  transform: scale(1);
-  opacity: 1;
-}
+  transform: scale(var(--scale)) translateY(var(--translate-y));
+  opacity: var(--opacity);
+  transition:
+    transform 75ms cubic-bezier(0.4, 0, 1, 1),
+    opacity 75ms cubic-bezier(0.4, 0, 1, 1);
 
-.transition-leave-active {
-  transition: transform 75ms cubic-bezier(0.4, 0, 1, 1),
-  opacity 75ms cubic-bezier(0.4, 0, 1, 1);
-}
+  &-enter-from {
+    --scale: 0.95;
+    --opacity: 1;
+  }
 
-.transition-leave-from {
-  transform: scale(1);
-  opacity: 1;
-}
+  &-enter-to {
+    --scale: 1;
+    --opacity: 1;
+  }
 
-.transition-leave-to {
-  transform: scale(0.95);
-  opacity: 0;
+  &-leave-from {
+    --scale: 1;
+    --opacity: 1;
+  }
+
+  &-leave-to {
+    --scale: 0.95;
+    --opacity: 0;
+  }
 }
