@@ -204,9 +204,11 @@ onMounted(async () => {
     content: textarea.value.value,
     extensions: [
       StarterKit.configure({
-        link: {
-          openOnClick: false,
-        },
+        link: false,
+        bulletList: false,
+        orderedList: false,
+        heading: false,
+        underline: false,
       }),
       Typography,
       ...(configuration.value?.extensions ?? []) as Extension[],
