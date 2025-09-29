@@ -11,13 +11,14 @@
  * The TYPO3 project - inspiring people to share!
  */
 
+import type { Editor } from '@tiptap/core'
 import type { LinkAttributes } from '@typo3/backend/link-browser.js'
 import LinkBrowser from '@typo3/backend/link-browser.js'
 import Modal from '@typo3/backend/modal.js'
 import RegularEvent from '@typo3/core/event/regular-event.js'
 
 class RteLinkBrowser {
-  protected editor = null
+  protected editor: Editor | undefined
 
   public initialize(): void {
     // we get the editor instance from the modal
@@ -44,10 +45,21 @@ class RteLinkBrowser {
 
     const linkText = '' // @todo future feature: e.g. add page title as link-text (if applicable)
     const linkAttrs = this.convertAttributes(attributes, linkText)
-    // we set the link with the editor instance from the modal
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
-    this.editor.chain().focus().extendMarkRange('link').setLink({ href: link }).run()
+
+    if (!this.editor) {
+      throw new Error('Editor instance is not set in RteLinkBrowser')
+    }
+
+    console.log(1759133513826, linkAttrs.attrs)
+
+    this.editor
+      .chain()
+      .focus()
+      .extendMarkRange('link')
+      .setLink({ href: link })
+      .updateAttributes('link', linkAttrs.attrs)
+      .run()
+
     Modal.dismiss()
   }
 

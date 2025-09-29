@@ -1,7 +1,30 @@
 import type { Editor } from '@tiptap/core'
-import Link from '@tiptap/extension-link'
+import { Link } from '@tiptap/extension-link'
 import { default as modalObject } from '@typo3/backend/modal.js'
 import { defineTipTapPlugin } from '../configuration.ts'
+
+/**
+ * Custom Link Extension that allows additional attributes (like title)
+ */
+export const CustomLink = Link.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      title: {
+        default: null,
+        parseHTML: element => element.getAttribute('title'),
+        renderHTML: (attributes) => {
+          if (!attributes.title) {
+            return {}
+          }
+          return {
+            title: attributes.title,
+          }
+        },
+      },
+    }
+  },
+})
 
 /**
  * This plugin adds support for links in the editor.
@@ -41,7 +64,7 @@ export default function () {
 
   defineTipTapPlugin({
     extensions: [
-      Link.configure({
+      CustomLink.configure({
         openOnClick: false,
         defaultProtocol: 'https',
         protocols: ['http', 'https', 't3'],
@@ -59,34 +82,6 @@ export default function () {
         status: {
           isActive: ({ editor }) => editor.isActive('link'),
           isDisabled: ({ editor }) => !editor.can().setLink({ href: '' }),
-        },
-        hooks: {
-          // catch all link clicks and open in new tab
-          onEditorMounted: ({ editor }) => {
-            // editor.view.dom.addEventListener('click', (event) => {
-            //   const target = event.target as HTMLElement
-            //   if (target.tagName === 'A') {
-            //     event.preventDefault()
-            //     event.stopImmediatePropagation()
-            //     console.log('Link click blocked!')
-            //   }
-            // })
-
-            // console.log(1756816574113, editor)
-            // editor.view.dom.addEventListener('click', (event) => {
-            //   const target = event.target as HTMLElement
-            //
-            //   if (target.tagName !== 'A')
-            //     return
-            //
-            //   event.preventDefault()
-            //   event.stopPropagation()
-            //
-            //   console.log('Self-calling arrow function executed!')
-            //
-            //   handleLinkAction(editor)
-            // })
-          },
         },
         onExecute: ({ editor }) => handleLinkAction(editor),
       },
