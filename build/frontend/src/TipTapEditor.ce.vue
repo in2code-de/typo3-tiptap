@@ -396,5 +396,5 @@ onUnmounted(() => editor.value?.destroy())
 </template>
 
 <style lang="scss">
-@import './styles';
+@use './styles';
 </style>
