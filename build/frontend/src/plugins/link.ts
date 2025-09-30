@@ -53,16 +53,8 @@ export default function () {
           isActive: ({ editor }) => editor.isActive('link'),
           isDisabled: ({ editor }) => !editor.can().setLink({ href: '' }),
         },
-        onExecute: ({ editor }) => {
-          const tipTapDomContainer = editor.view.dom.getRootNode()?.host as HTMLElement | undefined
-          if (!tipTapDomContainer)
-            throw new Error('Could not find the editor-tiptap container element')
-
-          const linkBrowserUrlRaw = tipTapDomContainer.getAttribute('data-link-browser-url')
-          if (!linkBrowserUrlRaw)
-            throw new Error('Link browser URL is not defined in the editor configuration')
-
-          const linkBrowserUrl = new URL(linkBrowserUrlRaw, window.location.origin)
+        onExecute: ({ editor, linkBrowserUrl }) => {
+          const url = new URL(linkBrowserUrl, window.location.origin)
 
           const isLinkActive = editor.isActive('link')
           if (isLinkActive) {
@@ -72,14 +64,14 @@ export default function () {
               .filter(([, value]) => Boolean(value))
               .forEach(([key, value]) => {
                 const urlKey = key === 'href' ? 'url' : encodeURIComponent(key)
-                linkBrowserUrl.searchParams.set(`P[curUrl][${urlKey}]`, value as string)
+                url.searchParams.set(`P[curUrl][${urlKey}]`, value as string)
               })
           }
 
           modalObject.advanced({
             type: modalObject.types.iframe,
             title: 'Set Link',
-            content: linkBrowserUrl.toString(),
+            content: url.toString(),
             size: modalObject.sizes.large,
             callback: (currentModal: any) => {
               // We pass the editor instance to the modal
