@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace In2code\In2TipTap\Form\Element;
 
+use In2code\In2TipTap\Editor\ConfigurationService;
 use In2code\In2TipTap\Exception\MissingEditorConfigurationException;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
+use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -42,10 +44,18 @@ class TipTapTextElement extends AbstractFormElement
         ],
     ];
 
+    protected ConfigurationService $configurationService;
+
+    public function __construct(ConfigurationService $configurationService)
+    {
+        $this->configurationService = $configurationService;
+    }
+
     /**
      * Renders the ckeditor element
      *
-     * @throws \InvalidArgumentException
+     * @throws MissingEditorConfigurationException
+     * @throws RouteNotFoundException
      */
     public function render(): array
     {
@@ -70,12 +80,6 @@ class TipTapTextElement extends AbstractFormElement
         $fieldWizardHtml = $fieldWizardResult['html'];
         $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldWizardResult, false);
 
-        $editorConfiguration = $config['richtextConfiguration']['editor']['tiptap']['config'] ??
-            throw new MissingEditorConfigurationException(
-                'Missing editor configuration for tiptap',
-                1755159351
-            );
-
         // @todo make this configurable
         $urlParameters = [
             'P' => [
@@ -93,7 +97,10 @@ class TipTapTextElement extends AbstractFormElement
 
         $editorAttributes = GeneralUtility::implodeAttributes([
             'id' => $fieldId . 'tiptap',
-            'plugins' => GeneralUtility::jsonEncodeForHtmlAttribute($editorConfiguration['plugins'] ?? [], false),
+            'options' => GeneralUtility::jsonEncodeForHtmlAttribute(
+                $this->configurationService->getConfiguration($config),
+                false
+            ),
             'enable-content-drag-and-drop' => 'true',
             'data-link-browser-url' => $linkBrowserRoute,
         ], true);
