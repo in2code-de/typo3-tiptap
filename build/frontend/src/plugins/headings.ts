@@ -1,20 +1,35 @@
 import type { Level } from '@tiptap/extension-heading'
 import Heading from '@tiptap/extension-heading'
-import { defineTipTapPlugin } from '../configuration.ts'
+import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from '../configuration.ts'
 
-const activeHeadingLevels: Level[] = []
+export default function (unsafeConfig: unknown) {
+  const config = parseTipTapPluginYamlConfiguration({
+    pluginId: 'headings',
+    config: unsafeConfig,
+    getValidationSchema: (z) => {
+      const headingLevelSchema = z.custom<Level[]>((val) => {
+        if (!Array.isArray(val) || val.length === 0)
+          return false
 
-export function finishHeadingLevelSetup() {
-  if (activeHeadingLevels.length === 0)
-    throw new Error('At least one heading level must be activated.')
+        const validHeadingLevels = [1, 2, 3, 4, 5, 6]
+        return val.some(v => validHeadingLevels.includes(v))
+      }, {
+        message: 'Must be an array of numbers between 1 and 6 with at least one element',
+      })
+
+      return z.object({
+        levels: headingLevelSchema,
+      })
+    },
+  })
 
   defineTipTapPlugin({
     extensions: [
       Heading.configure({
-        levels: activeHeadingLevels.slice().sort(),
+        levels: config.levels,
       }),
     ],
-    commands: activeHeadingLevels.map(level => ({
+    commands: config.levels.map(level => ({
       id: `heading-${level}`,
       label: `Heading ${level}`,
       iconIdentifier: `heading-${level}`,
@@ -37,28 +52,4 @@ export function finishHeadingLevelSetup() {
       },
     })),
   })
-}
-
-export function setupHeadingLevel1() {
-  activeHeadingLevels.push(1)
-}
-
-export function setupHeadingLevel2() {
-  activeHeadingLevels.push(2)
-}
-
-export function setupHeadingLevel3() {
-  activeHeadingLevels.push(3)
-}
-
-export function setupHeadingLevel4() {
-  activeHeadingLevels.push(4)
-}
-
-export function setupHeadingLevel5() {
-  activeHeadingLevels.push(5)
-}
-
-export function setupHeadingLevel6() {
-  activeHeadingLevels.push(6)
 }

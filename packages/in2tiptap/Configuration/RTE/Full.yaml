@@ -7,19 +7,27 @@ editor:
       enableContentDragAndDrop: true
 
       plugins:
-        - { path: '@in2tiptap/tiptap/plugins/headings.js', config: { levels: "1,2,3,4,5,6" } }
-        - { path: '@in2tiptap/tiptap/plugins/undo.js' }
-        - { path: '@in2tiptap/tiptap/plugins/redo.js' }
-        - { path: '@in2tiptap/tiptap/plugins/bold.js' }
-        - { path: '@in2tiptap/tiptap/plugins/underline.js' }
-        - { path: '@in2tiptap/tiptap/plugins/italic.js' }
-        - { path: '@in2tiptap/tiptap/plugins/strikethrough.js' }
-        - { path: '@in2tiptap/tiptap/plugins/link.js' }
-        - { path: '@in2tiptap/tiptap/plugins/list.js', config: { types: "ordered,bullet" } }
-        - { path: '@in2tiptap/tiptap/plugins/blockquote.js' }
-        - { path: '@in2tiptap/tiptap/plugins/justify.js' }
-        - { path: '@in2tiptap/tiptap/plugins/source.js' }
-        - {
-          path: '@in2tiptap/tiptap/plugins/style.js',
-          config: { name: "Default button - Arrow", element: "a", classes: "btn btn--arrow" }
-        }
+        - path: '@in2tiptap/tiptap/plugins/headings.js'
+          config: { levels: [1, 2, 3, 4, 5, 6] }
+        - path: '@in2tiptap/tiptap/plugins/undo.js'
+        - path: '@in2tiptap/tiptap/plugins/redo.js'
+        - path: '@in2tiptap/tiptap/plugins/bold.js'
+        - path: '@in2tiptap/tiptap/plugins/underline.js'
+        - path: '@in2tiptap/tiptap/plugins/italic.js'
+        - path: '@in2tiptap/tiptap/plugins/strikethrough.js'
+        - path: '@in2tiptap/tiptap/plugins/link.js'
+        - path: '@in2tiptap/tiptap/plugins/list.js'
+          config:
+            types: [ "ordered", "bullet" ]
+        - path: '@in2tiptap/tiptap/plugins/blockquote.js'
+        - path: '@in2tiptap/tiptap/plugins/justify.js'
+          config:
+            types: [ "justify-left", "justify-center", "justify-right" ]
+        - path: '@in2tiptap/tiptap/plugins/source.js'
+        - path: '@in2tiptap/tiptap/plugins/styles.js'
+          config:
+            styles:
+              - { name: "Arrow Red", element: "a", classes: "btn btn--red" }
+              - { name: "Arrow Blue", element: "a", classes: "btn btn--blue" }
+              - { name: "Paragraph Blue", element: "p", classes: "paragraph-blue" }
+              - { name: "Paragraph Red", element: "p", classes: "paragraph-green" }

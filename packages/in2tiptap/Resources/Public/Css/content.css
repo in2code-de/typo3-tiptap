@@ -1,0 +1,20 @@
+.btn {
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+}
+
+.btn--red {
+  background-color: red;
+}
+
+.btn--blue {
+  background-color: blue;
+}
+
+.paragraph-blue {
+  color: blue;
+}
+
+.paragraph-red {
+  color: red;
+}

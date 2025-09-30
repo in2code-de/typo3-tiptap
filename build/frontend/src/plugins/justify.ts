@@ -1,11 +1,76 @@
+import type { TipTapPluginCommand } from '../schema/plugins.ts'
 import TextAlign from '@tiptap/extension-text-align'
-import { defineTipTapPlugin } from '../configuration.ts'
+import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from '../configuration.ts'
 
-let hasTextAlignExtensionBeenSetup = false
+export default function (unsafeConfig: unknown) {
+  const config = parseTipTapPluginYamlConfiguration({
+    pluginId: 'justify',
+    config: unsafeConfig,
+    getValidationSchema: z => z.object({
+      types: z.array(z.enum(['justify-left', 'justify-center', 'justify-right'])).min(1),
+    }, {
+      error: 'Must be an object with a "types" property that is an array containing at least one of "justify-left", "justify-center", or "justify-right"',
+    }),
+  })
 
-function ensureTextAlignPluginSetup() {
-  if (hasTextAlignExtensionBeenSetup)
-    return
+  const commands: TipTapPluginCommand[] = []
+
+  if (config.types.includes('justify-left')) {
+    commands.push({
+      id: 'justify-left',
+      label: 'Justify Left',
+      iconIdentifier: 'justify-left',
+      position: {
+        toolbarGroupId: 'textAlignment',
+        bubbleMenuGroupId: false,
+      },
+      status: {
+        isActive: ({ editor }) => editor.isActive({ textAlign: 'left' }),
+        isDisabled: ({ editor }) => !editor.can().setTextAlign('left'),
+      },
+      onExecute: ({ editor }) => {
+        editor.chain().focus().setTextAlign('left').run()
+      },
+    })
+  }
+
+  if (config.types.includes('justify-center')) {
+    commands.push({
+      id: 'justify-center',
+      label: 'Justify Center',
+      iconIdentifier: 'justify-center',
+      position: {
+        toolbarGroupId: 'textAlignment',
+        bubbleMenuGroupId: false,
+      },
+      status: {
+        isActive: ({ editor }) => editor.isActive({ textAlign: 'center' }),
+        isDisabled: ({ editor }) => !editor.can().setTextAlign('center'),
+      },
+      onExecute: ({ editor }) => {
+        editor.chain().focus().setTextAlign('center').run()
+      },
+    })
+  }
+
+  if (config.types.includes('justify-right')) {
+    commands.push({
+      id: 'justify-right',
+      label: 'Justify Right',
+      iconIdentifier: 'justify-right',
+      position: {
+        toolbarGroupId: 'textAlignment',
+        bubbleMenuGroupId: false,
+      },
+      status: {
+        isActive: ({ editor }) => editor.isActive({ textAlign: 'right' }),
+        isDisabled: ({ editor }) => !editor.can().setTextAlign('right'),
+      },
+      onExecute: ({ editor }) => {
+        editor.chain().focus().setTextAlign('right').run()
+      },
+    })
+  }
 
   defineTipTapPlugin({
     extensions: [
@@ -14,83 +79,6 @@ function ensureTextAlignPluginSetup() {
         types: ['heading', 'paragraph'],
       }),
     ],
-  })
-
-  hasTextAlignExtensionBeenSetup = true
-}
-
-export function setupJustifyLeft() {
-  ensureTextAlignPluginSetup()
-
-  defineTipTapPlugin({
-    commands: [
-      {
-        id: 'justify-left',
-        label: 'Justify Left',
-        iconIdentifier: 'justify-left',
-        position: {
-          toolbarGroupId: 'textAlignment',
-          bubbleMenuGroupId: false,
-        },
-        status: {
-          isActive: ({ editor }) => editor.isActive({ textAlign: 'left' }),
-          isDisabled: ({ editor }) => !editor.can().setTextAlign('left'),
-        },
-        onExecute: ({ editor }) => {
-          editor.chain().focus().setTextAlign('left').run()
-        },
-      },
-    ],
-  })
-}
-
-export function setupJustifyCenter() {
-  ensureTextAlignPluginSetup()
-
-  defineTipTapPlugin({
-    commands: [
-      {
-        id: 'justify-center',
-        label: 'Justify Center',
-        iconIdentifier: 'justify-center',
-        position: {
-          toolbarGroupId: 'textAlignment',
-          bubbleMenuGroupId: false,
-        },
-        status: {
-          isActive: ({ editor }) => editor.isActive({ textAlign: 'center' }),
-          isDisabled: ({ editor }) => !editor.can().setTextAlign('center'),
-        },
-        onExecute: ({ editor }) => {
-          editor.chain().focus().setTextAlign('center').run()
-        },
-      },
-    ],
-  })
-}
-
-export function setupJustifyRight() {
-  ensureTextAlignPluginSetup()
-
-  defineTipTapPlugin({
-    commands: [
-      {
-        id: 'justify-right',
-        label: 'Justify Right',
-        iconIdentifier: 'justify-right',
-        position: {
-          toolbarGroupId: 'textAlignment',
-          bubbleMenuGroupId: false,
-        },
-        status: {
-          isActive: ({ editor }) => editor.isActive({ textAlign: 'right' }),
-          isDisabled: ({ editor }) => !editor.can().setTextAlign('right'),
-        },
-        onExecute: ({ editor }) => {
-          console.log(1754577632277, 'called1')
-          editor.chain().focus().setTextAlign('right').run()
-        },
-      },
-    ],
+    commands,
   })
 }

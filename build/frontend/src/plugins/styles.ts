@@ -1,11 +1,12 @@
 import type { Commands, Editor } from '@tiptap/core'
 import type { EditorState } from '@tiptap/pm/state'
 import type { Mark, Node as ProseMirrorNode } from 'prosemirror-model'
-import type { TipTapCommand, TipTapStatusCallbackFn } from '../types'
+import type { TipTapBooleanCallbackFunction, TipTapPluginCommand } from '../schema/plugins.ts'
 import { throttle } from '@antfu/utils'
 import { Extension } from '@tiptap/core'
 import { ref } from 'vue'
-import { defineTipTapPlugin } from '../configuration.ts'
+import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from '../configuration.ts'
+import { stylesPluginConfigSchema } from '../schema/plugin/styles.ts'
 import { createThrottledCache } from '../utils.ts'
 
 declare module '@tiptap/core' {
@@ -299,68 +300,17 @@ const StyleExtension = Extension.create({
   },
 })
 
-const styles: {
-  name: string
-  element: string
-  classes: string[]
-}[] = [
-  {
-    name: 'Orange Title h1',
-    element: 'h1',
-    classes: ['text-3xl', 'font-bold', 'text-orange-600'],
-  },
-  {
-    name: 'Orange Title H2',
-    element: 'h2',
-    classes: ['text-3xl', 'font-bold', 'text-orange-600'],
-  },
-  {
-    name: 'Blue Title H3',
-    element: 'h3',
-    classes: ['text-2xl', 'font-bold', 'text-blue-600'],
-  },
-  {
-    name: 'Link Blue',
-    element: 'a',
-    classes: ['text-blue-600', 'underline'],
-  },
-  {
-    name: 'Green Title H4',
-    element: 'h4',
-    classes: ['text-xl', 'font-bold', 'text-green-600'],
-  },
-  {
-    name: 'Paragraph Green',
-    element: 'p',
-    classes: ['text-green-600'],
-  },
-  {
-    name: 'Paragraph Blue',
-    element: 'p',
-    classes: ['text-blue-600'],
-  },
-  {
-    name: 'Unordered List Blue',
-    element: 'ul',
-    classes: ['list-disc', 'list-inside', 'text-blue-600'],
-  },
-  {
-    name: 'Ordered List Blue',
-    element: 'ol',
-    classes: ['list-disc', 'list-inside', 'text-blue-600'],
-  },
-  {
-    name: 'Strong Blue',
-    element: 'strong',
-    classes: ['text-blue-600'],
-  },
-]
-
 /**
  * This plugin adds support for italic text in the editor.
  * Italic extension installed by TipTap starterkit
  */
-export default function () {
+export default function (unsafeConfig: unknown) {
+  const config = parseTipTapPluginYamlConfiguration({
+    pluginId: 'styles',
+    config: unsafeConfig,
+    getValidationSchema: () => stylesPluginConfigSchema,
+  })
+
   const currentSelectedParentNode = ref<ParentNodeResult>()
 
   const generateId = (id: string) => id.replaceAll(' ', '_').toLowerCase()
@@ -369,16 +319,16 @@ export default function () {
     extensions: [
       StyleExtension,
     ],
-    commands: styles.map((style, index) => {
+    commands: config.styles.map((style, index) => {
       const isActiveThrottledAndCached = createThrottledCache(({ editor }: { editor: Editor }) => {
-        return editor.commands.hasNodeClass(style.classes.toSorted().join(' '))
-      }, 300)
+        return editor.commands.hasNodeClass(style.classes)
+      }, 300) as unknown as TipTapBooleanCallbackFunction
 
       const isVisibleThrottledAndCached = createThrottledCache(() => {
         return currentSelectedParentNode.value?.tagName === style.element
-      }, 300)
+      }, 300) as unknown as TipTapBooleanCallbackFunction
 
-      const joinedNodeClasses = style.classes.toSorted().join(' ')
+      const joinedNodeClasses = style.classes
 
       return {
         id: generateId(`style:${style.name}`),
@@ -389,8 +339,8 @@ export default function () {
           bubbleMenuGroupId: 'styles',
         },
         status: {
-          isActive: isActiveThrottledAndCached as unknown as TipTapStatusCallbackFn,
-          isVisible: isVisibleThrottledAndCached as unknown as TipTapStatusCallbackFn,
+          isActive: isActiveThrottledAndCached!,
+          isVisible: isVisibleThrottledAndCached!,
         },
         onExecute: ({ editor }) => {
           editor
@@ -412,7 +362,7 @@ export default function () {
               }
             : undefined,
         },
-      } satisfies TipTapCommand
+      } satisfies TipTapPluginCommand
     }),
   })
 }
