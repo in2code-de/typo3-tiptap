@@ -9,3 +9,5 @@ export {
   defineTipTapPlugin,
   parseTipTapPluginYamlConfiguration,
 }
+
+export * from '@tiptap/core'

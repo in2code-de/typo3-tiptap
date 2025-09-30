@@ -30,4 +30,5 @@ editor:
               - { name: "Arrow Red", element: "a", classes: "btn btn--red" }
               - { name: "Arrow Blue", element: "a", classes: "btn btn--blue" }
               - { name: "Paragraph Blue", element: "p", classes: "paragraph-blue" }
-              - { name: "Paragraph Red", element: "p", classes: "paragraph-green" }
+              - { name: "Paragraph Red", element: "p", classes: "paragraph-red" }
+        - path: '@example/in2code/Plugins/cookie.js'
