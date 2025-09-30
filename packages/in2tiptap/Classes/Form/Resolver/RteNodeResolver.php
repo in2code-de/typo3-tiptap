@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace In2code\In2TipTap\Form\Resolver;
 
-use In2code\In2TipTap\Exception\MissingEditorConfigurationException;
 use In2code\In2TipTap\Form\Element\TipTapTextElement;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Form\NodeResolverInterface;
@@ -25,9 +24,6 @@ class RteNodeResolver implements NodeResolverInterface
 
     /**
      * Returns RichTextElement as class name if RTE widget should be rendered.
-     *
-     * @return string|null New class name or null if this resolver does not change current class name.
-     * @throws MissingEditorConfigurationException
      */
     public function resolve(): ?string
     {
