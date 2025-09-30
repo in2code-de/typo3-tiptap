@@ -3,6 +3,8 @@
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "moduleDetection": "force",
+    "useDefineForClassFields": false,
+    "experimentalDecorators": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
     "types": ["vite/client"],
@@ -13,9 +15,7 @@
     "noUnusedParameters": true,
     "noEmit": true,
     "isolatedModules": true,
-    "skipLibCheck": true,
-    "experimentalDecorators": true,
-    "useDefineForClassFields": false
+    "skipLibCheck": true
   },
   "include": ["src"]
 }

@@ -1,6 +1,6 @@
 import { objectEntries } from '@antfu/utils'
 import { Link } from '@tiptap/extension-link'
-import { default as modalObject } from '@typo3/backend/modal.js'
+import typo3Modal from '@typo3/backend/modal.js'
 import { defineTipTapPlugin } from '../configuration.ts'
 
 /**
@@ -68,11 +68,11 @@ export default function () {
               })
           }
 
-          modalObject.advanced({
-            type: modalObject.types.iframe,
+          typo3Modal.advanced({
+            type: typo3Modal.types.iframe,
             title: 'Set Link',
             content: url.toString(),
-            size: modalObject.sizes.large,
+            size: typo3Modal.sizes.large,
             callback: (currentModal: any) => {
               // We pass the editor instance to the modal
               currentModal.userData.editor = editor

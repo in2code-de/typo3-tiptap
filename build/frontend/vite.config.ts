@@ -20,7 +20,7 @@ export default defineConfig({
     target: 'esnext',
     lib: {
       entry: {
-        index: resolve(__dirname, './src/index.ts'),
+        'index': resolve(__dirname, './src/index.ts'),
         'rte-link-browser': resolve(__dirname, './src/rte-link-browser.ts'),
         ...plugins,
       },
@@ -38,7 +38,7 @@ export default defineConfig({
       formats: ['es'],
     },
     rollupOptions: {
-      external: ['@typo3/backend/link-browser.js', '@typo3/backend/modal.js', '@typo3/core/event/regular-event.js']
+      external: ['@typo3/backend/link-browser.js', '@typo3/backend/modal.js', '@typo3/core/event/regular-event.js'],
     },
     outDir: '../../packages/in2tiptap/Resources/Public/TipTap',
     emptyOutDir: true,
