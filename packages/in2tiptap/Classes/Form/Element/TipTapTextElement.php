@@ -80,27 +80,10 @@ class TipTapTextElement extends AbstractFormElement
         $fieldWizardHtml = $fieldWizardResult['html'];
         $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldWizardResult, false);
 
-        // @todo make this configurable
-        $urlParameters = [
-            'P' => [
-                'table'      => $this->data['tableName'],
-                'uid'        => $this->data['databaseRow']['uid'],
-                'fieldName'  => $this->data['fieldName'],
-                'recordType' => $this->data['recordTypeValue'],
-                'pid'        => $this->data['effectivePid'],
-            ],
-        ];
-
-        $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        $linkBrowserRoute = (string)$uriBuilder->buildUriFromRoute('in2tiptap_wizard_browse_links', $urlParameters);
-        // END todo
-
-        $editorOptions = $this->configurationService->getConfiguration($config);
+        $editorOptions = $this->configurationService->getConfiguration($config, $this->data);
+        $editorOptions['id'] = $fieldId . 'tiptap';
         $editorAttributes = GeneralUtility::implodeAttributes([
-            'id' => $fieldId . 'tiptap',
             'options' => GeneralUtility::jsonEncodeForHtmlAttribute($editorOptions, false),
-            'enable-content-drag-and-drop' => $this->configurationService->isDragAndDropEnabled($editorOptions) ? 'true' : 'false',
-            'data-link-browser-url' => $linkBrowserRoute,
         ], true);
 
         $textareaAttributes = GeneralUtility::implodeAttributes([
