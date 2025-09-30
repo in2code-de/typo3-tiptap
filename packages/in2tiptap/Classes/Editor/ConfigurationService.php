@@ -25,6 +25,11 @@ class ConfigurationService
         return $editorConfiguration;
     }
 
+    public function isDragAndDropEnabled(array $editorConfiguration): bool
+    {
+        return boolval($editorConfiguration['enableContentDragAndDrop'] ?? true);
+    }
+
     protected function resolveStylePaths(array $styles): array
     {
         $resolvedStyles = [];

@@ -95,13 +95,11 @@ class TipTapTextElement extends AbstractFormElement
         $linkBrowserRoute = (string)$uriBuilder->buildUriFromRoute('in2tiptap_wizard_browse_links', $urlParameters);
         // END todo
 
+        $editorOptions = $this->configurationService->getConfiguration($config);
         $editorAttributes = GeneralUtility::implodeAttributes([
             'id' => $fieldId . 'tiptap',
-            'options' => GeneralUtility::jsonEncodeForHtmlAttribute(
-                $this->configurationService->getConfiguration($config),
-                false
-            ),
-            'enable-content-drag-and-drop' => 'true',
+            'options' => GeneralUtility::jsonEncodeForHtmlAttribute($editorOptions, false),
+            'enable-content-drag-and-drop' => $this->configurationService->isDragAndDropEnabled($editorOptions) ? 'true' : 'false',
             'data-link-browser-url' => $linkBrowserRoute,
         ], true);
 

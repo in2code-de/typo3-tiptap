@@ -8,6 +8,8 @@ editor:
         definitions:
           - { name: "Default button - Arrow", element: "a", classes: "btn btn--arrow" }
 
+      enableContentDragAndDrop: true
+
       plugins:
         - { path: '@in2tiptap/tiptap/plugins/headings.js', config: { levels: "1,2,3,4,5,6" } }
         - { path: '@in2tiptap/tiptap/plugins/undo.js' }
