@@ -2,6 +2,8 @@
 
 This extension provides a TipTap rich text editor integration for the TYPO3 CMS system.
 
+The development of this MVP extension was funded by the [TYPO3 Association](https://typo3.org): [commnuity ideas](https://typo3.org/article/members-have-selected-five-ideas-to-be-funded-in-quarter-3-2025)
+
 ## Setup
 * TODO: Add setup guide
 
