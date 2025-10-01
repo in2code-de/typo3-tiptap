@@ -4,27 +4,25 @@ editor:
       enableContentDragAndDrop: true
 
       plugins:
-        - path: '@in2tiptap/tiptap/plugins/headings.js'
+        - path: "@in2tiptap/tiptap/plugins/headings.js"
           config: { levels: [1, 2, 3, 4, 5, 6] }
-        - path: '@in2tiptap/tiptap/plugins/history.js'
-          config: { types: [ 'undo', 'redo' ] }
-        - path: '@in2tiptap/tiptap/plugins/bold.js'
-        - path: '@in2tiptap/tiptap/plugins/underline.js'
-        - path: '@in2tiptap/tiptap/plugins/italic.js'
-        - path: '@in2tiptap/tiptap/plugins/strikethrough.js'
-        - path: '@in2tiptap/tiptap/plugins/link.js'
-        - path: '@in2tiptap/tiptap/plugins/list.js'
+        - path: "@in2tiptap/tiptap/plugins/history.js"
+          config: { types: [ "undo", "redo" ] }
+        - path: "@in2tiptap/tiptap/plugins/bold.js"
+        - path: "@in2tiptap/tiptap/plugins/underline.js"
+        - path: "@in2tiptap/tiptap/plugins/italic.js"
+        - path: "@in2tiptap/tiptap/plugins/strikethrough.js"
+        - path: "@in2tiptap/tiptap/plugins/link.js"
+        - path: "@in2tiptap/tiptap/plugins/list.js"
           config:
             types: [ "ordered", "bullet" ]
-        - path: '@in2tiptap/tiptap/plugins/blockquote.js'
-        - path: '@in2tiptap/tiptap/plugins/justify.js'
+        - path: "@in2tiptap/tiptap/plugins/blockquote.js"
+        - path: "@in2tiptap/tiptap/plugins/justify.js"
           config:
             types: [ "justify-left", "justify-center", "justify-right" ]
-        - path: '@in2tiptap/tiptap/plugins/source.js'
-        - path: '@in2tiptap/tiptap/plugins/styles.js'
+        - path: "@in2tiptap/tiptap/plugins/source.js"
+        - path: "@in2tiptap/tiptap/plugins/styles.js"
           config:
             styles:
-              - { name: 'Orange title H2', element: 'h2', classes: ['orange'] }
-              - { name: 'Orange title H3', element: 'h3', classes: ['orange'] }
-              - { name: 'Quote / Citation', element: 'blockquote' }
-              - { name: 'Code block', element: 'code'  }
+              - { name: "Orange title H2", element: "h2", classes: "orange" }
+              - { name: "Orange title H3", element: "h3", classes: "orange" }
