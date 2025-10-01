@@ -47,7 +47,7 @@ const shouldShowBubbleMenu = computed(() => {
   if (isTopBarDropdownActive.value)
     return false
 
-  if (selectionCharacterCount.value <= 50) {
+  if (selectionCharacterCount.value <= 250) {
     return false
   }
 
@@ -353,7 +353,7 @@ onUnmounted(() => editor.value?.destroy())
     </nav>
 
     <DragHandle
-      v-if="enableContentDragAndDrop === 'true'"
+      v-if="options.enableContentDragAndDrop"
       :editor="editor"
     >
       <div class="custom-drag-handle" />
@@ -362,7 +362,7 @@ onUnmounted(() => editor.value?.destroy())
     <EditorContent
       :editor="editor"
       :class="{
-        'pl-9': enableContentDragAndDrop,
+        'pl-9': options.enableContentDragAndDrop,
       }"
     />
 
