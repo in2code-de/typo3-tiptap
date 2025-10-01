@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 
 const props = withDefaults(defineProps<{
-  icon: keyof typeof icons
+  icon: string
   size?: `${number}px`
 }>(), {
   size: '16px',
@@ -43,11 +43,23 @@ const selectedIcon = computed(() => icons[props.icon] || '')
 
 <template>
   <span
+    v-if="selectedIcon"
     class="icon-wrapper"
     :style="{
       width: props.size,
       height: props.size,
     }"
     v-html="selectedIcon"
+  />
+
+  <component
+    is="typo3-backend-icon"
+    v-else
+    :identifier="props.icon"
+    size="small"
+    :style="{
+      width: props.size,
+      height: props.size,
+    }"
   />
 </template>
