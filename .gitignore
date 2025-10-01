@@ -1,8 +1,3 @@
-/bin/
-/public/*
-/var/
-/vendor/
-/typo3_core/
 *.idea
 *.project
 *.vscode
@@ -10,4 +5,13 @@
 .DS_Store
 .history
 node_modules
-packages/in2tiptap/Resources/Public/TipTap
+
+/.Build/bin/
+/.Build/public/
+/.Build/var/
+/.Build/vendor/
+/Resources/Public/TipTap/
+/config/
+/var/
+
+composer.lock

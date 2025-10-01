@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+# project setup
+mkdir -p /var/www/html/config/
+cp -r /var/www/html/.Build/data/config /var/www/html/
+
+# install composer dependencies
+composer install

@@ -1,9 +1,6 @@
 editor:
   tiptap:
     config:
-      contentCss:
-        - 'EXT:in2tiptap/Resources/Public/Css/content.css'
-
       enableContentDragAndDrop: true
 
       plugins:
@@ -27,8 +24,7 @@ editor:
         - path: '@in2tiptap/tiptap/plugins/styles.js'
           config:
             styles:
-              - { name: "Arrow Red", element: "a", classes: "btn btn--red" }
-              - { name: "Arrow Blue", element: "a", classes: "btn btn--blue" }
-              - { name: "Paragraph Blue", element: "p", classes: "paragraph-blue" }
-              - { name: "Paragraph Red", element: "p", classes: "paragraph-red" }
-        - path: '@example/in2code/Plugins/cookie.js'
+              - { name: 'Orange title H2', element: 'h2', classes: ['orange'] }
+              - { name: 'Orange title H3', element: 'h3', classes: ['orange'] }
+              - { name: 'Quote / Citation', element: 'blockquote' }
+              - { name: 'Code block', element: 'code'  }
