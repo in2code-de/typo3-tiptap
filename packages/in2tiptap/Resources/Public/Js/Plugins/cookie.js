@@ -2,18 +2,26 @@ import { defineTipTapPlugin, Node, mergeAttributes } from '@in2tiptap/tiptap/ind
 
 const CookieButton = Node.create({
   name: 'cookieButton',
-
   group: 'inline',
   inline: true,
-  atom: true,
+  content: 'text*',
 
   addAttributes() {
     return {
       'data-cookie': {
         default: 'true',
       },
-      text: {
-        default: 'Button',
+      class: {
+        default: null,
+        parseHTML: element => element.getAttribute('class'),
+        renderHTML: attributes => {
+          if (!attributes.class) {
+            return {};
+          }
+          return {
+            class: attributes.class,
+          };
+        },
       },
     };
   },
@@ -29,15 +37,33 @@ const CookieButton = Node.create({
   renderHTML({ HTMLAttributes }) {
     return ['button', mergeAttributes(HTMLAttributes, {
       'data-cookie': 'true',
-    }), HTMLAttributes.text || 'Button'];
+    }), 0];
   },
 
   addCommands() {
     return {
-      setCookieButton: (attributes) => ({ commands }) => {
+      setCookieButton: (attributes) => ({ commands, state }) => {
+        const { from, to } = state.selection;
+        const selectedText = state.doc.textBetween(from, to, '');
+
+        // Use selected text if available, otherwise use fallback
+        const text = selectedText || attributes?.text || 'Accept Cookies';
+
+        // Delete the selected text first if there is any,
+        // so we can replace it with the button and the correct text
+        if (selectedText) {
+          commands.deleteSelection();
+        }
+
         return commands.insertContent({
           type: this.name,
           attrs: attributes,
+          content: [
+            {
+              type: 'text',
+              text: text,
+            },
+          ],
         });
       },
     };
@@ -58,8 +84,7 @@ export default function () {
       {
         id: 'cookie',
         label: 'Add cookie',
-        // TODO: we need to be able to use TYPO3 icons here (web component)
-        iconIdentifier: 'cookie',
+        iconIdentifier: 'icon-cookie',
         position: {
           toolbarGroupId: 'general',
           bubbleMenuGroupId: false,
