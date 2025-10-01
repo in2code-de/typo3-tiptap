@@ -178,6 +178,10 @@ onMounted(async () => {
     content: textareaRef.value.value,
     extensions: [
       StarterKit.configure({
+        blockquote: false,
+        bold: false,
+        italic: false,
+        undoRedo: false,
         link: false,
         bulletList: false,
         orderedList: false,

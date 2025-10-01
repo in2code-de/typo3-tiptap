@@ -1,3 +1,4 @@
+import Italic from '@tiptap/extension-italic'
 import { defineTipTapPlugin } from '../configuration.ts'
 
 /**
@@ -6,6 +7,7 @@ import { defineTipTapPlugin } from '../configuration.ts'
  */
 export default function () {
   defineTipTapPlugin({
+    extensions: [Italic],
     commands: [
       {
         id: 'italic',

@@ -1,3 +1,4 @@
+import Blockquote from '@tiptap/extension-blockquote'
 import { defineTipTapPlugin } from '../configuration.ts'
 
 /**
@@ -6,6 +7,7 @@ import { defineTipTapPlugin } from '../configuration.ts'
  */
 export default function () {
   defineTipTapPlugin({
+    extensions: [Blockquote],
     commands: [
       {
         id: 'blockquote',

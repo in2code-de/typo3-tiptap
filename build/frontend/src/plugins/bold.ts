@@ -1,3 +1,4 @@
+import Bold from '@tiptap/extension-bold'
 import { defineTipTapPlugin } from '../configuration.ts'
 
 /**
@@ -6,6 +7,7 @@ import { defineTipTapPlugin } from '../configuration.ts'
  */
 export default function () {
   defineTipTapPlugin({
+    extensions: [Bold],
     commands: [
       {
         id: 'bold',
