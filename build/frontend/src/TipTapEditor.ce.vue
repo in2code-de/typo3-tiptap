@@ -22,35 +22,6 @@ const props = defineProps<{
   options: string
 }>()
 
-function getParsedOptions(): WebComponentOptions {
-  try {
-    const parsedUnsafeJsonOptions = JSON.parse(props.options || '{}')
-
-    const output = WebComponentOptionsSchema.safeParse(parsedUnsafeJsonOptions)
-    if (!output.success) {
-      throw new Error(`Invalid options: ${JSON.stringify(output.error.issues)}`)
-    }
-
-    return output.data
-  }
-  catch (error) {
-    throw new Error(`Failed to parse options: ${(error as Error).message}`)
-  }
-}
-
-function getParsedStyles(options: WebComponentOptions) {
-  const stylesPlugin = options.plugins?.find(plugin => plugin.path.endsWith('styles.js') || plugin.path.endsWith('styles.ts'))
-  if (!stylesPlugin)
-    return []
-
-  const styles = stylesPluginConfigSchema.safeParse(stylesPlugin.config)
-  if (!styles.success) {
-    throw new Error(`Invalid styles plugin config: ${JSON.stringify(styles.error.issues)}`)
-  }
-
-  return styles.data.styles
-}
-
 const options = getParsedOptions()
 const styles = getParsedStyles(options)
 
@@ -86,6 +57,35 @@ const shouldShowBubbleMenu = computed(() => {
 const availableStyles = computed(() => styles.filter(
   style => style.element.toLowerCase() === stylesParentNode.value?.tagName.toLowerCase(),
 ))
+
+function getParsedOptions(): WebComponentOptions {
+  try {
+    const parsedUnsafeJsonOptions = JSON.parse(props.options || '{}')
+
+    const output = WebComponentOptionsSchema.safeParse(parsedUnsafeJsonOptions)
+    if (!output.success) {
+      throw new Error(`Invalid options: ${JSON.stringify(output.error.issues)}`)
+    }
+
+    return output.data
+  }
+  catch (error) {
+    throw new Error(`Failed to parse options: ${(error as Error).message}`)
+  }
+}
+
+function getParsedStyles(options: WebComponentOptions) {
+  const stylesPlugin = options.plugins?.find(plugin => plugin.path.endsWith('styles.js') || plugin.path.endsWith('styles.ts'))
+  if (!stylesPlugin)
+    return []
+
+  const styles = stylesPluginConfigSchema.safeParse(stylesPlugin.config)
+  if (!styles.success) {
+    throw new Error(`Invalid styles plugin config: ${JSON.stringify(styles.error.issues)}`)
+  }
+
+  return styles.data.styles
+}
 
 function executeCommandHooks() {
   if (!editor.value)
