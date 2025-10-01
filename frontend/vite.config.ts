@@ -40,7 +40,7 @@ export default defineConfig({
     rollupOptions: {
       external: ['@typo3/backend/link-browser.js', '@typo3/backend/modal.js', '@typo3/core/event/regular-event.js'],
     },
-    outDir: '../../Resources/Public/TipTap',
+    outDir: '../Resources/Public/TipTap',
     emptyOutDir: true,
   },
   define: { 'process.env.NODE_ENV': '"production"' },
