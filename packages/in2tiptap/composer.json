@@ -1,19 +1,19 @@
 {
-    "name": "in2code/in2tiptap",
-    "type": "typo3-cms-extension",
-    "license": ["GPL-2.0-or-later"],
-    "keywords": ["TYPO3 CMS"],
-    "require": {
-        "typo3/cms-core": "^13.4"
-    },
-    "autoload": {
-        "psr-4": {
-            "In2code\\In2TipTap\\": "Classes/"
-        }
-    },
-    "extra": {
-        "typo3/cms": {
-            "extension-key": "in2tiptap"
-        }
+  "name": "in2code/in2tiptap",
+  "type": "typo3-cms-extension",
+  "license": ["GPL-2.0-or-later"],
+  "keywords": ["TYPO3 CMS"],
+  "require": {
+    "typo3/cms-core": "^13.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "In2code\\In2TipTap\\": "Classes/"
     }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "in2tiptap"
+    }
+  }
 }

@@ -1,8 +1,7 @@
 base: 'https://in2tiptap.ddev.site/'
-errorHandling: {  }
+errorHandling: { }
 languages:
-  -
-    title: English
+  - title: English
     enabled: true
     languageId: 0
     base: /
@@ -10,4 +9,4 @@ languages:
     navigationTitle: English
     flag: us
 rootPageId: 1
-routes: {  }
+routes: { }

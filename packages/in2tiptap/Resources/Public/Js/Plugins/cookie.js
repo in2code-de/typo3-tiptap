@@ -1,4 +1,4 @@
-import { defineTipTapPlugin, Node, mergeAttributes } from '@in2tiptap/tiptap/index.js'
+import { defineTipTapPlugin, mergeAttributes, Node } from '@in2tiptap/tiptap/index.js'
 
 const CookieButton = Node.create({
   name: 'cookieButton',
@@ -11,19 +11,19 @@ const CookieButton = Node.create({
       'data-cookie': {
         default: 'true',
       },
-      class: {
+      'class': {
         default: null,
         parseHTML: element => element.getAttribute('class'),
-        renderHTML: attributes => {
+        renderHTML: (attributes) => {
           if (!attributes.class) {
-            return {};
+            return {}
           }
           return {
             class: attributes.class,
-          };
+          }
         },
       },
-    };
+    }
   },
 
   parseHTML() {
@@ -31,28 +31,28 @@ const CookieButton = Node.create({
       {
         tag: 'button[data-cookie]',
       },
-    ];
+    ]
   },
 
   renderHTML({ HTMLAttributes }) {
     return ['button', mergeAttributes(HTMLAttributes, {
       'data-cookie': 'true',
-    }), 0];
+    }), 0]
   },
 
   addCommands() {
     return {
-      setCookieButton: (attributes) => ({ commands, state }) => {
-        const { from, to } = state.selection;
-        const selectedText = state.doc.textBetween(from, to, '');
+      setCookieButton: attributes => ({ commands, state }) => {
+        const { from, to } = state.selection
+        const selectedText = state.doc.textBetween(from, to, '')
 
         // Use selected text if available, otherwise use fallback
-        const text = selectedText || attributes?.text || 'Accept Cookies';
+        const text = selectedText || attributes?.text || 'Accept Cookies'
 
         // Delete the selected text first if there is any,
         // so we can replace it with the button and the correct text
         if (selectedText) {
-          commands.deleteSelection();
+          commands.deleteSelection()
         }
 
         return commands.insertContent({
@@ -61,24 +61,23 @@ const CookieButton = Node.create({
           content: [
             {
               type: 'text',
-              text: text,
+              text,
             },
           ],
-        });
+        })
       },
-    };
+    }
   },
-});
+})
 
 /**
  * This plugin adds a cookie button to the editor toolbar.
- *
  */
 export default function () {
   // link here somehow
   defineTipTapPlugin({
     extensions: [
-      CookieButton
+      CookieButton,
     ],
     commands: [
       {
@@ -90,7 +89,7 @@ export default function () {
           bubbleMenuGroupId: false,
         },
         onExecute: ({ editor }) => {
-          editor.commands.setCookieButton({ text: 'Accept Cookies' });
+          editor.commands.setCookieButton({ text: 'Accept Cookies' })
         },
       },
     ],
