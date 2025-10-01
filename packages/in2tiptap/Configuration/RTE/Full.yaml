@@ -9,8 +9,8 @@ editor:
       plugins:
         - path: '@in2tiptap/tiptap/plugins/headings.js'
           config: { levels: [1, 2, 3, 4, 5, 6] }
-        - path: '@in2tiptap/tiptap/plugins/undo.js'
-        - path: '@in2tiptap/tiptap/plugins/redo.js'
+        - path: '@in2tiptap/tiptap/plugins/history.js'
+          config: { types: [ 'undo', 'redo' ] }
         - path: '@in2tiptap/tiptap/plugins/bold.js'
         - path: '@in2tiptap/tiptap/plugins/underline.js'
         - path: '@in2tiptap/tiptap/plugins/italic.js'
