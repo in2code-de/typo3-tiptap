@@ -1,20 +1,23 @@
-# TYPO3 Tip Tap Prototype
+# TYPO3 TipTap Editor Integration
+
+This extension provides a TipTap rich text editor integration for the TYPO3 CMS system.
 
 ## Setup
-* TODO: add setup guide
+* TODO: Add setup guide
 
 ## Quick Start Guide
-- TODO: add Composer require etc.
-- Copy example YAML file
+- TODO: Add Composer require instructions
+- Copy the example YAML configuration file
 
-### How to configure the RTE
+## Configuring the RTE
 
-Like the CKEditor, TipTap is configured by using YAML files. The configuration files are located in your site package under `Configuration/RTE/Full.yaml`.
+Like CKEditor, TipTap is configured using YAML files. Place your configuration file in your site package at `Configuration/RTE/Full.yaml`.
 
-#### How to configure the toolbar
+### Toolbar Configuration
 
-In TipTap everything is basically a plugin. Some plugins have their own configuration options, that are also validated in the frontend.
-This is a full plugin configuration example. You can remove plugins by simply removing the corresponding entry.
+TipTap uses a plugin-based architecture where everything is essentially a plugin. Some plugins include their own configuration options that are validated in the frontend.
+
+Here's a complete plugin configuration example. You can remove any plugin by deleting its corresponding entry:
 
 ```yaml
 editor:
@@ -47,8 +50,9 @@ editor:
               - {name: Paragraph Red, element: p, classes: paragraph-red}
 ```
 
-#### How to load additional CSS?
-You can load additional CSS by using the `contentCss` option:
+### Loading Additional CSS
+
+You can load additional CSS files using the `contentCss` option:
 
 ```yaml
 editor:
@@ -58,8 +62,9 @@ editor:
         - 'EXT:sitepackage/Resources/Public/Css/content.css'
 ```
 
-### How to add custom TipTap Plugins
-Simply add a new JavaScript file in your site package and add the path to the plugin in your RTE configuration.
+## Creating Custom TipTap Plugins
+
+To create a custom plugin, add a new JavaScript file to your site package and reference its path in your RTE configuration.
 
 **RTE.yaml**
 ```yaml
@@ -68,18 +73,18 @@ editor:
     config:
       plugins:
         - path: '@example/in2code/Plugins/example.js'
-          config: {additionalClass: example} # optional plugin configuration
+          config: {additionalClass: example} # Optional plugin configuration
 ```
 
-**Plugin.js**
+**Plugin.js (with configuration)**
 ```js
 import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from '@in2tiptap/tiptap/index.js'
 
 export default function (unsafeConfig) {
-  // parse plugin configuration passed via YAML, to ensure its what we expect
-  // configuration parsing is based on Zod. See more under: https://zod.dev/
+  // Parse plugin configuration from YAML to ensure it matches expectations
+  // Configuration parsing uses Zod validation. Learn more: https://zod.dev/
   const config = parseTipTapPluginYamlConfiguration({
-    pluginId: '<cookie>',
+    pluginId: 'cookie',
     config: unsafeConfig,
     getValidationSchema: z => z.object({
       additionalClass: z.string(),
@@ -87,30 +92,34 @@ export default function (unsafeConfig) {
   })
 
   defineTipTapPlugin({
-    // Optional: if you need a custom TipTap extension, add it here
+    // Optional: Add custom TipTap extensions here if needed
     extensions: [],
-    // Commands define buttons that are added to the toolbar or bubble menu
+
+    // Commands define buttons added to the toolbar or bubble menu
     commands: [
       {
         id: 'cookie',
         label: 'Add cookie',
         iconIdentifier: 'icon-cookie',
         position: {
-          // valid toolbar group ids are: history, styles, heading, general, formatting, developer
+          // Valid toolbar group IDs: history, styles, heading, general, formatting, developer
           toolbarGroupId: 'general',
-          // valid toolbar group ids are: formatting, heading, styles
-          // disable a button in the bubble menu or toolbar by setting false
+          // Valid bubble menu group IDs: formatting, heading, styles
+          // Set to false to disable button in bubble menu or toolbar
           bubbleMenuGroupId: false,
         },
-        // optional status functions to control button state
+        // Optional status functions to control button state
         status: {
           isActive: ({ editor }) => editor.isActive({ textAlign: 'right' }),
           isDisabled: ({ editor }) => !editor.can().setTextAlign('right'),
         },
-        // this function is called when the button is clicked
-        // handle your tiptap logic here
+        // This function executes when the button is clicked
+        // Add your TipTap logic here
         onExecute: ({ editor }) => {
-          editor.commands.setCookieButton({ text: 'Accept Cookies', class: config.additionalClass })
+          editor.commands.setCookieButton({
+            text: 'Accept Cookies',
+            class: config.additionalClass
+          })
         },
       },
     ],
@@ -118,7 +127,46 @@ export default function (unsafeConfig) {
 }
 ```
 
-> This seems pretty abstract at first, I suggest you look into the [existing plugins](/build/frontend/src/plugins) and copy them to get started.
+**Plugin.js (without configuration)**
+```js
+import { defineTipTapPlugin } from '@in2tiptap/tiptap/index.js'
+
+export default function () {
+  defineTipTapPlugin({
+    // Optional: Add custom TipTap extensions here if needed
+    extensions: [],
+
+    // Commands define buttons added to the toolbar or bubble menu
+    commands: [
+      {
+        id: 'cookie',
+        label: 'Add cookie',
+        iconIdentifier: 'icon-cookie',
+        position: {
+          // Valid toolbar group IDs: history, styles, heading, general, formatting, developer
+          toolbarGroupId: 'general',
+          // Valid bubble menu group IDs: formatting, heading, styles
+          // Set to false to disable button in bubble menu or toolbar
+          bubbleMenuGroupId: false,
+        },
+        // Optional status functions to control button state
+        status: {
+          isActive: ({ editor }) => editor.isActive({ textAlign: 'right' }),
+          isDisabled: ({ editor }) => !editor.can().setTextAlign('right'),
+        },
+        // This function executes when the button is clicked
+        // Add your TipTap logic here
+        onExecute: ({ editor }) => {
+          editor.commands.setCookieButton({ text: 'Accept Cookies' })
+        },
+      },
+    ],
+  })
+}
+```
+
+**Note:** This may seem abstract at first. We recommend reviewing the [existing plugins](/build/frontend/src/plugins) and using them as templates to get started.
 
 ## Local Development Setup
-To set up the project locally, follow the steps in the [Local Setup Documentation](docs/local-setup.md).
+
+For instructions on setting up the project locally, see the [Local Setup Documentation](docs/local-setup.md).
