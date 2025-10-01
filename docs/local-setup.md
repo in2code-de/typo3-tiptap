@@ -9,7 +9,7 @@
 
 ```sh
 ddev start
-ddev composer install
+ddev init
 ddev pull assets
 ```
 

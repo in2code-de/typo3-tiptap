@@ -1,36 +1,22 @@
 {
-  "name": "in2code/site-in2tiptap",
-  "type": "project",
-  "license": "GPL-2.0-or-later",
+  "name": "in2code/in2tiptap",
+  "type": "typo3-cms-extension",
+  "license": ["GPL-2.0-or-later"],
+  "keywords": ["TYPO3 CMS"],
   "authors": [
     {
       "name": "In2code GmbH",
       "role": "Developer"
     }
   ],
-  "repositories": {
-    "packages": {
-      "type": "path",
-      "url": "packages/*"
-    }
-  },
-  "config": {
-    "bin-dir": "bin",
-    "sort-packages": true,
-    "allow-plugins": {
-      "typo3/class-alias-loader": true,
-      "typo3/cms-composer-installers": true
-    }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
   "require": {
     "php": ">=8.3.0",
-    "in2code/in2tiptap": "@dev",
+    "typo3/cms-core": "^13.4"
+  },
+  "require-dev": {
     "typo3/cms-backend": "^13.4",
     "typo3/cms-belog": "^13.4",
     "typo3/cms-beuser": "^13.4",
-    "typo3/cms-core": "^13.4",
     "typo3/cms-dashboard": "^13.4",
     "typo3/cms-extbase": "^13.4",
     "typo3/cms-extensionmanager": "^13.4",
@@ -51,5 +37,26 @@
     "typo3/cms-seo": "^13.4",
     "typo3/cms-setup": "^13.4",
     "typo3/cms-tstemplate": "^13.4"
+  },
+  "autoload": {
+    "psr-4": {
+      "In2code\\In2TipTap\\": "Classes/"
+    }
+  },
+  "extra": {
+    "typo3/cms": {
+      "extension-key": "in2tiptap",
+      "cms-package-dir": "{$vendor-dir}/typo3/cms",
+      "web-dir": ".Build/public"
+    }
+  },
+  "config": {
+    "vendor-dir": ".Build/vendor",
+    "bin-dir": ".Build/bin",
+    "sort-packages": true,
+    "allow-plugins": {
+      "typo3/class-alias-loader": true,
+      "typo3/cms-composer-installers": true
+    }
   }
 }
