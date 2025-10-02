@@ -20,6 +20,7 @@ composer require in2code/in2tiptap
 ```
 
 You don't have to remove the CkEditor extension; both editors can coexist.
+
 The editor comes with a **default configuration** that works out of the box. You can start using it immediately without any additional setup.
 
 ### Optional: Customize the Configuration
