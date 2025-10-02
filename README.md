@@ -120,7 +120,10 @@ editor:
 Create your plugin JavaScript file. Configuration is optional—if you don't need it, simply remove the `unsafeConfig` and `parseTipTapPluginYamlConfiguration` parts.
 
 ```js
-import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from '@in2tiptap/tiptap/index.js'
+import {
+    defineTipTapPlugin,
+    parseTipTapPluginYamlConfiguration,
+} from '@in2tiptap/tiptap/index.js'
 
 export default function (unsafeConfig) {
   // Parse plugin configuration from YAML to ensure it matches expectations
