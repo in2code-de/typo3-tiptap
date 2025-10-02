@@ -6,6 +6,9 @@ The development of this extension was funded by the [TYPO3 Association](https://
 
 > **Note:** This is an MVP prototype suitable for testing purposes. It is not yet ready for production use.
 
+
+![Screenshot of the TipTap Editor Integration in TYPO3](docs/images/example-1.webp)
+
 ---
 
 ## Quick Start Guide
@@ -16,6 +19,7 @@ Install the extension via Composer:
 composer require in2code/in2tiptap
 ```
 
+You don't have to remove the CkEditor extension; both editors can coexist.
 The editor comes with a **default configuration** that works out of the box. You can start using it immediately without any additional setup.
 
 ### Optional: Customize the Configuration
