@@ -397,13 +397,7 @@ onUnmounted(() => editor.value?.destroy())
     <pre v-if="options.enableDebugMode">{{ availableStyles }}</pre>
   </div>
 
-  <slot
-    ref="slotRef"
-    style="display: none"
-    :style="{
-      display: options.enableDebugMode ? 'block' : 'none',
-    }"
-  />
+  <slot ref="slotRef" />
 </template>
 
 <style lang="scss">
