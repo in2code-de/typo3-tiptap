@@ -1,4 +1,4 @@
-import { M as r, m as e, f as s, g as a } from "./index-Dv80tyPl.js";
+import { M as r, m as e, f as s, g as a } from "./index-CXcNTZf2.js";
 var n = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/, i = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))/g, l = /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))$/, u = /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))/g, d = r.create({
   name: "italic",
   addOptions() {

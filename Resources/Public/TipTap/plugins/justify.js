@@ -1,4 +1,4 @@
-import { E as s } from "../index-Dv80tyPl.js";
+import { E as s } from "../index-CXcNTZf2.js";
 import { p as r, d as l } from "../configuration-DkMIcjSq.js";
 var u = s.create({
   name: "textAlign",

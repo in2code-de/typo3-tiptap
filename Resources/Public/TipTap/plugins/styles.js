@@ -1,7 +1,7 @@
 import { t as y } from "../index-e_Ie-2wz.js";
-import { E as C } from "../index-Dv80tyPl.js";
+import { E as C } from "../index-CXcNTZf2.js";
 import { p as k, d as b, c as m } from "../configuration-DkMIcjSq.js";
-import { $ as T, a2 as N } from "../styles-CACp1LoB.js";
+import { $ as T, a2 as N } from "../styles-CDw1qn-h.js";
 function f(e) {
   return e.type.spec.parseDOM?.[0] && typeof e.type.spec.parseDOM[0] == "object" && "tag" in e.type.spec.parseDOM[0] && e.type.spec.parseDOM[0].tag || e.type.name;
 }

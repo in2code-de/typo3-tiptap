@@ -1,5 +1,5 @@
 import { o as a } from "../index-e_Ie-2wz.js";
-import { L as c } from "../index-C2hiBtjl.js";
+import { L as c } from "../index-DB0IANgP.js";
 import n from "@typo3/backend/modal.js";
 import { d as u } from "../configuration-DkMIcjSq.js";
 const f = c.extend({

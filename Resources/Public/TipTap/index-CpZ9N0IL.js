@@ -1,4 +1,4 @@
-import { h as r, aX as o, g as n } from "./index-Dv80tyPl.js";
+import { h as r, aX as o, g as n } from "./index-CXcNTZf2.js";
 import { h as e } from "./jsx-runtime-CT7Pcg-t.js";
 var u = /^\s*>\s$/, a = r.create({
   name: "blockquote",

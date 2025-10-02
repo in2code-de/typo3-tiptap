@@ -1,4 +1,4 @@
-import { M as a, m as e, f as r, g as n } from "./index-Dv80tyPl.js";
+import { M as a, m as e, f as r, g as n } from "./index-CXcNTZf2.js";
 import { h as s } from "./jsx-runtime-CT7Pcg-t.js";
 var o = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))$/, d = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))/g, i = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))$/, u = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))/g, l = a.create({
   name: "bold",

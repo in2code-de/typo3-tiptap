@@ -1,4 +1,4 @@
-import { h as s, i as n, g as r } from "./index-Dv80tyPl.js";
+import { h as s, i as n, g as r } from "./index-CXcNTZf2.js";
 var i = s.create({
   name: "heading",
   addOptions() {
