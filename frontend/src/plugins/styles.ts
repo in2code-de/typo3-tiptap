@@ -22,9 +22,14 @@ export interface ParentNodeResult {
 }
 
 function getTagName(node: ProseMirrorNode): string {
+  if (node.type.name === 'heading' && node.attrs?.level) {
+    return `h${node.attrs.level}`
+  }
+
   if (node.type.spec.parseDOM?.[0] && typeof node.type.spec.parseDOM[0] === 'object' && 'tag' in node.type.spec.parseDOM[0]) {
     return node.type.spec.parseDOM[0].tag || node.type.name
   }
+
   return node.type.name
 }
 
@@ -354,6 +359,7 @@ export default function (unsafeConfig: unknown) {
             ? ({ editor }) => {
                 const debouncedEmitPositionChange = throttle(250, () => {
                   const result = getSelectedParentNode(editor.state)
+                  console.log(1759391901984, result)
                   currentSelectedParentNode.value = result
                   editor.emit('parentNodeChanged', result)
                 })
