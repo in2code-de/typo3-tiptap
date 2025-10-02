@@ -17,7 +17,7 @@ export default function () {
         },
         status: {
           isActive: ({ editor }) => editor.isActive('strike'),
-          isDisabled: ({ editor }) => !editor.can().toggleStrike(),
+          isDisabled: ({ editor }) => !editor.can().toggleStrike() || editor.state.selection.empty,
         },
         onExecute: ({ editor }) => {
           editor.chain().focus().toggleStrike().run()

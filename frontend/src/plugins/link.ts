@@ -51,7 +51,7 @@ export default function () {
         },
         status: {
           isActive: ({ editor }) => editor.isActive('link'),
-          isDisabled: ({ editor }) => !editor.can().setLink({ href: '' }),
+          isDisabled: ({ editor }) => !editor.can().setLink({ href: '' }) || editor.state.selection.empty,
         },
         onExecute: ({ editor, linkBrowserUrl }) => {
           const url = new URL(linkBrowserUrl, window.location.origin)

@@ -19,7 +19,7 @@ export default function () {
         },
         status: {
           isActive: ({ editor }) => editor.isActive('italic'),
-          isDisabled: ({ editor }) => !editor.can().toggleItalic(),
+          isDisabled: ({ editor }) => !editor.can().toggleItalic() || editor.state.selection.empty,
         },
         onExecute: ({ editor }) => {
           editor.chain().focus().toggleItalic().run()

@@ -19,7 +19,7 @@ export default function () {
         },
         status: {
           isActive: ({ editor }) => editor.isActive('bold'),
-          isDisabled: ({ editor }) => !editor.can().toggleBold(),
+          isDisabled: ({ editor }) => !editor.can().toggleBold() || editor.state.selection.empty,
         },
         onExecute: ({ editor }) => {
           editor

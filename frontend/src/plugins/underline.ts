@@ -19,7 +19,7 @@ export default function () {
         },
         status: {
           isActive: ({ editor }) => editor.isActive('underline'),
-          isDisabled: ({ editor }) => !editor.can().toggleUnderline(),
+          isDisabled: ({ editor }) => !editor.can().toggleUnderline() || editor.state.selection.empty,
         },
         onExecute: ({ editor }) => {
           editor.chain().focus().toggleUnderline().run()
