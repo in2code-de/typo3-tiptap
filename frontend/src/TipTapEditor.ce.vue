@@ -220,7 +220,7 @@ onUnmounted(() => editor.value?.destroy())
 </script>
 
 <template>
-  <pre>{{ selectionCharacterCount }}</pre>
+  <pre v-if="options.enableDebugMode">{{ selectionCharacterCount }}</pre>
 
   <div
     v-if="editor"
@@ -374,10 +374,17 @@ onUnmounted(() => editor.value?.destroy())
       v-if="options && options.contentCss"
       :stylesheets="options.contentCss"
     />
-    <pre>{{ availableStyles }}</pre>
+
+    <pre v-if="options.enableDebugMode">{{ availableStyles }}</pre>
   </div>
 
-  <slot ref="slotRef" />
+  <slot
+    ref="slotRef"
+    style="display: none"
+    :style="{
+      display: options.enableDebugMode ? 'block' : 'none',
+    }"
+  />
 </template>
 
 <style lang="scss">

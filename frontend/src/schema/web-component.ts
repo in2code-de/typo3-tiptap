@@ -17,6 +17,7 @@ export const WebComponentOptionsSchema = z.object({
   ).optional(),
   enableContentDragAndDrop: z.boolean().default(false),
   linkBrowserUrl: z.string(),
+  enableDebugMode: z.boolean().default(false),
 })
 
 export type WebComponentOptions = z.infer<typeof WebComponentOptionsSchema>
