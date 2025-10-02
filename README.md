@@ -27,9 +27,11 @@ editor:
     config:
       plugins:
         - path: '@in2tiptap/tiptap/plugins/headings.js'
-          config: {levels: [1, 2, 3, 4, 5, 6]}
+          config:
+            levels: [ 1, 2, 3, 4, 5, 6 ]
         - path: '@in2tiptap/tiptap/plugins/history.js'
-          config: {types: [undo, redo]}
+          config:
+            types: [ "undo", "redo" ]
         - path: '@in2tiptap/tiptap/plugins/bold.js'
         - path: '@in2tiptap/tiptap/plugins/underline.js'
         - path: '@in2tiptap/tiptap/plugins/italic.js'
@@ -37,19 +39,17 @@ editor:
         - path: '@in2tiptap/tiptap/plugins/link.js'
         - path: '@in2tiptap/tiptap/plugins/list.js'
           config:
-            types: [ordered, bullet]
+            types: [ "ordered", "bullet" ]
         - path: '@in2tiptap/tiptap/plugins/blockquote.js'
         - path: '@in2tiptap/tiptap/plugins/justify.js'
           config:
-            types: [justify-left, justify-center, justify-right]
+            types: [ "justify-left", "justify-center", "justify-right" ]
         - path: '@in2tiptap/tiptap/plugins/source.js'
         - path: '@in2tiptap/tiptap/plugins/styles.js'
           config:
             styles:
-              - {name: Arrow Red, element: a, classes: btn btn--red}
-              - {name: Arrow Blue, element: a, classes: btn btn--blue}
-              - {name: Paragraph Blue, element: p, classes: paragraph-blue}
-              - {name: Paragraph Red, element: p, classes: paragraph-red}
+              - { name: "Orange title H2", element: "h2", classes: "orange" }
+              - { name: "Orange title H3", element: "h3", classes: "orange" }
 ```
 
 ### Loading Additional CSS
@@ -75,10 +75,13 @@ editor:
     config:
       plugins:
         - path: '@example/in2code/Plugins/example.js'
-          config: {additionalClass: example} # Optional plugin configuration
+          config: # Optional plugin configuration
+            additionalClass: "my-example-class"
 ```
 
-**Plugin.js (with configuration)**
+**Plugin.js**
+> You don't need to use plugin configuration if you don't need it. Simply remove the `unsafeConfig` and `parseTipTapPluginYamlConfiguration` parts.
+
 ```js
 import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from '@in2tiptap/tiptap/index.js'
 
@@ -89,7 +92,7 @@ export default function (unsafeConfig) {
     pluginId: 'cookie',
     config: unsafeConfig,
     getValidationSchema: z => z.object({
-      additionalClass: z.string(),
+      additionalClass: z.string(), // requires additionalClass to be provided and be a string
     }),
   })
 
@@ -129,45 +132,7 @@ export default function (unsafeConfig) {
 }
 ```
 
-**Plugin.js (without configuration)**
-```js
-import { defineTipTapPlugin } from '@in2tiptap/tiptap/index.js'
-
-export default function () {
-  defineTipTapPlugin({
-    // Optional: Add custom TipTap extensions here if needed
-    extensions: [],
-
-    // Commands define buttons added to the toolbar or bubble menu
-    commands: [
-      {
-        id: 'cookie',
-        label: 'Add cookie',
-        iconIdentifier: 'icon-cookie',
-        position: {
-          // Valid toolbar group IDs: history, styles, heading, general, formatting, developer
-          toolbarGroupId: 'general',
-          // Valid bubble menu group IDs: formatting, heading, styles
-          // Set to false to disable button in bubble menu or toolbar
-          bubbleMenuGroupId: false,
-        },
-        // Optional status functions to control button state
-        status: {
-          isActive: ({ editor }) => editor.isActive({ textAlign: 'right' }),
-          isDisabled: ({ editor }) => !editor.can().setTextAlign('right'),
-        },
-        // This function executes when the button is clicked
-        // Add your TipTap logic here
-        onExecute: ({ editor }) => {
-          editor.commands.setCookieButton({ text: 'Accept Cookies' })
-        },
-      },
-    ],
-  })
-}
-```
-
-**Note:** This may seem abstract at first. We recommend reviewing the [existing plugins](/build/frontend/src/plugins) and using them as templates to get started.
+**Note:** This may seem abstract at first. We recommend reviewing the [existing plugins](frontend/src/plugins) and using them as templates to get started.
 
 ## Local Development Setup
 
