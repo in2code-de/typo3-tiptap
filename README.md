@@ -1,25 +1,54 @@
-# TYPO3 TipTap Editor Integration (beta)
+# TYPO3 TipTap Editor Integration (Beta)
 
-This extension provides a TipTap rich text editor integration for the TYPO3 CMS system.
+This extension provides a modern TipTap rich text editor integration for TYPO3 CMS.
 
-The development of this MVP extension was funded by the [TYPO3 Association](https://typo3.org): [community ideas](https://typo3.org/article/members-have-selected-five-ideas-to-be-funded-in-quarter-3-2025)
+The development of this extension was funded by the [TYPO3 Association](https://typo3.org) through the [Community Ideas program](https://typo3.org/article/members-have-selected-five-ideas-to-be-funded-in-quarter-3-2025).
 
-## Setup
-* TODO: Add setup guide
+> **Note:** This is an MVP prototype suitable for testing purposes. It is not yet ready for production use.
+
+---
 
 ## Quick Start Guide
-- TODO: Add Composer require instructions
-- Copy the example YAML configuration file
 
-## Configuring the RTE
+### 1. Install the Extension
 
-Like CKEditor, TipTap is configured using YAML files. Place your configuration file in your site package at `Configuration/RTE/Full.yaml`.
+Install via Composer:
 
-### Toolbar Configuration
+```bash
+composer require in2code/in2tiptap
+```
 
-TipTap uses a plugin-based architecture where everything is essentially a plugin. Some plugins include their own configuration options that are validated in the frontend.
+### 2. Configure Your RTE
 
-Here's a complete plugin configuration example. You can remove any plugin by deleting its corresponding entry:
+Copy the [example YAML configuration file](Configuration/RTE/Full.yaml) to your site package and customize it according to your needs.
+
+### 3. Enable the Extension
+
+Add the following configuration to your site package's `ext_localconf.php`:
+
+```php
+// Overwrite FormEngine node type resolver hook to render RTE in FormEngine
+$GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'][1480314091] = [
+    'nodeName' => 'text',
+    'priority' => 50,
+    'class' => \In2code\In2TipTap\Form\Resolver\RteNodeResolver::class,
+];
+
+// Setup editor configuration
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:sitepackage/Configuration/RTE/TipTap.yaml';
+```
+
+---
+
+## Configuration
+
+### Understanding the Architecture
+
+TipTap uses a plugin-based architecture where functionality is added through plugins. Like CKEditor, TipTap is configured using YAML files placed in your site package at `Configuration/RTE/`.
+
+### Configuring the Toolbar
+
+Each plugin can have its own configuration options that are validated in the frontend. Below is a complete example showing all available plugins. You can enable or disable any plugin by adding or removing its entry:
 
 ```yaml
 editor:
@@ -52,9 +81,9 @@ editor:
               - { name: "Orange title H3", element: "h3", classes: "orange" }
 ```
 
-### Loading Additional CSS
+### Loading Custom CSS
 
-You can load additional CSS files using the `contentCss` option:
+You can load additional CSS files for the editor content using the `contentCss` option:
 
 ```yaml
 editor:
@@ -64,11 +93,16 @@ editor:
         - 'EXT:sitepackage/Resources/Public/Css/content.css'
 ```
 
-## Creating Custom TipTap Plugins
+---
 
-To create a custom plugin, add a new JavaScript file to your site package and reference its path in your RTE configuration.
+## Creating Custom Plugins
 
-**RTE.yaml**
+You can extend TipTap with custom plugins by creating JavaScript files in your site package and referencing them in your RTE configuration.
+
+### Step 1: Register Your Plugin
+
+Add your plugin to the RTE YAML configuration:
+
 ```yaml
 editor:
   tiptap:
@@ -79,8 +113,9 @@ editor:
             additionalClass: "my-example-class"
 ```
 
-**Plugin.js**
-> You don't need to use plugin configuration if you don't need it. Simply remove the `unsafeConfig` and `parseTipTapPluginYamlConfiguration` parts.
+### Step 2: Create the Plugin File
+
+Create your plugin JavaScript file. Configuration is optional—if you don't need it, simply remove the `unsafeConfig` and `parseTipTapPluginYamlConfiguration` parts.
 
 ```js
 import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from '@in2tiptap/tiptap/index.js'
@@ -132,8 +167,18 @@ export default function (unsafeConfig) {
 }
 ```
 
-**Note:** This may seem abstract at first. We recommend reviewing the [existing plugins](frontend/src/plugins) and using them as templates to get started.
+### Learning by Example
 
-## Local Development Setup
+The plugin structure may seem abstract at first. We recommend reviewing the [existing plugins](frontend/src/plugins) in the source code and using them as templates for your own implementations.
 
-For instructions on setting up the project locally, see the [Local Setup Documentation](docs/local-setup.md).
+---
+
+## Local Development
+
+For instructions on setting up the project for local development, please refer to the [Local Setup Documentation](docs/local-setup.md).
+
+---
+
+## Support & Contribution
+
+This is a community-funded project in beta stage. Feedback, bug reports, and contributions are welcome!
