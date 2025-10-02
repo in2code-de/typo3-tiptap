@@ -51,7 +51,13 @@ export default function () {
         },
         status: {
           isActive: ({ editor }) => editor.isActive('link'),
-          isDisabled: ({ editor }) => !editor.can().setLink({ href: '' }) || editor.state.selection.empty,
+          isDisabled: ({ editor }) => {
+            const canEditorSetLink = editor.can().setLink({ href: '' })
+            const isLinkSet = editor.isActive('link')
+            const selectionEmpty = editor.state.selection.empty
+
+            return !canEditorSetLink || (selectionEmpty && !isLinkSet)
+          },
         },
         onExecute: ({ editor, linkBrowserUrl }) => {
           const url = new URL(linkBrowserUrl, window.location.origin)
