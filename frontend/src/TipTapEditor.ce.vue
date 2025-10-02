@@ -39,16 +39,11 @@ const isTopBarDropdownActive = ref(false)
 const selectionCharacterCount = ref(0)
 
 const shouldShowBubbleMenu = computed(() => {
-  if (!configuration.value)
-    return false
-
-  if (isHtmlSourceViewActive.value)
-    return false
-
-  if (isTopBarDropdownActive.value)
-    return false
-
-  if (selectionCharacterCount.value <= 250) {
+  if (!configuration.value
+    || isHtmlSourceViewActive.value
+    || isTopBarDropdownActive.value
+    || selectionCharacterCount.value <= 250
+  ) {
     return false
   }
 
