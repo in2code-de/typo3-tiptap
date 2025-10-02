@@ -1,8 +1,8 @@
-import { o as a } from "../index-e_Ie-2wz.js";
-import { L as c } from "../index-DB0IANgP.js";
-import n from "@typo3/backend/modal.js";
-import { d as u } from "../configuration-DkMIcjSq.js";
-const f = c.extend({
+import { o as c } from "../index-e_Ie-2wz.js";
+import { L as u } from "../index-DB0IANgP.js";
+import s from "@typo3/backend/modal.js";
+import { d as p } from "../configuration-DkMIcjSq.js";
+const f = u.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
@@ -16,8 +16,8 @@ const f = c.extend({
     };
   }
 });
-function L() {
-  u({
+function b() {
+  p({
     extensions: [
       f.configure({
         openOnClick: !1,
@@ -36,24 +36,27 @@ function L() {
         },
         status: {
           isActive: ({ editor: t }) => t.isActive("link"),
-          isDisabled: ({ editor: t }) => !t.can().setLink({ href: "" }) || t.state.selection.empty
+          isDisabled: ({ editor: t }) => {
+            const n = t.can().setLink({ href: "" }), e = t.isActive("link"), r = t.state.selection.empty;
+            return !n || r && !e;
+          }
         },
-        onExecute: ({ editor: t, linkBrowserUrl: r }) => {
-          const o = new URL(r, window.location.origin);
+        onExecute: ({ editor: t, linkBrowserUrl: n }) => {
+          const e = new URL(n, window.location.origin);
           if (t.isActive("link")) {
-            const i = t.getAttributes("link");
-            a(i).filter(([, e]) => !!e).forEach(([e, s]) => {
-              const l = e === "href" ? "url" : encodeURIComponent(e);
-              o.searchParams.set(`P[curUrl][${l}]`, s);
+            const o = t.getAttributes("link");
+            c(o).filter(([, i]) => !!i).forEach(([i, l]) => {
+              const a = i === "href" ? "url" : encodeURIComponent(i);
+              e.searchParams.set(`P[curUrl][${a}]`, l);
             });
           }
-          n.advanced({
-            type: n.types.iframe,
+          s.advanced({
+            type: s.types.iframe,
             title: "Set Link",
-            content: o.toString(),
-            size: n.sizes.large,
-            callback: (i) => {
-              i.userData.editor = t;
+            content: e.toString(),
+            size: s.sizes.large,
+            callback: (o) => {
+              o.userData.editor = t;
             }
           });
         }
@@ -63,5 +66,5 @@ function L() {
 }
 export {
   f as CustomLink,
-  L as default
+  b as default
 };
