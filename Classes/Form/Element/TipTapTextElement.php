@@ -81,6 +81,7 @@ class TipTapTextElement extends AbstractFormElement
         $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldWizardResult, false);
 
         $editorOptions = $this->configurationService->getConfiguration($config, $this->data);
+        $editorOptions['enableDebugMode'] = false;
         $editorOptions['id'] = $fieldId . 'tiptap';
         $editorAttributes = GeneralUtility::implodeAttributes([
             'options' => GeneralUtility::jsonEncodeForHtmlAttribute($editorOptions, false),
