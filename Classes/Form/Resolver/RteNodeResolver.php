@@ -7,13 +7,11 @@ namespace In2code\In2TipTap\Form\Resolver;
 use In2code\In2TipTap\Form\Element\TipTapTextElement;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Form\NodeResolverInterface;
-use TYPO3\CMS\Core\Configuration\Features;
-use TYPO3\CMS\RteCKEditor\Form\Element\RichTextElement;
 
 #[Autoconfigure(public: true)]
 class RteNodeResolver implements NodeResolverInterface
 {
-    public function __construct(protected Features $features, protected array $data = [])
+    public function __construct(protected array $data = [])
     {
     }
 
@@ -33,12 +31,7 @@ class RteNodeResolver implements NodeResolverInterface
             return null;
         }
 
-        if ($this->features->isFeatureEnabled('rte.tiptap')) {
-            return TipTapTextElement::class;
-        }
-
-        return RichTextElement::class;
-
+        return TipTapTextElement::class;
     }
 
     private function shouldRenderRichtext(array $parameterArray): bool
