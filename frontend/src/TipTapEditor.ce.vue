@@ -37,13 +37,22 @@ const isHtmlSourceViewActive = ref(false)
 const dropdownRenderKey = ref(0)
 const isTopBarDropdownActive = ref(false)
 const selectionCharacterCount = ref(0)
+const isNodeFirstLine = ref(false)
 
 const shouldShowBubbleMenu = computed(() => {
-  if (!configuration.value
-    || isHtmlSourceViewActive.value
-    || isTopBarDropdownActive.value
-    || selectionCharacterCount.value <= 250
-  ) {
+  if (!configuration.value)
+    return false
+
+  if (isHtmlSourceViewActive.value)
+    return false
+
+  if (isTopBarDropdownActive.value)
+    return false
+
+  if (isNodeFirstLine.value)
+    return false
+
+  if (selectionCharacterCount.value <= 150) {
     return false
   }
 
@@ -202,11 +211,17 @@ onMounted(async () => {
   editor.value.on('parentNodeChanged', (data) => {
     if (data.tagName === 'doc') {
       stylesParentNode.value = undefined
-      return
+      isNodeFirstLine.value = false
     }
+    else {
+      stylesParentNode.value = data
+      selectionCharacterCount.value = editor.value?.state.selection.$from.pos ?? 0
 
-    stylesParentNode.value = data
-    selectionCharacterCount.value = editor.value?.state.selection.$from.pos ?? 0
+      if (data.node) {
+        const firstNode = editor.value?.state.doc.firstChild
+        isNodeFirstLine.value = firstNode === data.node
+      }
+    }
   })
 
   executeCommandHooks()
@@ -216,7 +231,10 @@ onUnmounted(() => editor.value?.destroy())
 </script>
 
 <template>
-  <pre v-if="options.enableDebugMode">{{ selectionCharacterCount }}</pre>
+  <pre v-if="options.enableDebugMode">
+    selectionCharacterCount: {{ selectionCharacterCount }}
+    isNodeFirstLine: {{ isNodeFirstLine }}
+  </pre>
 
   <div
     v-if="editor"
