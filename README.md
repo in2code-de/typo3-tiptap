@@ -1,4 +1,4 @@
-# TYPO3 TipTap Editor Integration (Beta)
+# TYPO3 TipTap Editor (Beta)
 
 This extension provides a modern TipTap rich text editor integration for TYPO3 CMS.
 
