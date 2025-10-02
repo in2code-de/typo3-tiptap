@@ -74,6 +74,8 @@ editor:
             styles:
               - { name: "Orange title H2", element: "h2", classes: "orange" }
               - { name: "Orange title H3", element: "h3", classes: "orange" }
+              - { name: "Paragraph Blue", element: "p", classes: "paragraph-blue" }
+              - { name: "Link Green", element: "a", classes: "link-green" }
 ```
 
 ### Loading Custom CSS
