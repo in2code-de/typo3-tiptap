@@ -183,4 +183,4 @@ For instructions on setting up the project for local development, please refer t
 
 ## Support & Contribution
 
-This is a community-funded project in beta stage. Feedback, bug reports, and contributions are welcome!
+Feedback, bug reports, and contributions are welcome!
