@@ -1,6 +1,6 @@
 import { i as n } from "../index-D8PUHorB.js";
 import { d as i } from "../configuration-DkMIcjSq.js";
-function r() {
+function l() {
   i({
     extensions: [n],
     commands: [
@@ -14,7 +14,7 @@ function r() {
         },
         status: {
           isActive: ({ editor: e }) => e.isActive("underline"),
-          isDisabled: ({ editor: e }) => !e.can().toggleUnderline()
+          isDisabled: ({ editor: e }) => !e.can().toggleUnderline() || e.state.selection.empty
         },
         onExecute: ({ editor: e }) => {
           e.chain().focus().toggleUnderline().run();
@@ -24,5 +24,5 @@ function r() {
   });
 }
 export {
-  r as default
+  l as default
 };

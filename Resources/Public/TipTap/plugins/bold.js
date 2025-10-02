@@ -1,7 +1,7 @@
 import { i as t } from "../index--CKuz1_C.js";
-import { d as i } from "../configuration-DkMIcjSq.js";
+import { d as e } from "../configuration-DkMIcjSq.js";
 function n() {
-  i({
+  e({
     extensions: [t],
     commands: [
       {
@@ -14,7 +14,7 @@ function n() {
         },
         status: {
           isActive: ({ editor: o }) => o.isActive("bold"),
-          isDisabled: ({ editor: o }) => !o.can().toggleBold()
+          isDisabled: ({ editor: o }) => !o.can().toggleBold() || o.state.selection.empty
         },
         onExecute: ({ editor: o }) => {
           o.chain().focus().toggleBold().updateAttributes("strong", { class: null }).run();

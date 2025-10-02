@@ -1,6 +1,6 @@
-import { d as t } from "../configuration-DkMIcjSq.js";
+import { d as i } from "../configuration-DkMIcjSq.js";
 function o() {
-  t({
+  i({
     commands: [
       {
         id: "strike",
@@ -11,11 +11,11 @@ function o() {
           bubbleMenuGroupId: "formatting"
         },
         status: {
-          isActive: ({ editor: i }) => i.isActive("strike"),
-          isDisabled: ({ editor: i }) => !i.can().toggleStrike()
+          isActive: ({ editor: t }) => t.isActive("strike"),
+          isDisabled: ({ editor: t }) => !t.can().toggleStrike() || t.state.selection.empty
         },
-        onExecute: ({ editor: i }) => {
-          i.chain().focus().toggleStrike().run();
+        onExecute: ({ editor: t }) => {
+          t.chain().focus().toggleStrike().run();
         }
       }
     ]

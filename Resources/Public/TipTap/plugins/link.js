@@ -36,7 +36,7 @@ function L() {
         },
         status: {
           isActive: ({ editor: t }) => t.isActive("link"),
-          isDisabled: ({ editor: t }) => !t.can().setLink({ href: "" })
+          isDisabled: ({ editor: t }) => !t.can().setLink({ href: "" }) || t.state.selection.empty
         },
         onExecute: ({ editor: t, linkBrowserUrl: r }) => {
           const o = new URL(r, window.location.origin);

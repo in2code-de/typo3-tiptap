@@ -14,7 +14,7 @@ function n() {
         },
         status: {
           isActive: ({ editor: i }) => i.isActive("italic"),
-          isDisabled: ({ editor: i }) => !i.can().toggleItalic()
+          isDisabled: ({ editor: i }) => !i.can().toggleItalic() || i.state.selection.empty
         },
         onExecute: ({ editor: i }) => {
           i.chain().focus().toggleItalic().run();
