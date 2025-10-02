@@ -181,9 +181,3 @@ The plugin structure may seem abstract at first. We recommend reviewing the [exi
 ## Local Development
 
 For instructions on setting up the project for local development, please refer to the [Local Setup Documentation](docs/local-setup.md).
-
----
-
-## Support & Contribution
-
-Feedback, bug reports, and contributions are welcome!
