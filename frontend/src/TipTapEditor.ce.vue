@@ -34,6 +34,7 @@ const textareaRef = ref<HTMLTextAreaElement | undefined>()
 const stylesParentNode = ref<ParentNodeResult>()
 
 const isHtmlSourceViewActive = ref(false)
+const dropdownRenderKey = ref(0)
 const isTopBarDropdownActive = ref(false)
 const selectionCharacterCount = ref(0)
 
@@ -287,7 +288,12 @@ onUnmounted(() => editor.value?.destroy())
 
     <!-- Bubble Menu -->
     <nav v-if="configuration && shouldShowBubbleMenu">
-      <BubbleMenu :editor="editor">
+      <BubbleMenu
+        :editor="editor"
+        :options="{
+          onHide: () => dropdownRenderKey += 1,
+        }"
+      >
         <div class="tiptap-bubble-menu">
           <template
             v-for="(group, groupIndex) in configuration.bubbleMenu"
@@ -299,7 +305,7 @@ onUnmounted(() => editor.value?.destroy())
             >
               <li v-if="group.dropdown">
                 <Dropdown
-                  :key="isHtmlSourceViewActive"
+                  :key="`${isHtmlSourceViewActive}-${dropdownRenderKey}`"
                   :label="group.dropdown.label"
                   :icon-identifier="group.dropdown.iconIdentifier"
                   :editor-dom-node="editor.view.dom"
