@@ -10,31 +10,24 @@ The development of this extension was funded by the [TYPO3 Association](https://
 
 ## Quick Start Guide
 
-### 1. Install the Extension
-
-Install via Composer:
+Install the extension via Composer:
 
 ```bash
 composer require in2code/in2tiptap
 ```
 
-### 2. Configure Your RTE
+The editor comes with a **default configuration** that works out of the box. You can start using it immediately without any additional setup.
 
-Copy the [example YAML configuration file](Configuration/RTE/Full.yaml) to your site package and customize it according to your needs.
+### Optional: Customize the Configuration
 
-### 3. Enable the Extension
+If you want to customize the editor to your specific needs, you can overwrite the default configuration:
 
-Add the following configuration to your site package's `ext_localconf.php`:
+1. Copy the [example YAML configuration file](Configuration/RTE/Full.yaml) to your site package
+2. Customize it according to your requirements
+3. Register your custom preset in TYPO3:
 
 ```php
-// Overwrite FormEngine node type resolver hook to render RTE in FormEngine
-$GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'][1480314091] = [
-    'nodeName' => 'text',
-    'priority' => 50,
-    'class' => \In2code\In2TipTap\Form\Resolver\RteNodeResolver::class,
-];
-
-// Setup editor configuration
+// Setup custom editor configuration
 $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:sitepackage/Configuration/RTE/TipTap.yaml';
 ```
 
@@ -45,6 +38,8 @@ $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:sitepackage/Conf
 ### Understanding the Architecture
 
 TipTap uses a plugin-based architecture where functionality is added through plugins. Like CKEditor, TipTap is configured using YAML files placed in your site package at `Configuration/RTE/`.
+
+The extension ships with a default configuration that includes commonly used features. You only need to create a custom configuration if you want to modify the toolbar, add custom plugins, or adjust the editor behavior.
 
 ### Configuring the Toolbar
 
