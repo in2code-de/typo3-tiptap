@@ -4,9 +4,6 @@ This extension provides a modern TipTap rich text editor integration for TYPO3 C
 
 The development of this extension was funded by the [TYPO3 Association](https://typo3.org) through the [Community Ideas program](https://typo3.org/article/members-have-selected-five-ideas-to-be-funded-in-quarter-3-2025).
 
-> **Note:** This is an MVP prototype suitable for testing purposes. It is not yet ready for production use.
-
-
 ![Screenshot of the TipTap Editor Integration in TYPO3](docs/images/example-1.webp)
 
 ---
