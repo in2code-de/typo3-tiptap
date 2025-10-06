@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace In2code\In2TipTap\Form\Element;
+namespace In2code\Typo3TipTap\Form\Element;
 
-use In2code\In2TipTap\Editor\ConfigurationService;
-use In2code\In2TipTap\Exception\MissingEditorConfigurationException;
+use In2code\Typo3TipTap\Editor\ConfigurationService;
+use In2code\Typo3TipTap\Exception\MissingEditorConfigurationException;
 use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
 use TYPO3\CMS\Backend\Routing\Exception\RouteNotFoundException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
@@ -125,8 +125,7 @@ class TipTapTextElement extends AbstractFormElement
         $html[] = '</div>';
 
         $resultArray['html'] = $this->wrapWithFieldsetAndLegend(implode(LF, $html));
-        $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@in2tiptap/tiptap/index.js');
-        $resultArray['stylesheetFiles'][] = 'EXT:in2tiptap/Resources/Public/TipTap/index.css';
+        $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3-tiptap/tiptap/index.js');
 
         return $resultArray;
     }

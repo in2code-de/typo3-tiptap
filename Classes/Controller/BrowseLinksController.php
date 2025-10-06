@@ -15,7 +15,7 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace In2code\In2TipTap\Controller;
+namespace In2code\Typo3TipTap\Controller;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
@@ -85,7 +85,7 @@ class BrowseLinksController extends AbstractLinkBrowserController
     protected function initDocumentTemplate(): void
     {
         $this->pageRenderer->getJavaScriptRenderer()->addJavaScriptModuleInstruction(
-            JavaScriptModuleInstruction::create('@in2tiptap/tiptap/rte-link-browser.js')
+            JavaScriptModuleInstruction::create('@typo3-tiptap/tiptap/rte-link-browser.js')
                 ->invoke('initialize', $this->editorId)
         );
     }

@@ -1,5 +1,5 @@
 {
-  "name": "in2code/in2tiptap",
+  "name": "in2code/typo3-tiptap",
   "type": "typo3-cms-extension",
   "license": ["GPL-2.0-or-later"],
   "keywords": ["TYPO3 CMS"],
@@ -40,12 +40,12 @@
   },
   "autoload": {
     "psr-4": {
-      "In2code\\In2TipTap\\": "Classes/"
+      "In2code\\Typo3TipTap\\": "Classes/"
     }
   },
   "extra": {
     "typo3/cms": {
-      "extension-key": "in2tiptap",
+      "extension-key": "typo3-tiptap",
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
       "web-dir": ".Build/public"
     }

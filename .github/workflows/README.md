@@ -1,4 +1,4 @@
-# GitHub Actions for in2tiptap
+# GitHub Actions for typo3tiptap
 
 ## Packagist Auto-Update
 

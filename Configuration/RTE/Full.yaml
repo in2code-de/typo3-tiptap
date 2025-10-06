@@ -4,24 +4,24 @@ editor:
       enableContentDragAndDrop: true
 
       plugins:
-        - path: "@in2tiptap/tiptap/plugins/headings.js"
+        - path: "@typo3-tiptap/tiptap/plugins/headings.js"
           config: { levels: [1, 2, 3, 4, 5, 6] }
-        - path: "@in2tiptap/tiptap/plugins/history.js"
+        - path: "@typo3-tiptap/tiptap/plugins/history.js"
           config: { types: [ "undo", "redo" ] }
-        - path: "@in2tiptap/tiptap/plugins/bold.js"
-        - path: "@in2tiptap/tiptap/plugins/underline.js"
-        - path: "@in2tiptap/tiptap/plugins/italic.js"
-        - path: "@in2tiptap/tiptap/plugins/strikethrough.js"
-        - path: "@in2tiptap/tiptap/plugins/link.js"
-        - path: "@in2tiptap/tiptap/plugins/list.js"
+        - path: "@typo3-tiptap/tiptap/plugins/bold.js"
+        - path: "@typo3-tiptap/tiptap/plugins/underline.js"
+        - path: "@typo3-tiptap/tiptap/plugins/italic.js"
+        - path: "@typo3-tiptap/tiptap/plugins/strikethrough.js"
+        - path: "@typo3-tiptap/tiptap/plugins/link.js"
+        - path: "@typo3-tiptap/tiptap/plugins/list.js"
           config:
             types: [ "ordered", "bullet" ]
-        - path: "@in2tiptap/tiptap/plugins/blockquote.js"
-        - path: "@in2tiptap/tiptap/plugins/justify.js"
+        - path: "@typo3-tiptap/tiptap/plugins/blockquote.js"
+        - path: "@typo3-tiptap/tiptap/plugins/justify.js"
           config:
             types: [ "justify-left", "justify-center", "justify-right" ]
-        - path: "@in2tiptap/tiptap/plugins/source.js"
-        - path: "@in2tiptap/tiptap/plugins/styles.js"
+        - path: "@typo3-tiptap/tiptap/plugins/source.js"
+        - path: "@typo3-tiptap/tiptap/plugins/styles.js"
           config:
             styles:
               - { name: "Orange Title H2", element: "h2", classes: "orange" }

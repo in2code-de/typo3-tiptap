@@ -1,7 +1,7 @@
 <?php
 
 $EM_CONF[$_EXTKEY] = [
-    'title' => 'In2TipTap',
+    'title' => 'TYPO3 TipTap',
     'state' => 'stable',
     'author' => 'In2code GmbH',
     'author_email' => 'info@in2code.de',
@@ -17,7 +17,7 @@ $EM_CONF[$_EXTKEY] = [
     ],
     'autoload' => [
         'psr-4' => [
-            'In2code\\In2TipTap\\' => 'Classes',
+            'In2code\\Typo3TipTap\\' => 'Classes',
         ],
     ],
 ];

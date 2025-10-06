@@ -1,4 +1,4 @@
-base: 'https://in2tiptap.ddev.site/'
+base: 'https://typo3-tiptap.ddev.site/'
 errorHandling: { }
 languages:
   - title: English

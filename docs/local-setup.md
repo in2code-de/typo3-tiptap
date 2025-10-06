@@ -15,7 +15,7 @@ ddev pull assets
 
 ## Credentials
 
-- Backend: https://in2tiptap.ddev.site/typo3
+- Backend: https://typo3-tiptap.ddev.site/typo3
 - Username: `admin`
 - Password: `John3:16`
 

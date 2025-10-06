@@ -8,11 +8,11 @@ return [
         'backend.form',
     ],
     'imports' => [
-        '@in2tiptap/tiptap/' => [
-            'path' => 'EXT:in2tiptap/Resources/Public/TipTap/',
+        '@typo3-tiptap/tiptap/' => [
+            'path' => 'EXT:typo3-tiptap/Resources/Public/TipTap/',
         ],
         '@example/in2code/' => [
-            'path' => 'EXT:in2tiptap/Resources/Public/Js/',
+            'path' => 'EXT:typo3-tiptap/Resources/Public/Js/',
         ],
     ],
 ];

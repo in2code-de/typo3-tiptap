@@ -4,5 +4,5 @@ services:
     autoconfigure: true
     public: false
 
-  In2code\In2TipTap\:
+  In2code\Typo3TipTap\:
     resource: '../Classes/*'

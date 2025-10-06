@@ -1,4 +1,4 @@
-name: in2tiptap
+name: typo3-tiptap
 type: php
 docroot: .Build/public
 php_version: '8.3'

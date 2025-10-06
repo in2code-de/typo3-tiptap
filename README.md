@@ -13,7 +13,7 @@ The development of this extension was funded by the [TYPO3 Association](https://
 Install the extension via Composer:
 
 ```bash
-composer require in2code/in2tiptap
+composer require in2code/typo3-tiptap
 ```
 
 You don't have to remove the CkEditor extension; both editors can coexist.
@@ -49,35 +49,34 @@ Each plugin can have its own configuration options that are validated in the fro
 
 ```yaml
 editor:
-  tiptap:
-    config:
-      plugins:
-        - path: '@in2tiptap/tiptap/plugins/headings.js'
-          config:
-            levels: [ 1, 2, 3, 4, 5, 6 ]
-        - path: '@in2tiptap/tiptap/plugins/history.js'
-          config:
-            types: [ "undo", "redo" ]
-        - path: '@in2tiptap/tiptap/plugins/bold.js'
-        - path: '@in2tiptap/tiptap/plugins/underline.js'
-        - path: '@in2tiptap/tiptap/plugins/italic.js'
-        - path: '@in2tiptap/tiptap/plugins/strikethrough.js'
-        - path: '@in2tiptap/tiptap/plugins/link.js'
-        - path: '@in2tiptap/tiptap/plugins/list.js'
-          config:
-            types: [ "ordered", "bullet" ]
-        - path: '@in2tiptap/tiptap/plugins/blockquote.js'
-        - path: '@in2tiptap/tiptap/plugins/justify.js'
-          config:
-            types: [ "justify-left", "justify-center", "justify-right" ]
-        - path: '@in2tiptap/tiptap/plugins/source.js'
-        - path: '@in2tiptap/tiptap/plugins/styles.js'
-          config:
-            styles:
-              - { name: "Orange title H2", element: "h2", classes: "orange" }
-              - { name: "Orange title H3", element: "h3", classes: "orange" }
-              - { name: "Paragraph Blue", element: "p", classes: "paragraph-blue" }
-              - { name: "Link Green", element: "a", classes: "link-green" }
+    tiptap:
+        config:
+            plugins:
+                - path: '@typo3-tiptap/tiptap/plugins/headings.js'
+                  config: { levels: [1, 2, 3, 4, 5, 6] }
+                - path: '@typo3-tiptap/tiptap/plugins/history.js'
+                  config: { types: [ 'undo', 'redo' ] }
+                - path: '@typo3-tiptap/tiptap/plugins/bold.js'
+                - path: '@typo3-tiptap/tiptap/plugins/underline.js'
+                - path: '@typo3-tiptap/tiptap/plugins/italic.js'
+                - path: '@typo3-tiptap/tiptap/plugins/strikethrough.js'
+                - path: '@typo3-tiptap/tiptap/plugins/link.js'
+                - path: '@typo3-tiptap/tiptap/plugins/list.js'
+                  config:
+                      types: [ 'ordered', 'bullet' ]
+                - path: '@typo3-tiptap/tiptap/plugins/blockquote.js'
+                - path: '@typo3-tiptap/tiptap/plugins/justify.js'
+                  config:
+                      types: [ 'justify-left', 'justify-center', 'justify-right' ]
+                - path: '@typo3-tiptap/tiptap/plugins/source.js'
+                - path: '@typo3-tiptap/tiptap/plugins/styles.js'
+                  config:
+                      styles:
+                          - { name: 'Orange Title H2', element: 'h2', classes: 'orange' }
+                          - { name: 'Orange Title H3', element: 'h3', classes: 'orange' }
+                          - { name: 'Paragraph Blue', element: 'p', classes: 'paragraph-blue' }
+                          - { name: 'Link Green', element: 'a', classes: 'link-green' }
+
 ```
 
 ### Loading Custom CSS
@@ -109,7 +108,7 @@ editor:
       plugins:
         - path: '@example/in2code/Plugins/example.js'
           config: # Optional plugin configuration
-            additionalClass: "my-example-class"
+            additionalClass: 'my-example-class'
 ```
 
 ### Step 2: Create the Plugin File
@@ -120,7 +119,7 @@ Create your plugin JavaScript file. Configuration is optional—if you don't nee
 import {
     defineTipTapPlugin,
     parseTipTapPluginYamlConfiguration,
-} from '@in2tiptap/tiptap/index.js'
+} from '@typo3-tiptap/tiptap/index.js'
 
 export default function (unsafeConfig) {
   // Parse plugin configuration from YAML to ensure it matches expectations

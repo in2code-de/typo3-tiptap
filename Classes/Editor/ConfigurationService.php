@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace In2code\In2TipTap\Editor;
+namespace In2code\Typo3TipTap\Editor;
 
-use In2code\In2TipTap\Exception\MissingEditorConfigurationException;
+use In2code\Typo3TipTap\Exception\MissingEditorConfigurationException;
 use TYPO3\CMS\Backend\Routing\UriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\PathUtility;
@@ -41,7 +41,7 @@ class ConfigurationService
         ];
 
         $uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
-        return (string)$uriBuilder->buildUriFromRoute('in2tiptap_wizard_browse_links', $urlParameters);
+        return (string)$uriBuilder->buildUriFromRoute('typo3-tiptap_wizard_browse_links', $urlParameters);
         // END todo
     }
 

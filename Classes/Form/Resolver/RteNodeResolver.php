@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace In2code\In2TipTap\Form\Resolver;
+namespace In2code\Typo3TipTap\Form\Resolver;
 
-use In2code\In2TipTap\Form\Element\TipTapTextElement;
+use In2code\Typo3TipTap\Form\Element\TipTapTextElement;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use TYPO3\CMS\Backend\Form\NodeResolverInterface;
 
