@@ -30,8 +30,16 @@ If you want to customize the editor to your specific needs, you can overwrite th
 
 ```php
 // Setup custom editor configuration
-$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:sitepackage/Configuration/RTE/TipTap.yaml';
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['my_custom_preset'] = 'EXT:sitepackage/Configuration/RTE/TipTap.yaml';
 ```
+
+4. Activate the custom preset in your Page TSconfig:
+```
+RTE.default.preset = my_custom_preset
+```
+
+
+See also: https://docs.typo3.org/c/typo3/cms-rte-ckeditor/main/en-us/Configuration/Examples.html#how-do-i-use-a-different-preset
 
 ---
 
