@@ -20,6 +20,8 @@ You don't have to remove the CkEditor extension; both editors can coexist.
 
 The editor comes with a **default configuration** that works out of the box. You can start using it immediately without any additional setup.
 
+> If you want to use the default configuration, make sure to not overwrite the preset in your Page TSconfig.
+
 ### Optional: Customize the Configuration
 
 If you want to customize the editor to your specific needs, you can overwrite the default configuration:
