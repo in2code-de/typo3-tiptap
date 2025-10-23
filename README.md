@@ -183,6 +183,25 @@ The plugin structure may seem abstract at first. We recommend reviewing the [exi
 
 ---
 
+## FAQ
+
+### #1755159351 MissingEditorConfigurationException: Missing editor configuration for tiptap
+
+Most probably you have already customized your CKEditor presets. Search e.g. your site package for `$GLOBALS
+['TYPO3_CONF_VARS']['RTE']['Presets']` and change it to the TipTap YAML file with one of the following configurations:
+
+```php
+// Use the shipped configuration  file
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['my_custom_preset'] = 'EXT:typo3-tiptap/Configuration/RTE/Full.yaml';
+```
+
+```php
+// Setup custom editor configuration
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['my_custom_preset'] = 'EXT:sitepackage/Configuration/RTE/TipTap.yaml';
+```
+
+---
+
 ## Local Development
 
 For instructions on setting up the project for local development, please refer to the [Local Setup Documentation](docs/local-setup.md).
