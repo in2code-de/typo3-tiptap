@@ -106,7 +106,7 @@ class BrowseLinksController extends AbstractLinkBrowserController
         $this->contentLanguageService = $this->languageServiceFactory->create($this->contentsLanguage);
         $tcaFieldConf = [
             'enableRichtext' => true,
-            'richtextConfiguration' => $this->parameters['richtextConfigurationName'] ?: null,
+            'richtextConfiguration' => $this->parameters['richtextConfigurationName'] ?? null,
         ];
         $this->thisConfig = $this->richtext->getConfiguration(
             $this->parameters['table'],
