@@ -9,10 +9,10 @@ return [
     ],
     'imports' => [
         '@typo3-tiptap/tiptap/' => [
-            'path' => 'EXT:typo3-tiptap/Resources/Public/TipTap/',
+            'path' => 'EXT:typo3_tiptap/Resources/Public/TipTap/',
         ],
         '@example/in2code/' => [
-            'path' => 'EXT:typo3-tiptap/Resources/Public/Js/',
+            'path' => 'EXT:typo3_tiptap/Resources/Public/Js/',
         ],
     ],
 ];

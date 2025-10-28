@@ -9,4 +9,4 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'][1480314091] = [
     'class' => \In2code\Typo3TipTap\Form\Resolver\RteNodeResolver::class,
 ];
 
-$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:typo3-tiptap/Configuration/RTE/Full.yaml';
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:typo3_tiptap/Configuration/RTE/Full.yaml';
