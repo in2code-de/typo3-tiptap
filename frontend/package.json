@@ -18,6 +18,7 @@
     "@tiptap/extension-node-range": "^3.4.1",
     "@tiptap/extension-text-align": "^3.0.9",
     "@tiptap/extension-typography": "^3.4.2",
+    "@tiptap/extensions": "^3.11.0",
     "@tiptap/pm": "^3.0.9",
     "@tiptap/starter-kit": "^3.1.0",
     "@tiptap/vue-3": "^3.0.9",

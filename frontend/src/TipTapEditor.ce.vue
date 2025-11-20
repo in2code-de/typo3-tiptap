@@ -10,6 +10,7 @@ import StarterKit from '@tiptap/starter-kit'
 import { Editor, EditorContent } from '@tiptap/vue-3'
 import { BubbleMenu } from '@tiptap/vue-3/menus'
 import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import CharacterCount from './components/CharacterCount.vue'
 import Dropdown from './components/Dropdown.vue'
 import Icon from './components/Icon.vue'
 import Stylesheets from './components/Stylesheets.vue'
@@ -38,6 +39,7 @@ const dropdownRenderKey = ref(0)
 const isTopBarDropdownActive = ref(false)
 const selectionCharacterCount = ref(0)
 const isNodeFirstLine = ref(false)
+const characterCountSettings = ref<false | { characterLimit: number }>(false)
 
 const shouldShowBubbleMenu = computed(() => {
   if (!configuration.value)
@@ -224,6 +226,16 @@ onMounted(async () => {
     }
   })
 
+  // check if character count plugin is enabled
+  const characterCountExtension = editor.value?.extensionManager?.extensions.find(
+    extension => extension.name === 'characterCount',
+  )
+  if (characterCountExtension && characterCountExtension.options.limit) {
+    characterCountSettings.value = {
+      characterLimit: characterCountExtension.options.limit,
+    }
+  }
+
   executeCommandHooks()
 })
 
@@ -387,6 +399,12 @@ onUnmounted(() => editor.value?.destroy())
       :class="{
         'pl-9': options.enableContentDragAndDrop,
       }"
+    />
+
+    <CharacterCount
+      v-if="characterCountSettings"
+      :editor="editor"
+      :limit="characterCountSettings.characterLimit"
     />
 
     <Stylesheets

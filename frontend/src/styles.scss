@@ -4,7 +4,7 @@
   --tiptap-color-neutral-white: hsl(0deg 0% 100%);
   --tiptap-color-neutral-10: hsl(0deg 0% 10%);
   --tiptap-color-neutral-20: hsl(0deg 0% 20%);
-  --tiptap-color-neutral-30: hsl(0deg 0% 30%);
+  --tiptap-color-neutral-40: hsl(0deg 0% 40%);
   --tiptap-color-neutral-80: hsl(0deg 0% 80%);
   --tiptap-color-neutral-90: hsl(0deg 0% 90%);
 
@@ -12,7 +12,7 @@
   --tiptap-color-surface: light-dark(var(--tiptap-color-neutral-white), var(--tiptap-color-neutral-10));
   --tiptap-color-surface-highlight: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
   --tiptap-color-surface-border: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
-  --tiptap-color-text-disabled: light-dark(var(--tiptap-color-neutral-30), var(--tiptap-color-neutral-80));
+  --tiptap-color-text-subtle: light-dark(var(--tiptap-color-neutral-40), var(--tiptap-color-neutral-80));
 
   /* Utility variables */
   --tiptap-border-radius: 0.7rem;
@@ -92,7 +92,7 @@
   }
 
   &:disabled {
-    color: var(--tiptap-color-text-disabled);
+    color: var(--tiptap-color-text-subtle);
     cursor: not-allowed;
   }
 
@@ -183,7 +183,7 @@
     }
 
     &:disabled {
-      color: var(--tiptap-color-text-disabled);
+      color: var(--tiptap-color-text-subtle);
       cursor: not-allowed;
     }
   }
@@ -328,5 +328,24 @@
   &-leave-to {
     --scale: 0.95;
     --opacity: 0;
+  }
+}
+
+/* Character count */
+.tiptap-character-count {
+  align-items: center;
+  color: var(--tiptap-color-text-subtle);
+  display: flex;
+  font-size: 0.75rem;
+  gap: 0.5rem;
+  margin: 1.25rem 0.75rem;
+
+  svg {
+    color: var(--token-color-orange-40);
+  }
+
+  &--warning,
+  &--warning svg {
+    color: var(--bs-danger);
   }
 }
