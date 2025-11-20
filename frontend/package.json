@@ -27,9 +27,9 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^5.2.1",
+    "@antfu/eslint-config": "^6.2.0",
     "@vitejs/plugin-vue": "^6.0.1",
-    "glob": "^11.0.3",
+    "glob": "^13.0.0",
     "sass": "^1.92.1",
     "vite": "^7.1.1"
   }
