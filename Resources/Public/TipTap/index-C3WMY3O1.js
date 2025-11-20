@@ -1,5 +1,5 @@
-import { M as r, m as e, f as s, g as a } from "./index-CXcNTZf2.js";
-var n = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/, i = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))/g, l = /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))$/, u = /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))/g, d = r.create({
+import { M as s, m as r, f as a, g as n } from "./index-DCsf0cLd.js";
+var i = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/, d = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))/g, l = /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))$/, o = /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))/g, u = s.create({
   name: "italic",
   addOptions() {
     return {
@@ -25,7 +25,7 @@ var n = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/, i = /(?:^|\s)(\*(?!\s+\*
     ];
   },
   renderHTML({ HTMLAttributes: t }) {
-    return ["em", a(this.options.HTMLAttributes, t), 0];
+    return ["em", n(this.options.HTMLAttributes, t), 0];
   },
   addCommands() {
     return {
@@ -34,6 +34,9 @@ var n = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/, i = /(?:^|\s)(\*(?!\s+\*
       unsetItalic: () => ({ commands: t }) => t.unsetMark(this.name)
     };
   },
+  markdownTokenName: "em",
+  parseMarkdown: (t, e) => e.applyMark("italic", e.parseInline(t.tokens || [])),
+  renderMarkdown: (t, e) => `*${e.renderChildren(t)}*`,
   addKeyboardShortcuts() {
     return {
       "Mod-i": () => this.editor.commands.toggleItalic(),
@@ -42,11 +45,11 @@ var n = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/, i = /(?:^|\s)(\*(?!\s+\*
   },
   addInputRules() {
     return [
-      s({
-        find: n,
+      a({
+        find: i,
         type: this.type
       }),
-      s({
+      a({
         find: l,
         type: this.type
       })
@@ -54,18 +57,18 @@ var n = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/, i = /(?:^|\s)(\*(?!\s+\*
   },
   addPasteRules() {
     return [
-      e({
-        find: i,
+      r({
+        find: d,
         type: this.type
       }),
-      e({
-        find: u,
+      r({
+        find: o,
         type: this.type
       })
     ];
   }
-}), m = d;
+}), p = u;
 export {
-  d as I,
-  m as i
+  u as I,
+  p as i
 };

@@ -1,5 +1,5 @@
-import { B as o, O as n } from "../index-DdYLZdgi.js";
-import { p as r, d as u } from "../configuration-DkMIcjSq.js";
+import { B as o, O as n } from "../index-DOelEW0u.js";
+import { p as r, d as u } from "../configuration-Kd-wz9S1.js";
 function c(l) {
   const s = r({
     pluginId: "list",

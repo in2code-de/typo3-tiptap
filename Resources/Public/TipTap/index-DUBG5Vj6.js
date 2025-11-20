@@ -1,5 +1,5 @@
-import { M as t, g as r } from "./index-CXcNTZf2.js";
-var n = t.create({
+import { M as s, g as a } from "./index-DCsf0cLd.js";
+var d = s.create({
   name: "underline",
   addOptions() {
     return {
@@ -19,7 +19,32 @@ var n = t.create({
     ];
   },
   renderHTML({ HTMLAttributes: e }) {
-    return ["u", r(this.options.HTMLAttributes, e), 0];
+    return ["u", a(this.options.HTMLAttributes, e), 0];
+  },
+  parseMarkdown(e, n) {
+    return n.applyMark(this.name || "underline", n.parseInline(e.tokens || []));
+  },
+  renderMarkdown(e, n) {
+    return `++${n.renderChildren(e)}++`;
+  },
+  markdownTokenizer: {
+    name: "underline",
+    level: "inline",
+    start(e) {
+      return e.indexOf("++");
+    },
+    tokenize(e, n, i) {
+      const r = /^(\+\+)([\s\S]+?)(\+\+)/.exec(e);
+      if (!r)
+        return;
+      const t = r[2].trim();
+      return {
+        type: "underline",
+        raw: r[0],
+        text: t,
+        tokens: i.inlineTokens(t)
+      };
+    }
   },
   addCommands() {
     return {
@@ -34,8 +59,8 @@ var n = t.create({
       "Mod-U": () => this.editor.commands.toggleUnderline()
     };
   }
-}), a = n;
+}), l = d;
 export {
-  n as U,
-  a as i
+  d as U,
+  l as i
 };

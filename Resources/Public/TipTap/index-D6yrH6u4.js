@@ -1,5 +1,5 @@
-import { h as s, i as n, g as r } from "./index-CXcNTZf2.js";
-var i = s.create({
+import { h as l, i as a, g as i } from "./index-DCsf0cLd.js";
+var o = l.create({
   name: "heading",
   addOptions() {
     return {
@@ -25,7 +25,13 @@ var i = s.create({
     }));
   },
   renderHTML({ node: e, HTMLAttributes: t }) {
-    return [`h${this.options.levels.includes(e.attrs.level) ? e.attrs.level : this.options.levels[0]}`, r(this.options.HTMLAttributes, t), 0];
+    return [`h${this.options.levels.includes(e.attrs.level) ? e.attrs.level : this.options.levels[0]}`, i(this.options.HTMLAttributes, t), 0];
+  },
+  parseMarkdown: (e, t) => t.createNode("heading", { level: e.depth || 1 }, t.parseInline(e.tokens || [])),
+  renderMarkdown: (e, t) => {
+    var r;
+    const s = (r = e.attrs) != null && r.level ? parseInt(e.attrs.level, 10) : 1, n = "#".repeat(s);
+    return e.content ? `${n} ${t.renderChildren(e.content)}` : "";
   },
   addCommands() {
     return {
@@ -43,7 +49,7 @@ var i = s.create({
     );
   },
   addInputRules() {
-    return this.options.levels.map((e) => n({
+    return this.options.levels.map((e) => a({
       find: new RegExp(`^(#{${Math.min(...this.options.levels)},${e}})\\s$`),
       type: this.type,
       getAttributes: {
@@ -51,8 +57,8 @@ var i = s.create({
       }
     }));
   }
-}), d = i;
+}), u = o;
 export {
-  i as H,
-  d as i
+  o as H,
+  u as i
 };
