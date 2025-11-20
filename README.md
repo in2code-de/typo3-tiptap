@@ -192,7 +192,7 @@ Most probably you have already customized your CKEditor presets. Search e.g. you
 
 ```php
 // Use the shipped configuration  file
-$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['my_custom_preset'] = 'EXT:typo3-tiptap/Configuration/RTE/Full.yaml';
+$GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['my_custom_preset'] = 'EXT:typo3_tiptap/Configuration/RTE/Full.yaml';
 ```
 
 ```php
