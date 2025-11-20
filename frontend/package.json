@@ -3,8 +3,7 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite --config vite.config.ts"
+    "build": "vite build"
   },
   "dependencies": {
     "@antfu/utils": "^9.2.0",
