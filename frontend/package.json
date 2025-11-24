@@ -1,14 +1,12 @@
 {
   "name": "typo3-tiptap",
   "type": "module",
-  "main": "index.js",
   "scripts": {
     "build": "vite build"
   },
   "dependencies": {
     "@antfu/utils": "^9.2.0",
     "@headlessui/vue": "^1.7.23",
-    "@heroicons/vue": "^2.2.0",
     "@tiptap/core": "^3.0.9",
     "@tiptap/extension-blockquote": "^3.6.2",
     "@tiptap/extension-bold": "^3.6.2",
