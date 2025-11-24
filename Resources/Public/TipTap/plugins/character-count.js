@@ -1,21 +1,25 @@
-import { C as a } from "../index-Ds3IlGiQ.js";
-import { p as o, d as e } from "../configuration-Kd-wz9S1.js";
-function m(n) {
-  const t = o({
+import { C as i } from "../index-Ds3IlGiQ.js";
+import { p as o, d as a } from "../configuration-B8zvYdvw.js";
+function p(n) {
+  const e = o({
     pluginId: "character-count",
     config: n,
-    getValidationSchema: (i) => i.object({
-      limit: i.number().min(1)
+    getValidationSchema: (t) => t.object({
+      limit: t.number().min(1)
     })
   });
-  e({
+  function r(t) {
+    return new DOMParser().parseFromString(t, "text/html").body.innerText.length;
+  }
+  a({
     extensions: [
-      a.configure({
-        limit: t.limit
+      i.configure({
+        limit: e.limit,
+        textCounter: (t) => r(t)
       })
     ]
   });
 }
 export {
-  m as default
+  p as default
 };

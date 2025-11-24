@@ -1,4 +1,4 @@
-import { d as i } from "../configuration-Kd-wz9S1.js";
+import { d as i } from "../configuration-B8zvYdvw.js";
 function o() {
   i({
     commands: [

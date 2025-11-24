@@ -1,5 +1,5 @@
 import { E as s } from "../index-DCsf0cLd.js";
-import { p as r, d as l } from "../configuration-Kd-wz9S1.js";
+import { p as r, d as l } from "../configuration-B8zvYdvw.js";
 var u = s.create({
   name: "textAlign",
   addOptions() {
