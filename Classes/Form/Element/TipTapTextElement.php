@@ -102,11 +102,11 @@ class TipTapTextElement extends AbstractFormElement
         $html[] =   '<div class="form-control-wrap">';
         $html[] =       '<div class="form-wizards-wrap">';
         $html[] =           '<div class="form-wizards-item-element">';
-        $html[] =           '<editor-tiptap ' . $editorAttributes . '>';
+        $html[] =           '<clippy-editor ' . $editorAttributes . '>';
         $html[] =                 '<textarea ' . $textareaAttributes . '>';
         $html[] =                   htmlspecialchars($value);
         $html[] =                 '</textarea>';
-        $html[] =           '</editor-tiptap>';
+        $html[] =           '</clippy-editor>';
         $html[] =           '</div>';
         if (!empty($fieldControlHtml)) {
             $html[] =           '<div class="form-wizards-item-aside form-wizards-item-aside--field-control">';

@@ -1,5 +1,5 @@
-import { U as t } from "../index-Ds3IlGiQ.js";
-import { p as a, d as s } from "../configuration-B8zvYdvw.js";
+import { U as t } from "../index-CtrK7FeN.js";
+import { p as a, d as s } from "../configuration-C_XBPA12.js";
 function u(i) {
   const e = a({
     pluginId: "history",

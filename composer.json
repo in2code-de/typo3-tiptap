@@ -1,6 +1,7 @@
 {
-  "name": "in2code/typo3-tiptap",
+  "name": "ictu/clippy-tiptap-editor",
   "type": "typo3-cms-extension",
+  "version": "0.1.0",
   "license": ["GPL-2.0-or-later"],
   "keywords": ["TYPO3 CMS"],
   "authors": [
@@ -10,7 +11,7 @@
     }
   ],
   "require": {
-    "php": ">=8.3.0",
+    "php": ">=8.4.0",
     "typo3/cms-core": "^13.4"
   },
   "require-dev": {
@@ -45,7 +46,7 @@
   },
   "extra": {
     "typo3/cms": {
-      "extension-key": "typo3_tiptap",
+      "extension-key": "clippy_tiptap_editor",
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
       "web-dir": ".Build/public"
     }

@@ -1,13 +1,8 @@
-import { defineCustomElement } from 'vue'
 import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from './configuration.ts'
-import TipTapEditor from './TipTapEditor.ce.vue'
+import '@nl-design-system-community/editor'
 
-const webComponent = defineCustomElement(TipTapEditor)
-customElements.define('editor-tiptap', webComponent)
 
 export {
   defineTipTapPlugin,
   parseTipTapPluginYamlConfiguration,
 }
-
-export * from '@tiptap/core'
