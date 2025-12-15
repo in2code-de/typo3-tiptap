@@ -37,8 +37,6 @@ const stylesParentNode = ref<ParentNodeResult>()
 const isHtmlSourceViewActive = ref(false)
 const dropdownRenderKey = ref(0)
 const isTopBarDropdownActive = ref(false)
-const selectionCharacterCount = ref(0)
-const isNodeFirstLine = ref(false)
 const characterCountSettings = ref<false | { characterLimit: number }>(false)
 
 const shouldShowBubbleMenu = computed(() => {
@@ -50,13 +48,6 @@ const shouldShowBubbleMenu = computed(() => {
 
   if (isTopBarDropdownActive.value)
     return false
-
-  if (isNodeFirstLine.value)
-    return false
-
-  if (selectionCharacterCount.value <= 150) {
-    return false
-  }
 
   return configuration.value.bubbleMenu.some(group => group.commands.length > 0)
 })
@@ -213,16 +204,9 @@ onMounted(async () => {
   editor.value.on('parentNodeChanged', (data) => {
     if (data.tagName === 'doc') {
       stylesParentNode.value = undefined
-      isNodeFirstLine.value = false
     }
     else {
       stylesParentNode.value = data
-      selectionCharacterCount.value = editor.value?.state.selection.$from.pos ?? 0
-
-      if (data.node) {
-        const firstNode = editor.value?.state.doc.firstChild
-        isNodeFirstLine.value = firstNode === data.node
-      }
     }
   })
 
@@ -243,11 +227,6 @@ onUnmounted(() => editor.value?.destroy())
 </script>
 
 <template>
-  <pre v-if="options.enableDebugMode">
-    selectionCharacterCount: {{ selectionCharacterCount }}
-    isNodeFirstLine: {{ isNodeFirstLine }}
-  </pre>
-
   <div
     v-if="editor"
     class="tiptap-container"
@@ -399,6 +378,7 @@ onUnmounted(() => editor.value?.destroy())
       :class="{
         'pl-9': options.enableContentDragAndDrop,
       }"
+      class="tiptap-editor-content"
     />
 
     <CharacterCount
