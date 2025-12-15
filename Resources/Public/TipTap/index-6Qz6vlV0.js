@@ -1,4 +1,4 @@
-import { h as a, b7 as d, g as c } from "./index-DCsf0cLd.js";
+import { j as a, ba as d, i as c } from "./index-DYaQFPxE.js";
 import { h as i } from "./jsx-runtime-CT7Pcg-t.js";
 var l = /^\s*>\s$/, p = a.create({
   name: "blockquote",
@@ -50,8 +50,8 @@ ${r}
       })
     ];
   }
-}), b = p;
+}), f = p;
 export {
   p as B,
-  b as i
+  f as i
 };

@@ -1,7 +1,7 @@
 import { o as c } from "../index-e_Ie-2wz.js";
-import { L as u } from "../index-DYCfnBXh.js";
+import { L as u } from "../index-BNlBMPHI.js";
 import s from "@typo3/backend/modal.js";
-import { d as p } from "../configuration-B8zvYdvw.js";
+import { d as p } from "../configuration-CsNrhtrS.js";
 const f = u.extend({
   addAttributes() {
     return {

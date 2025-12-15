@@ -1,7 +1,7 @@
 import { t as y } from "../index-e_Ie-2wz.js";
-import { E as C } from "../index-DCsf0cLd.js";
-import { p as k, d as b, c as m } from "../configuration-B8zvYdvw.js";
-import { $ as T, a3 as N } from "../styles-zL8IYZyO.js";
+import { E as C } from "../index-DYaQFPxE.js";
+import { p as k, d as b, c as m } from "../configuration-CsNrhtrS.js";
+import { $ as T, a3 as N } from "../styles-VSStk_7S.js";
 function f(e) {
   return e.type.name === "heading" && e.attrs?.level ? `h${e.attrs.level}` : e.type.spec.parseDOM?.[0] && typeof e.type.spec.parseDOM[0] == "object" && "tag" in e.type.spec.parseDOM[0] && e.type.spec.parseDOM[0].tag || e.type.name;
 }
@@ -186,7 +186,7 @@ function P(e) {
           onEditorMounted: l === 0 ? ({ editor: n }) => {
             const p = y(250, () => {
               const u = d(n.state);
-              console.log(1759391901984, u), r.value = u, n.emit("parentNodeChanged", u);
+              r.value = u, n.emit("parentNodeChanged", u);
             });
             n.on("selectionUpdate", p);
           } : void 0

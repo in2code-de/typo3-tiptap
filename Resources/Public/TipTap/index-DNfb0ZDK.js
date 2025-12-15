@@ -1,4 +1,4 @@
-import { h as l, i as a, g as i } from "./index-DCsf0cLd.js";
+import { j as l, k as a, i } from "./index-DYaQFPxE.js";
 var o = l.create({
   name: "heading",
   addOptions() {

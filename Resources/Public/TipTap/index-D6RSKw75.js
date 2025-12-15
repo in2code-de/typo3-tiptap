@@ -1,4 +1,4 @@
-import { M as s, m as r, f as a, g as n } from "./index-DCsf0cLd.js";
+import { f as s, m as r, h as a, i as n } from "./index-DYaQFPxE.js";
 var i = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))$/, d = /(?:^|\s)(\*(?!\s+\*)((?:[^*]+))\*(?!\s+\*))/g, l = /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))$/, o = /(?:^|\s)(_(?!\s+_)((?:[^_]+))_(?!\s+_))/g, u = s.create({
   name: "italic",
   addOptions() {

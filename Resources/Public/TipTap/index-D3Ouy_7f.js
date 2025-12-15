@@ -1,4 +1,4 @@
-import { h as L, b7 as k, g as m, aZ as E, E as H, aW as M, aJ as g, aC as R, aB as j, am as $, ak as K } from "./index-DCsf0cLd.js";
+import { j as L, ba as k, i as m, b0 as E, E as H, aZ as M, aM as g, aF as B, aE as j, ap as $, an as K } from "./index-DYaQFPxE.js";
 var V = Object.defineProperty, X = (t, e) => {
   for (var s in e)
     V(t, s, { get: e[s], enumerable: !0 });
@@ -56,7 +56,7 @@ var V = Object.defineProperty, X = (t, e) => {
       editor: this.editor
     })), [t];
   }
-}), W = L.create({
+}), G = L.create({
   name: "listItem",
   addOptions() {
     return {
@@ -123,8 +123,8 @@ var V = Object.defineProperty, X = (t, e) => {
       "Shift-Tab": () => this.editor.commands.liftListItem(this.name)
     };
   }
-}), G = {};
-X(G, {
+}), W = {};
+X(W, {
   findListItemPos: () => b,
   getNextListDepth: () => T,
   handleBackspace: () => v,
@@ -179,7 +179,7 @@ var b = (t, e) => {
     const d = t.state.doc.resolve(p.start() + o.pos + 1);
     return t.chain().cut({ from: a.start() - 1, to: a.end() + 1 }, d.end()).joinForward().run();
   }
-  if (!g(t.state, e) || !R(t.state))
+  if (!g(t.state, e) || !B(t.state))
     return !1;
   const n = b(e, t.state);
   if (!n)
@@ -201,7 +201,7 @@ var b = (t, e) => {
   var s;
   const { $anchor: n } = e.selection, r = e.doc.resolve(n.pos - n.parentOffset - 2);
   return !(r.index() === r.parent.childCount - 1 || ((s = r.nodeAfter) == null ? void 0 : s.type.name) !== t);
-}, J = H.create({
+}, Y = H.create({
   name: "listKeymap",
   addOptions() {
     return {
@@ -245,12 +245,12 @@ var b = (t, e) => {
       }
     };
   }
-}), C = /^(\s*)(\d+)\.\s+(.*)$/, Y = /^\s/;
-function Z(t) {
+}), A = /^(\s*)(\d+)\.\s+(.*)$/, Z = /^\s/;
+function J(t) {
   const e = [];
   let s = 0, n = 0;
   for (; s < t.length; ) {
-    const r = t[s], i = r.match(C);
+    const r = t[s], i = r.match(A);
     if (!i)
       break;
     const [, l, a, p] = i, h = l.length;
@@ -258,12 +258,12 @@ function Z(t) {
     const c = [r];
     for (; d < t.length; ) {
       const u = t[d];
-      if (u.match(C))
+      if (u.match(A))
         break;
       if (u.trim() === "")
         c.push(u), o += `
 `, d += 1;
-      else if (u.match(Y))
+      else if (u.match(Z))
         c.push(u), o += `
 ${u.slice(h + 2)}`, d += 1;
       else
@@ -279,7 +279,7 @@ ${u.slice(h + 2)}`, d += 1;
   }
   return [e, n];
 }
-function B(t, e, s) {
+function R(t, e, s) {
   var n;
   const r = [];
   let i = 0;
@@ -304,7 +304,7 @@ function B(t, e, s) {
       for (; d < t.length && t[d].indent > e; )
         c.push(t[d]), d += 1;
       if (c.length > 0) {
-        const u = Math.min(...c.map((y) => y.indent)), f = B(c, u, s);
+        const u = Math.min(...c.map((y) => y.indent)), f = R(c, u, s);
         h.push({
           type: "list",
           ordered: !0,
@@ -348,7 +348,7 @@ function Q(t, e) {
     };
   });
 }
-var U = "listItem", A = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
+var U = "listItem", C = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
   name: "orderedList",
   addOptions() {
     return {
@@ -411,10 +411,10 @@ var U = "listItem", A = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
     tokenize: (t, e, s) => {
       var n;
       const r = t.split(`
-`), [i, l] = Z(r);
+`), [i, l] = J(r);
       if (i.length === 0)
         return;
-      const a = B(i, 0, s);
+      const a = R(i, 0, s);
       return a.length === 0 ? void 0 : {
         type: "list",
         ordered: !0,
@@ -430,7 +430,7 @@ var U = "listItem", A = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
   },
   addCommands() {
     return {
-      toggleOrderedList: () => ({ commands: t, chain: e }) => this.options.keepAttributes ? e().toggleList(this.name, this.options.itemTypeName, this.options.keepMarks).updateAttributes(U, this.editor.getAttributes(A)).run() : t.toggleList(this.name, this.options.itemTypeName, this.options.keepMarks)
+      toggleOrderedList: () => ({ commands: t, chain: e }) => this.options.keepAttributes ? e().toggleList(this.name, this.options.itemTypeName, this.options.keepMarks).updateAttributes(U, this.editor.getAttributes(C)).run() : t.toggleList(this.name, this.options.itemTypeName, this.options.keepMarks)
     };
   },
   addKeyboardShortcuts() {
@@ -450,7 +450,7 @@ var U = "listItem", A = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
       type: this.type,
       keepMarks: this.options.keepMarks,
       keepAttributes: this.options.keepAttributes,
-      getAttributes: (e) => ({ start: +e[1], ...this.editor.getAttributes(A) }),
+      getAttributes: (e) => ({ start: +e[1], ...this.editor.getAttributes(C) }),
       joinPredicate: (e, s) => s.childCount + s.attrs.start === +e[1],
       editor: this.editor
     })), [t];
@@ -696,12 +696,12 @@ H.create({
   name: "listKit",
   addExtensions() {
     const t = [];
-    return this.options.bulletList !== !1 && t.push(F.configure(this.options.bulletList)), this.options.listItem !== !1 && t.push(W.configure(this.options.listItem)), this.options.listKeymap !== !1 && t.push(J.configure(this.options.listKeymap)), this.options.orderedList !== !1 && t.push(tt.configure(this.options.orderedList)), this.options.taskItem !== !1 && t.push(st.configure(this.options.taskItem)), this.options.taskList !== !1 && t.push(nt.configure(this.options.taskList)), t;
+    return this.options.bulletList !== !1 && t.push(F.configure(this.options.bulletList)), this.options.listItem !== !1 && t.push(G.configure(this.options.listItem)), this.options.listKeymap !== !1 && t.push(Y.configure(this.options.listKeymap)), this.options.orderedList !== !1 && t.push(tt.configure(this.options.orderedList)), this.options.taskItem !== !1 && t.push(st.configure(this.options.taskItem)), this.options.taskList !== !1 && t.push(nt.configure(this.options.taskList)), t;
   }
 });
 export {
   F as B,
-  W as L,
+  G as L,
   tt as O,
-  J as a
+  Y as a
 };

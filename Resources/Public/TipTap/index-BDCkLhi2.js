@@ -1,4 +1,4 @@
-import { P as C, b8 as X, o as Y, F as R, S as B, T as G, N as _, D as x, c as k, b as O, a as b, b9 as J, E, B as Z, ae as Q, aK as q, k as $ } from "./index-DCsf0cLd.js";
+import { P as C, bb as X, q as Y, F as R, S as G, T as B, N as H, D as x, c as k, b as O, a as M, bc as J, E, H as Z, ah as Q, aN as q, o as $ } from "./index-DYaQFPxE.js";
 function ee(i = {}) {
   return new C({
     view(e) {
@@ -45,14 +45,14 @@ class te {
     }
     let a = this.editorView.dom.offsetParent;
     this.element || (this.element = a.appendChild(document.createElement("div")), this.class && (this.element.className = this.class), this.element.style.cssText = "position: absolute; z-index: 50; pointer-events: none;", this.color && (this.element.style.backgroundColor = this.color)), this.element.classList.toggle("prosemirror-dropcursor-block", t), this.element.classList.toggle("prosemirror-dropcursor-inline", !t);
-    let u, c;
+    let c, u;
     if (!a || a == document.body && getComputedStyle(a).position == "static")
-      u = -pageXOffset, c = -pageYOffset;
+      c = -pageXOffset, u = -pageYOffset;
     else {
       let d = a.getBoundingClientRect(), p = d.width / a.offsetWidth, f = d.height / a.offsetHeight;
-      u = d.left - a.scrollLeft * p, c = d.top - a.scrollTop * f;
+      c = d.left - a.scrollLeft * p, u = d.top - a.scrollTop * f;
     }
-    this.element.style.left = (n.left - u) / o + "px", this.element.style.top = (n.top - c) / l + "px", this.element.style.width = (n.right - n.left) / o + "px", this.element.style.height = (n.bottom - n.top) / l + "px";
+    this.element.style.left = (n.left - c) / o + "px", this.element.style.top = (n.top - u) / l + "px", this.element.style.width = (n.right - n.left) / o + "px", this.element.style.height = (n.bottom - n.top) / l + "px";
   }
   scheduleRemoval(e) {
     clearTimeout(this.timeout), this.timeout = setTimeout(() => this.setCursor(null), e);
@@ -92,7 +92,7 @@ class h extends O {
     return h.valid(n) ? new h(n) : O.near(n);
   }
   content() {
-    return B.empty;
+    return G.empty;
   }
   eq(e) {
     return e instanceof h && e.head == this.head;
@@ -150,7 +150,7 @@ class h extends O {
       for (; ; ) {
         let o = t > 0 ? s.firstChild : s.lastChild;
         if (!o) {
-          if (s.isAtom && !s.isText && !_.isSelectable(s)) {
+          if (s.isAtom && !s.isText && !H.isSelectable(s)) {
             e = e.doc.resolve(r + s.nodeSize * t), n = !1;
             continue e;
           }
@@ -180,7 +180,7 @@ class z {
     return h.valid(t) ? new h(t) : O.near(t);
   }
 }
-function H(i) {
+function _(i) {
   return i.isAtom || i.spec.isolating || i.spec.createGapCursor;
 }
 function ne(i) {
@@ -192,7 +192,7 @@ function ne(i) {
       continue;
     }
     for (let r = n.child(t - 1); ; r = r.lastChild) {
-      if (r.childCount == 0 && !r.inlineContent || H(r.type))
+      if (r.childCount == 0 && !r.inlineContent || _(r.type))
         return !0;
       if (r.inlineContent)
         return !1;
@@ -209,7 +209,7 @@ function re(i) {
       continue;
     }
     for (let r = n.child(t); ; r = r.firstChild) {
-      if (r.childCount == 0 && !r.inlineContent || H(r.type))
+      if (r.childCount == 0 && !r.inlineContent || _(r.type))
         return !0;
       if (r.inlineContent)
         return !1;
@@ -240,13 +240,13 @@ function S(i, e) {
   const t = i == "vert" ? e > 0 ? "down" : "up" : e > 0 ? "right" : "left";
   return function(n, r, s) {
     let o = n.selection, l = e > 0 ? o.$to : o.$from, a = o.empty;
-    if (o instanceof G) {
+    if (o instanceof B) {
       if (!s.endOfTextblock(t) || l.depth == 0)
         return !1;
       a = !1, l = n.doc.resolve(e > 0 ? l.after() : l.before());
     }
-    let u = h.findGapCursorFrom(l, e, a);
-    return u ? (r && r(n.tr.setSelection(new h(u))), !0) : !1;
+    let c = h.findGapCursorFrom(l, e, a);
+    return c ? (r && r(n.tr.setSelection(new h(c))), !0) : !1;
   };
 }
 function oe(i, e, t) {
@@ -256,7 +256,7 @@ function oe(i, e, t) {
   if (!h.valid(n))
     return !1;
   let r = i.posAtCoords({ left: t.clientX, top: t.clientY });
-  return r && r.inside > -1 && _.isSelectable(i.state.doc.nodeAt(r.inside)) ? !1 : (i.dispatch(i.state.tr.setSelection(new h(n))), !0);
+  return r && r.inside > -1 && H.isSelectable(i.state.doc.nodeAt(r.inside)) ? !1 : (i.dispatch(i.state.tr.setSelection(new h(n))), !0);
 }
 function le(i, e) {
   if (e.inputType != "insertCompositionText" || !(i.state.selection instanceof h))
@@ -267,8 +267,8 @@ function le(i, e) {
   let r = R.empty;
   for (let o = n.length - 1; o >= 0; o--)
     r = R.from(n[o].createAndFill(null, r));
-  let s = i.state.tr.replace(t.pos, t.pos, new B(r, 0, 0));
-  return s.setSelection(G.near(s.doc.resolve(t.pos + 1))), i.dispatch(s), !1;
+  let s = i.state.tr.replace(t.pos, t.pos, new G(r, 0, 0));
+  return s.setSelection(B.near(s.doc.resolve(t.pos + 1))), i.dispatch(s), !1;
 }
 function ae(i) {
   if (!(i.selection instanceof h))
@@ -373,7 +373,7 @@ var de = /* @__PURE__ */ (function(i) {
     return this.left.depth >= Math.max(this.right.depth, n.depth) + 1 ? new e(this.left, new e(this.right, n)) : new e(this, n);
   }, e;
 })(m);
-const ue = 500;
+const ce = 500;
 class v {
   constructor(e, t) {
     this.items = e, this.eventCount = t;
@@ -391,31 +391,31 @@ class v {
       }
     let r, s;
     t && (r = this.remapping(n, this.items.length), s = r.maps.length);
-    let o = e.tr, l, a, u = [], c = [];
+    let o = e.tr, l, a, c = [], u = [];
     return this.items.forEach((d, p) => {
       if (!d.step) {
-        r || (r = this.remapping(n, p + 1), s = r.maps.length), s--, c.push(d);
+        r || (r = this.remapping(n, p + 1), s = r.maps.length), s--, u.push(d);
         return;
       }
       if (r) {
-        c.push(new w(d.map));
+        u.push(new w(d.map));
         let f = d.step.map(r.slice(s)), g;
-        f && o.maybeStep(f).doc && (g = o.mapping.maps[o.mapping.maps.length - 1], u.push(new w(g, void 0, void 0, u.length + c.length))), s--, g && r.appendMap(g, s);
+        f && o.maybeStep(f).doc && (g = o.mapping.maps[o.mapping.maps.length - 1], c.push(new w(g, void 0, void 0, c.length + u.length))), s--, g && r.appendMap(g, s);
       } else
         o.maybeStep(d.step);
       if (d.selection)
-        return l = r ? d.selection.map(r.slice(s)) : d.selection, a = new v(this.items.slice(0, n).append(c.reverse().concat(u)), this.eventCount - 1), !1;
+        return l = r ? d.selection.map(r.slice(s)) : d.selection, a = new v(this.items.slice(0, n).append(u.reverse().concat(c)), this.eventCount - 1), !1;
     }, this.items.length, 0), { remaining: a, transform: o, selection: l };
   }
   // Create a new branch with the given transform added.
   addTransform(e, t, n, r) {
     let s = [], o = this.eventCount, l = this.items, a = !r && l.length ? l.get(l.length - 1) : null;
-    for (let c = 0; c < e.steps.length; c++) {
-      let d = e.steps[c].invert(e.docs[c]), p = new w(e.mapping.maps[c], d, t), f;
-      (f = a && a.merge(p)) && (p = f, c ? s.pop() : l = l.slice(0, l.length - 1)), s.push(p), t && (o++, t = void 0), r || (a = p);
+    for (let u = 0; u < e.steps.length; u++) {
+      let d = e.steps[u].invert(e.docs[u]), p = new w(e.mapping.maps[u], d, t), f;
+      (f = a && a.merge(p)) && (p = f, u ? s.pop() : l = l.slice(0, l.length - 1)), s.push(p), t && (o++, t = void 0), r || (a = p);
     }
-    let u = o - n.depth;
-    return u > pe && (l = ce(l, u), o -= u), new v(l.append(s), o);
+    let c = o - n.depth;
+    return c > pe && (l = ue(l, c), o -= c), new v(l.append(s), o);
   }
   remapping(e, t) {
     let n = new J();
@@ -451,11 +451,11 @@ class v {
       } else
         n.push(new w(g));
     }, r);
-    let u = [];
+    let c = [];
     for (let p = t; p < o; p++)
-      u.push(new w(s.maps[p]));
-    let c = this.items.slice(0, r).append(u).append(n), d = new v(c, l);
-    return d.emptyItemCount() > ue && (d = d.compress(this.items.length - n.length)), d;
+      c.push(new w(s.maps[p]));
+    let u = this.items.slice(0, r).append(c).append(n), d = new v(u, l);
+    return d.emptyItemCount() > ce && (d = d.compress(this.items.length - n.length)), d;
   }
   emptyItemCount() {
     let e = 0;
@@ -475,11 +475,11 @@ class v {
       if (l >= e)
         r.push(o), o.selection && s++;
       else if (o.step) {
-        let a = o.step.map(t.slice(n)), u = a && a.getMap();
-        if (n--, u && t.appendMap(u, n), a) {
-          let c = o.selection && o.selection.map(t.slice(n));
-          c && s++;
-          let d = new w(u.invert(), a, c), p, f = r.length - 1;
+        let a = o.step.map(t.slice(n)), c = a && a.getMap();
+        if (n--, c && t.appendMap(c, n), a) {
+          let u = o.selection && o.selection.map(t.slice(n));
+          u && s++;
+          let d = new w(c.invert(), a, u), p, f = r.length - 1;
           (p = r.length && r[f].merge(d)) ? r[f] = p : r.push(d);
         }
       } else o.map && n--;
@@ -487,7 +487,7 @@ class v {
   }
 }
 v.empty = new v(m.empty, 0);
-function ce(i, e) {
+function ue(i, e) {
   let t;
   return i.forEach((n, r) => {
     if (n.selection && e-- == 0)
@@ -513,18 +513,18 @@ class y {
 }
 const pe = 20;
 function he(i, e, t, n) {
-  let r = t.getMeta(M), s;
+  let r = t.getMeta(b), s;
   if (r)
     return r.historyState;
   t.getMeta(ge) && (i = new y(i.done, i.undone, null, 0, -1));
   let o = t.getMeta("appendedTransaction");
   if (t.steps.length == 0)
     return i;
-  if (o && o.getMeta(M))
-    return o.getMeta(M).redo ? new y(i.done.addTransform(t, void 0, n, T(e)), i.undone, V(t.mapping.maps), i.prevTime, i.prevComposition) : new y(i.done, i.undone.addTransform(t, void 0, n, T(e)), null, i.prevTime, i.prevComposition);
+  if (o && o.getMeta(b))
+    return o.getMeta(b).redo ? new y(i.done.addTransform(t, void 0, n, T(e)), i.undone, V(t.mapping.maps), i.prevTime, i.prevComposition) : new y(i.done, i.undone.addTransform(t, void 0, n, T(e)), null, i.prevTime, i.prevComposition);
   if (t.getMeta("addToHistory") !== !1 && !(o && o.getMeta("addToHistory") === !1)) {
-    let l = t.getMeta("composition"), a = i.prevTime == 0 || !o && i.prevComposition != l && (i.prevTime < (t.time || 0) - n.newGroupDelay || !fe(t, i.prevRanges)), u = o ? D(i.prevRanges, t.mapping) : V(t.mapping.maps);
-    return new y(i.done.addTransform(t, a ? e.selection.getBookmark() : void 0, n, T(e)), v.empty, u, t.time, l ?? i.prevComposition);
+    let l = t.getMeta("composition"), a = i.prevTime == 0 || !o && i.prevComposition != l && (i.prevTime < (t.time || 0) - n.newGroupDelay || !fe(t, i.prevRanges)), c = o ? D(i.prevRanges, t.mapping) : V(t.mapping.maps);
+    return new y(i.done.addTransform(t, a ? e.selection.getBookmark() : void 0, n, T(e)), v.empty, c, t.time, l ?? i.prevComposition);
   } else return (s = t.getMeta("rebased")) ? new y(i.done.rebased(t, s), i.undone.rebased(t, s), D(i.prevRanges, t.mapping), i.prevTime, i.prevComposition) : new y(i.done.addMaps(t.mapping.maps), i.undone.addMaps(t.mapping.maps), D(i.prevRanges, t.mapping), i.prevTime, i.prevComposition);
 }
 function fe(i, e) {
@@ -555,11 +555,11 @@ function D(i, e) {
   return t;
 }
 function me(i, e, t) {
-  let n = T(e), r = M.get(e).spec.config, s = (t ? i.undone : i.done).popEvent(e, n);
+  let n = T(e), r = b.get(e).spec.config, s = (t ? i.undone : i.done).popEvent(e, n);
   if (!s)
     return null;
   let o = s.selection.resolve(s.transform.doc), l = (t ? i.done : i.undone).addTransform(s.transform, e.selection.getBookmark(), r, n), a = new y(t ? l : s.remaining, t ? s.remaining : l, null, 0, -1);
-  return s.transform.setSelection(o).setMeta(M, { redo: t, historyState: a });
+  return s.transform.setSelection(o).setMeta(b, { redo: t, historyState: a });
 }
 let N = !1, F = null;
 function T(i) {
@@ -574,13 +574,13 @@ function T(i) {
   }
   return N;
 }
-const M = new b("history"), ge = new b("closeHistory");
+const b = new M("history"), ge = new M("closeHistory");
 function ve(i = {}) {
   return i = {
     depth: i.depth || 100,
     newGroupDelay: i.newGroupDelay || 500
   }, new C({
-    key: M,
+    key: b,
     state: {
       init() {
         return new y(v.empty, v.empty, null, 0, -1);
@@ -602,7 +602,7 @@ function ve(i = {}) {
 }
 function j(i, e) {
   return (t, n) => {
-    let r = M.getState(t);
+    let r = b.getState(t);
     if (!r || (i ? r.undone : r.done).eventCount == 0)
       return !1;
     if (n) {
@@ -646,7 +646,7 @@ var ye = E.create({
     let i = !1;
     return [
       new C({
-        key: new b("characterCount"),
+        key: new M("characterCount"),
         appendTransaction: (e, t, n) => {
           if (i)
             return;
@@ -661,8 +661,8 @@ var ye = E.create({
             console.warn(
               `[CharacterCount] Initial content exceeded limit of ${r} characters. Content was automatically trimmed.`
             );
-            const u = n.tr.deleteRange(l, a);
-            return i = !0, u;
+            const c = n.tr.deleteRange(l, a);
+            return i = !0, c;
           }
           i = !0;
         },
@@ -675,8 +675,8 @@ var ye = E.create({
             return !0;
           if (r > n && s > n && s > r || !e.getMeta("paste"))
             return !1;
-          const l = e.selection.$head.pos, a = s - n, u = l - a, c = l;
-          return e.deleteRange(u, c), !(this.storage.characters({ node: e.doc }) > n);
+          const l = e.selection.$head.pos, a = s - n, c = l - a, u = l;
+          return e.deleteRange(c, u), !(this.storage.characters({ node: e.doc }) > n);
         }
       })
     ];
@@ -705,28 +705,28 @@ E.create({
   addProseMirrorPlugins() {
     return [
       new C({
-        key: new b("focus"),
+        key: new M("focus"),
         props: {
           decorations: ({ doc: i, selection: e }) => {
             const { isEditable: t, isFocused: n } = this.editor, { anchor: r } = e, s = [];
             if (!t || !n)
               return x.create(i, []);
             let o = 0;
-            this.options.mode === "deepest" && i.descendants((a, u) => {
+            this.options.mode === "deepest" && i.descendants((a, c) => {
               if (a.isText)
                 return;
-              if (!(r >= u && r <= u + a.nodeSize - 1))
+              if (!(r >= c && r <= c + a.nodeSize - 1))
                 return !1;
               o += 1;
             });
             let l = 0;
-            return i.descendants((a, u) => {
-              if (a.isText || !(r >= u && r <= u + a.nodeSize - 1))
+            return i.descendants((a, c) => {
+              if (a.isText || !(r >= c && r <= c + a.nodeSize - 1))
                 return !1;
               if (l += 1, this.options.mode === "deepest" && o - l > 0 || this.options.mode === "shallowest" && l > 1)
                 return this.options.mode === "deepest";
               s.push(
-                k.node(u, u + a.nodeSize, {
+                k.node(c, c + a.nodeSize, {
                   class: this.options.className
                 })
               );
@@ -769,7 +769,7 @@ E.create({
   addProseMirrorPlugins() {
     return [
       new C({
-        key: new b("placeholder"),
+        key: new M("placeholder"),
         props: {
           decorations: ({ doc: i, selection: e }) => {
             const t = this.editor.isEditable || !this.options.showOnlyWhenEditable, { anchor: n } = e, r = [];
@@ -777,12 +777,12 @@ E.create({
               return null;
             const s = this.editor.isEmpty;
             return i.descendants((o, l) => {
-              const a = n >= l && n <= l + o.nodeSize, u = !o.isLeaf && q(o);
-              if ((a || !this.options.showOnlyCurrent) && u) {
-                const c = [this.options.emptyNodeClass];
-                s && c.push(this.options.emptyEditorClass);
+              const a = n >= l && n <= l + o.nodeSize, c = !o.isLeaf && q(o);
+              if ((a || !this.options.showOnlyCurrent) && c) {
+                const u = [this.options.emptyNodeClass];
+                s && u.push(this.options.emptyEditorClass);
                 const d = k.node(l, l + o.nodeSize, {
-                  class: c.join(" "),
+                  class: u.join(" "),
                   "data-placeholder": typeof this.options.placeholder == "function" ? this.options.placeholder({
                     editor: this.editor,
                     node: o,
@@ -811,7 +811,7 @@ E.create({
     const { editor: i, options: e } = this;
     return [
       new C({
-        key: new b("selection"),
+        key: new M("selection"),
         props: {
           decorations(t) {
             return t.selection.empty || i.isFocused || !i.isEditable || $(t.selection) || i.view.dragging ? null : x.create(t.doc, [
@@ -828,7 +828,7 @@ E.create({
 function L({ types: i, node: e }) {
   return e && Array.isArray(i) && i.includes(e.type) || e?.type === i;
 }
-var Me = E.create({
+var be = E.create({
   name: "trailingNode",
   addOptions() {
     return {
@@ -838,13 +838,13 @@ var Me = E.create({
   },
   addProseMirrorPlugins() {
     var i;
-    const e = new b(this.name), t = ((i = this.editor.schema.topNodeType.contentMatch.defaultType) == null ? void 0 : i.name) || this.options.node || "paragraph", n = Object.entries(this.editor.schema.nodes).map(([, r]) => r).filter((r) => (this.options.notAfter || []).concat(t).includes(r.name));
+    const e = new M(this.name), t = this.options.node || ((i = this.editor.schema.topNodeType.contentMatch.defaultType) == null ? void 0 : i.name) || "paragraph", n = Object.entries(this.editor.schema.nodes).map(([, r]) => r).filter((r) => (this.options.notAfter || []).concat(t).includes(r.name));
     return [
       new C({
         key: e,
         appendTransaction: (r, s, o) => {
-          const { doc: l, tr: a, schema: u } = o, c = e.getState(o), d = l.content.size, p = u.nodes[t];
-          if (c)
+          const { doc: l, tr: a, schema: c } = o, u = e.getState(o), d = l.content.size, p = c.nodes[t];
+          if (u)
             return a.insert(d, p.create());
         },
         state: {
@@ -862,7 +862,7 @@ var Me = E.create({
       })
     ];
   }
-}), be = E.create({
+}), Me = E.create({
   name: "undoRedo",
   addOptions() {
     return {
@@ -894,6 +894,6 @@ export {
   ye as C,
   Ce as D,
   Ee as G,
-  Me as T,
-  be as U
+  be as T,
+  Me as U
 };

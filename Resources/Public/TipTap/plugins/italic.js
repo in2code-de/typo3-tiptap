@@ -1,5 +1,5 @@
-import { i as t } from "../index-C3WMY3O1.js";
-import { d as a } from "../configuration-B8zvYdvw.js";
+import { i as t } from "../index-D6RSKw75.js";
+import { d as a } from "../configuration-CsNrhtrS.js";
 function n() {
   a({
     extensions: [t],
