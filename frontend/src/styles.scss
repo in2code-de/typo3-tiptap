@@ -11,17 +11,18 @@
   /* Semantic colors */
   --tiptap-color-surface: light-dark(var(--tiptap-color-neutral-white), var(--tiptap-color-neutral-10));
   --tiptap-color-surface-highlight: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
-  --tiptap-color-surface-border: light-dark(var(--tiptap-color-neutral-90), var(--tiptap-color-neutral-20));
+  --tiptap-color-border: var(--typo3-input-border-color);
   --tiptap-color-text-subtle: light-dark(var(--tiptap-color-neutral-40), var(--tiptap-color-neutral-80));
 
   /* Utility variables */
-  --tiptap-border-radius: 0.7rem;
+  --tiptap-border-width: var(--typo3-input-border-width);
+  --tiptap-border-radius: var(--typo3-input-border-radius);
   --tiptap-border-radius-inner-gap: 0.25rem;
   --tiptap-border-inner-radius: calc(var(--tiptap-border-radius) - var(--tiptap-border-radius-inner-gap));
   --tiptap-toolbar-gap: 0.25rem;
   --tiptap-box-shadow: 0 0.1rem 0.3rem rgb(0 0 0 / 0.1);
 
-  border: 1px solid var(--tiptap-color-surface-border);
+  border: var(--tiptap-border-width) solid var(--tiptap-color-border);
   border-radius: var(--tiptap-border-radius);
   overflow: hidden;
 
@@ -58,7 +59,7 @@
   flex-wrap: wrap;
   padding: var(--tiptap-border-radius-inner-gap);
   background-color: var(--tiptap-color-surface);
-  border-block-end: 1px solid var(--tiptap-color-surface-border);
+  border-block-end: 1px solid var(--tiptap-color-border);
 }
 
 .tiptap-toolbar__group {
@@ -73,7 +74,7 @@
 .tiptap-toolbar__group:not(:last-child) {
   margin-inline-end: var(--tiptap-toolbar-gap);
   padding-inline-end: var(--tiptap-toolbar-gap);
-  border-inline-end: 1px solid var(--tiptap-color-surface-border);
+  border-inline-end: 1px solid var(--tiptap-color-border);
 }
 
 .tiptap-toolbar__group-command {
@@ -133,7 +134,7 @@
   display: flex;
   padding: var(--tiptap-border-radius-inner-gap);
   background-color: var(--tiptap-color-surface);
-  border: 1px solid var(--tiptap-color-surface-border);
+  border: 1px solid var(--tiptap-color-border);
   border-radius: var(--tiptap-border-radius);
   box-shadow: var(--tiptap-box-shadow);
   gap: var(--tiptap-toolbar-gap);
@@ -209,7 +210,7 @@
     position: absolute;
     padding-block: 0.25rem;
     background-color: var(--tiptap-color-surface);
-    border: 1px solid var(--tiptap-color-surface-border);
+    border: 1px solid var(--tiptap-color-border);
     border-radius: var(--tiptap-border-radius);
     box-shadow: var(--tiptap-box-shadow);
     z-index: 10;
