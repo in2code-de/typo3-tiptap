@@ -359,7 +359,6 @@ export default function (unsafeConfig: unknown) {
             ? ({ editor }) => {
                 const debouncedEmitPositionChange = throttle(250, () => {
                   const result = getSelectedParentNode(editor.state)
-                  console.log(1759391901984, result)
                   currentSelectedParentNode.value = result
                   editor.emit('parentNodeChanged', result)
                 })
