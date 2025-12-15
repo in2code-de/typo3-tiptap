@@ -172,6 +172,8 @@ onMounted(async () => {
 
   textareaRef.value = textareaReference
 
+  const textAreaChangeEvent = new Event('change', { bubbles: true, cancelable: true })
+
   editor.value = new Editor({
     content: textareaRef.value.value,
     extensions: [
@@ -197,7 +199,10 @@ onMounted(async () => {
       textareaRef.value.value = isHtmlSourceViewActive.value
         ? editor.value.getText()
         : editor.value.getHTML()
-      textareaRef.value.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }))
+
+      // tell TYPO3 that the textarea content has changed
+      // important for close/save detection
+      textareaRef.value.dispatchEvent(textAreaChangeEvent)
     },
   })
 
