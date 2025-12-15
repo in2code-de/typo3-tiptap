@@ -37,7 +37,6 @@ const stylesParentNode = ref<ParentNodeResult>()
 const isHtmlSourceViewActive = ref(false)
 const dropdownRenderKey = ref(0)
 const isTopBarDropdownActive = ref(false)
-const isNodeFirstLine = ref(false)
 const characterCountSettings = ref<false | { characterLimit: number }>(false)
 
 const shouldShowBubbleMenu = computed(() => {
@@ -205,15 +204,9 @@ onMounted(async () => {
   editor.value.on('parentNodeChanged', (data) => {
     if (data.tagName === 'doc') {
       stylesParentNode.value = undefined
-      isNodeFirstLine.value = false
     }
     else {
       stylesParentNode.value = data
-
-      if (data.node) {
-        const firstNode = editor.value?.state.doc.firstChild
-        isNodeFirstLine.value = firstNode === data.node
-      }
     }
   })
 
@@ -234,10 +227,6 @@ onUnmounted(() => editor.value?.destroy())
 </script>
 
 <template>
-  <pre v-if="options.enableDebugMode">
-    isNodeFirstLine: {{ isNodeFirstLine }}
-  </pre>
-
   <div
     v-if="editor"
     class="tiptap-container"
