@@ -91,7 +91,7 @@ class TipTapTextElement extends AbstractFormElement
             'id' => $fieldId,
             'name' => $itemFormElementName,
             'rows' => '18',
-            'class' => 'form-control',
+            'class' => 'form-control t3js-formengine-input',
             'data-formengine-validation-rules' => $this->getValidationDataAsJsonString($config),
             'style' => 'display:none;'
         ], true);
