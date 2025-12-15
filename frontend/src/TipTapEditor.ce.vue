@@ -197,6 +197,7 @@ onMounted(async () => {
       textareaRef.value.value = isHtmlSourceViewActive.value
         ? editor.value.getText()
         : editor.value.getHTML()
+      textareaRef.value.dispatchEvent(new Event('change', { bubbles: true, cancelable: true }))
     },
   })
 
