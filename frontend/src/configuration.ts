@@ -40,11 +40,11 @@ const toolbar: TipTapMenuItem[] = [
     },
   },
   {
-    id: 'general',
+    id: 'formatting',
     commands: [],
   },
   {
-    id: 'formatting',
+    id: 'general',
     commands: [],
   },
   {
@@ -64,16 +64,20 @@ const toolbar: TipTapMenuItem[] = [
 // TODO: implement bubble menu groups
 const bubbleMenu: TipTapMenuItem[] = [
   {
-    id: 'formatting',
-    commands: [],
-  },
-  {
     id: 'heading',
     commands: [],
     dropdown: {
       label: 'Headings',
       iconIdentifier: 'heading',
     },
+  },
+  {
+    id: 'formatting',
+    commands: [],
+  },
+  {
+    id: 'table',
+    commands: [],
   },
   {
     id: 'styles',
