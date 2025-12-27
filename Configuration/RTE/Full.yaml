@@ -17,6 +17,8 @@ editor:
           config:
             types: [ "ordered", "bullet" ]
         - path: "@typo3-tiptap/tiptap/plugins/blockquote.js"
+        - path: "@typo3-tiptap/tiptap/plugins/table.js"
+          config: { defaultRows: 3, defaultCols: 3, withHeaderRow: false }
         - path: "@typo3-tiptap/tiptap/plugins/justify.js"
           config:
             types: [ "justify-left", "justify-center", "justify-right" ]
