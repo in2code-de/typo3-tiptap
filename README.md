@@ -40,7 +40,7 @@ RTE.default.preset = my_custom_preset
 ```
 
 
-See also: https://docs.typo3.org/c/typo3/cms-rte-ckeditor/main/en-us/Configuration/Examples.html#how-do-i-use-a-different-preset
+See also the documentation [How do I use a different preset?](https://docs.typo3.org/c/typo3/cms-rte-ckeditor/main/en-us/Configuration/Examples.html#how-do-i-use-a-different-preset)
 
 ---
 
