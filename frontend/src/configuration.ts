@@ -83,6 +83,14 @@ const bubbleMenu: TipTapMenuItem[] = [
       iconIdentifier: 'styles',
     },
   },
+  {
+    id: 'textAlignment',
+    commands: [],
+    dropdown: {
+      label: 'Text Alignment',
+      iconIdentifier: 'justify-left',
+    },
+  },
 ]
 
 const configuration: TipTapConfiguration = {
@@ -117,7 +125,7 @@ export function defineTipTapPlugin(unsafePluginOptions: TipTapPluginOptions) {
           toolbarGroupId.commands.push(command)
       }
 
-      if (command.position.bubbleMenuGroupId !== false && Array.isArray(toolbar)) {
+      if (command.position.bubbleMenuGroupId !== false && Array.isArray(bubbleMenu)) {
         const bubbleMenuGroup = configuration.bubbleMenu.find(group => group.id === command.position.bubbleMenuGroupId)
         if (!bubbleMenuGroup) {
           throw new Error(`Bubble menu group ${command.position.bubbleMenuGroupId} not found for command id ${command.id}.`)

@@ -19,7 +19,10 @@ editor:
         - path: "@typo3-tiptap/tiptap/plugins/blockquote.js"
         - path: "@typo3-tiptap/tiptap/plugins/justify.js"
           config:
-            types: [ "justify-left", "justify-center", "justify-right" ]
+            alignments:
+              left: "text-left"
+              center: "text-center"
+              right: "text-right"
         - path: "@typo3-tiptap/tiptap/plugins/source.js"
         - path: "@typo3-tiptap/tiptap/plugins/styles.js"
           config:
