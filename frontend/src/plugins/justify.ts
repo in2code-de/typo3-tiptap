@@ -8,9 +8,9 @@ type AlignmentType = typeof ALIGNMENT_TYPES[number]
 const ALIGNABLE_NODE_TYPES = ['heading', 'paragraph'] as const
 
 const DEFAULT_CLASSES: Record<AlignmentType, string> = {
-  left: 'text-align-left',
-  center: 'text-align-center',
-  right: 'text-align-right',
+  left: 'text-left',
+  center: 'text-center',
+  right: 'text-right',
 }
 
 const ALIGNMENT_LABELS: Record<AlignmentType, string> = {
