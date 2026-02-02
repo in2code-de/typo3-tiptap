@@ -1,0 +1,395 @@
+From 8f2a01dd9dfb9eb40961ed65385df0448315aa34 Mon Sep 17 00:00:00 2001
+From: Andreas Nedbal <andy@pixelde.su>
+Date: Mon, 08 Sep 2025 18:42:14 +0200
+Subject: [PATCH] [FEATURE] Adjust RTE configuration loading to allow different editors
+
+This change adjusts the configuration structure to allow configuration
+and presets for multiple richtext editors at the same time. Previously,
+only one was supported, especially looking at things like presets.
+
+So now, you can configure the editor per-field in different ways:
+* $GLOBALS['TYPO3_CONF_VARS']['RTE']['defaultEditor']
+  as a global setting for a default RTE
+* in TCA type text using the config "richtextEditor"
+* in PageTS, using "RTE.default.richtextEditor"
+* in PageTS, using "RTE.config.tt_content.bodytext.richtextEditor"
+
+Preset handling has also been adjusted to handle multiple richtext
+editors. The new configuration structure is only in use if an editor
+is specified via one of the above options, otherwise it follows the
+old style.
+
+Now, presets per-editor can be configured like this, with CKEditor
+as an example:
+* $GLOBALS['TYPO3_CONF_VARS']['RTE']['ckeditor5']['Presets'][$presetName]
+* in TCA type text using the config "richtextConfiguration" (as previously)
+* in PageTS, using "RTE.default.ckeditor5.preset"
+* in PageTS, using "RTE.config.tt_content.bodytext.ckeditor5.preset"
+
+Technical details:
+* Introduced `RichtextEditorRegistry` to manage RTE implementations.
+* Added `AsRichtextEditorBuilder` PHP attribute for autodiscovery of
+  editor builders.
+* Implemented `FallbackEditorBuilder` to handle missing editor
+  implementations gracefully with a textarea and warning.
+* Moved the shared `BrowseLinksController` to `ext:backend` to support
+  multiple RTE implementations.
+
+Resolves: #107421
+Releases: main
+Change-Id: I4646a9c6a372e23272f30b9c3c52dced68ad502a
+---
+
+diff --git a/Classes/Configuration/Richtext.php b/Classes/Configuration/Richtext.php
+index 7252238..41daf52 100644
+--- a/Classes/Configuration/Richtext.php
++++ b/Classes/Configuration/Richtext.php
+@@ -18,10 +18,9 @@
+ namespace TYPO3\CMS\Core\Configuration;
+ 
+ use Psr\EventDispatcher\EventDispatcherInterface;
++use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorRegistry;
+ use TYPO3\CMS\Backend\Utility\BackendUtility;
+-use TYPO3\CMS\Core\Cache\CacheManager;
+ use TYPO3\CMS\Core\Configuration\Event\AfterRichtextConfigurationPreparedEvent;
+-use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
+ use TYPO3\CMS\Core\TypoScript\TypoScriptService;
+ use TYPO3\CMS\Core\Utility\ArrayUtility;
+ use TYPO3\CMS\Core\Utility\GeneralUtility;
+@@ -65,8 +64,13 @@
+         unset($pageTs['fieldSpecificPreset']);
+         unset($pageTs['generalPreset']);
+ 
+-        // load configuration from preset
+-        $configuration = $this->loadConfigurationFromPreset($pageTs['preset']);
++        $pageTs['richtextEditor'] = $pageTs['fieldSpecificEditor'] ?? $tcaFieldConf['richtextEditor'] ?? $pageTs['generalEditor'] ?? $GLOBALS['TYPO3_CONF_VARS']['RTE']['defaultEditor'] ?? null;
++        unset($pageTs['fieldSpecificEditor']);
++        unset($pageTs['generalEditor']);
++
++        $richtextEditorRegistry = GeneralUtility::makeInstance(RichtextEditorRegistry::class);
++        $builder = $richtextEditorRegistry->get($pageTs['richtextEditor']);
++        $configuration = $builder->getConfiguration($pageTs['preset']);
+ 
+         // overlay preset configuration with pageTs
+         ArrayUtility::mergeRecursiveWithOverrule(
+@@ -86,33 +90,6 @@
+     }
+ 
+     /**
+-     * Load a configuration preset from an external resource (currently only YAML is supported).
+-     * This is the default behaviour and can be overridden by page TSconfig.
+-     *
+-     * @return array the parsed configuration
+-     */
+-    protected function loadConfigurationFromPreset(string $presetName = ''): array
+-    {
+-        $configuration = [];
+-        if (!empty($presetName) && isset($GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets'][$presetName])) {
+-            $runtimeCache = GeneralUtility::makeInstance(CacheManager::class)->getCache('runtime');
+-            $identifier = 'richtext_' . $presetName;
+-            $configuration = $runtimeCache->get($identifier);
+-
+-            if ($configuration === false) {
+-                $fileLoader = GeneralUtility::makeInstance(YamlFileLoader::class);
+-                $configuration = $fileLoader->load($GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets'][$presetName]);
+-                // For future versions, you should however rely on the "processing" key and not the "proc" key.
+-                if (is_array($configuration['processing'] ?? null)) {
+-                    $configuration['proc.'] = $this->convertPlainArrayToTypoScriptArray($configuration['processing']);
+-                }
+-                $runtimeCache->set($identifier, $configuration);
+-            }
+-        }
+-        return $configuration;
+-    }
+-
+-    /**
+      * Return RTE section of page TS
+      *
+      * @param int $pid Page ts of given pid
+@@ -124,30 +101,6 @@
+     }
+ 
+     /**
+-     * Returns an array with Typoscript the old way (with dot)
+-     * Since the functionality in YAML is without the dots, but the new configuration is used without the dots
+-     * this functionality adds also an explicit = 1 to the arrays
+-     *
+-     * @param array $plainArray An array
+-     * @return array array with TypoScript as usual (with dot)
+-     */
+-    protected function convertPlainArrayToTypoScriptArray(array $plainArray)
+-    {
+-        $typoScriptArray = [];
+-        foreach ($plainArray as $key => $value) {
+-            if (is_array($value)) {
+-                if (!isset($typoScriptArray[$key])) {
+-                    $typoScriptArray[$key] = 1;
+-                }
+-                $typoScriptArray[$key . '.'] = $this->convertPlainArrayToTypoScriptArray($value);
+-            } else {
+-                $typoScriptArray[$key] = $value ?? '';
+-            }
+-        }
+-        return $typoScriptArray;
+-    }
+-
+-    /**
+      * Add all PageTS.RTE options keys to configuration without dots
+      *
+      * We need to keep the dotted keys for backwards compatibility like ext:rtehtmlarea
+@@ -184,7 +137,12 @@
+         $fullPageTsConfig = $this->getRtePageTsConfigOfPid($pid);
+         $defaultPageTsConfigOverrides = $fullPageTsConfig['default.'] ?? null;
+ 
+-        $defaultPageTsConfigOverrides['generalPreset'] = $fullPageTsConfig['default.']['preset'] ?? null;
++        $defaultPageTsConfigOverrides['generalEditor'] = $editor = $fullPageTsConfig['default.']['richtextEditor'] ?? null;
++        if ($editor) {
++            $defaultPageTsConfigOverrides['generalPreset'] = $fullPageTsConfig['default.'][$editor . '.']['preset'] ?? null;
++        } else {
++            $defaultPageTsConfigOverrides['generalPreset'] = $fullPageTsConfig['default.']['preset'] ?? null;
++        }
+ 
+         $fieldSpecificPageTsConfigOverrides = $fullPageTsConfig['config.'][$table . '.'][$field . '.'] ?? null;
+         unset($fullPageTsConfig['default.'], $fullPageTsConfig['config.']);
+@@ -197,8 +155,15 @@
+             ArrayUtility::mergeRecursiveWithOverrule($rtePageTsConfiguration, $defaultPageTsConfigOverrides);
+         }
+ 
+-        $rtePageTsConfiguration['fieldSpecificPreset'] = $fieldSpecificPageTsConfigOverrides['types.'][$recordType . '.']['preset'] ??
+-            $fieldSpecificPageTsConfigOverrides['preset'] ?? null;
++        $rtePageTsConfiguration['fieldSpecificEditor'] = $fieldSpecificEditor = $fieldSpecificPageTsConfigOverrides['types.'][$recordType . '.']['richtextEditor'] ??
++            $fieldSpecificPageTsConfigOverrides['richtextEditor'] ?? null;
++        if ($fieldSpecificEditor || $editor) {
++            $rtePageTsConfiguration['fieldSpecificPreset'] = $fieldSpecificPageTsConfigOverrides['types.'][$recordType . '.'][($fieldSpecificEditor ?? $editor) . '.']['preset'] ??
++                $fieldSpecificPageTsConfigOverrides[($fieldSpecificEditor ?? $editor) . '.']['preset'] ?? null;
++        } else {
++            $rtePageTsConfiguration['fieldSpecificPreset'] = $fieldSpecificPageTsConfigOverrides['types.'][$recordType . '.']['preset'] ??
++                $fieldSpecificPageTsConfigOverrides['preset'] ?? null;
++        }
+ 
+         // Then overload with RTE.config.tt_content.bodytext
+         if (is_array($fieldSpecificPageTsConfigOverrides)) {
+diff --git a/Classes/Utility/ArrayUtility.php b/Classes/Utility/ArrayUtility.php
+index f63fc32..6facaa7 100644
+--- a/Classes/Utility/ArrayUtility.php
++++ b/Classes/Utility/ArrayUtility.php
+@@ -1004,6 +1004,30 @@
+     }
+ 
+     /**
++     * Returns an array with Typoscript the old way (with dot)
++     * Since the functionality in YAML is without the dots, but the new configuration is used without the dots
++     * this functionality adds also an explicit = 1 to the arrays
++     *
++     * @param array $plainArray An array
++     * @return array array with TypoScript as usual (with dot)
++     */
++    public static function convertPlainArrayToTypoScriptArray(array $plainArray)
++    {
++        $typoScriptArray = [];
++        foreach ($plainArray as $key => $value) {
++            if (is_array($value)) {
++                if (!isset($typoScriptArray[$key])) {
++                    $typoScriptArray[$key] = 1;
++                }
++                $typoScriptArray[$key . '.'] = self::convertPlainArrayToTypoScriptArray($value);
++            } else {
++                $typoScriptArray[$key] = $value ?? '';
++            }
++        }
++        return $typoScriptArray;
++    }
++
++    /**
+      * Determines whether all (nested) array values are scalar values or `null`.
+      */
+     public static function containsOnlyScalarValues(array $array): bool
+diff --git a/Documentation/Changelog/14.2/Feature-107421-EnableConfigurationOfMultipleIndependentRichtextEditorImplementations.rst b/Documentation/Changelog/14.2/Feature-107421-EnableConfigurationOfMultipleIndependentRichtextEditorImplementations.rst
+new file mode 100644
+index 0000000..b79dc0d
+--- /dev/null
++++ b/Documentation/Changelog/14.2/Feature-107421-EnableConfigurationOfMultipleIndependentRichtextEditorImplementations.rst
+@@ -0,0 +1,183 @@
++..  include:: /Includes.rst.txt
++
++..  _feature-107421-1769170785:
++
++===============================================================================================
++Feature: #107421 - Enable configuration of multiple independent richtext editor implementations
++===============================================================================================
++
++See :issue:`107421`
++
++Description
++===========
++
++TYPO3 now supports multiple independent Rich Text Editor (RTE) implementations
++simultaneously. This allows for using different editors (e.g. CKEditor 5,
++TinyMCE, or custom implementations) for different fields or content types
++within the same installation.
++
++A new registration mechanism for RTE builders has been introduced, utilizing
++PHP attributes and interfaces.
++
++Key components:
++
++- :php:`\TYPO3\CMS\Backend\Attribute\AsRichtextEditorBuilder`: A PHP attribute
++  used to register an RTE builder class and associate it with an editor identifier.
++- :php:`\TYPO3\CMS\Backend\Form\Richtext\RichtextEditorBuilderInterface`: The
++  interface that all RTE builders must implement.
++- :php:`\TYPO3\CMS\Backend\Form\Richtext\RichtextEditorDefinition`: A DTO
++  returned by the builder containing the HTML, JavaScript modules, and CSS files
++  required to initialize the editor.
++
++The `buildDefinition()` method
++-----------------------------
++
++The :php:`buildDefinition(string $presetName, array $data)` method is responsible
++for creating the :php:`RichtextEditorDefinition`.
++
++The `$presetName` is resolved based on TCA or PageTSconfig and identifies which
++configuration set should be used. It is up to the builder to resolve this name
++to an actual configuration. There is no requirement to use YAML or any specific
++storage format for these presets.
++
++The `getLinkBrowserModule()` method
++-----------------------------------
++
++The :php:`getLinkBrowserModule()` method can return a :php:`JavaScriptModuleInstruction`
++pointing to a JavaScript file. This file acts as a bridge between the TYPO3 Link Browser
++and the RTE implementation.
++
++When the Link Browser is opened from an RTE, this module is loaded into the Link Browser's
++iframe. It is responsible for:
++
++1.  **Initializing** the interaction with the editor (e.g., retrieving the current selection).
++2.  **Finalizing** the link selection by formatting the selected link and passing
++    it back to the editor instance.
++
++The module should typically export an object or class that the Link Browser can interact with.
++TYPO3's Link Browser calls :js:`initialize()` on the module when it is loaded.
++
++Fallback Editor
++---------------
++
++If :php:`enableRichtext` is set to :php:`true` for a field, but either no RTE
++implementation is configured or the configured implementation cannot be found
++(e.g. because the corresponding extension is not installed), TYPO3 now uses a
++:php:`\TYPO3\CMS\Backend\Form\Richtext\FallbackEditorBuilder`.
++
++This fallback editor renders a standard :html:`<textarea>` and displays a
++warning message to the user explaining why the rich text editor could not be
++loaded.
++
++Configuration
++-------------
++
++The default editor can be configured globally:
++
++.. code-block:: php
++
++    $GLOBALS['TYPO3_CONF_VARS']['RTE']['defaultEditor'] = 'my_custom_editor';
++
++Presets are now configured per editor. While they often point to a YAML file,
++the editor builder is responsible for resolving the configuration based on the given preset name.
++This allows for entirely custom configuration systems that do not rely on YAML:
++
++.. code-block:: php
++
++    // Classic YAML-based configuration
++    $GLOBALS['TYPO3_CONF_VARS']['RTE']['my_custom_editor']['Presets']['default'] = 'EXT:my_extension/Configuration/RTE/Default.yaml';
++
++Fields can specify a specific editor via TCA:
++
++.. code-block:: php
++
++    'bodytext' => [
++        'config' => [
++            'type' => 'text',
++            'enableRichtext' => true,
++            'richtextEditor' => 'my_custom_editor',
++            'richtextConfiguration' => 'default',
++        ],
++    ],
++
++Or via PageTSconfig:
++
++.. code-block:: typoscript
++
++    # Set default editor globally in PageTS
++    RTE.default.richtextEditor = my_custom_editor
++
++    # Set editor for a specific field
++    RTE.config.tt_content.bodytext.richtextEditor = my_custom_editor
++
++    # Set preset for a specific editor
++    RTE.config.tt_content.bodytext.my_custom_editor.preset = minimal
++
++Example Implementation
++----------------------
++
++To add a custom RTE implementation, create a builder class:
++
++.. code-block:: php
++
++    namespace MyVendor\MyExtension\Richtext;
++
++    use TYPO3\CMS\Backend\Attribute\AsRichtextEditorBuilder;
++    use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorBuilderInterface;
++    use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorDefinition;
++    use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
++
++    #[AsRichtextEditorBuilder(editor: 'my_custom_editor')]
++    class MyCustomEditorBuilder implements RichtextEditorBuilderInterface
++    {
++        public function buildDefinition(string $presetName, array $data): RichtextEditorDefinition
++        {
++            // Use $data to access TCA configuration and other field context
++            $config = $data['parameterArray']['fieldConf']['config'];
++            $formElementName = $data['parameterArray']['itemFormElName'];
++            $value = $data['parameterArray']['itemFormElValue'];
++
++            return new RichtextEditorDefinition(
++                html: '<my-custom-editor id="' . htmlspecialchars($formElementName) . '" data-config="' . htmlspecialchars(json_encode($this->getConfiguration($presetName))) . '">' . htmlspecialchars($value) . '</my-custom-editor>',
++                javascriptModules: [
++                    JavaScriptModuleInstruction::create('@my-vendor/my-extension/custom-editor.js')
++                ],
++                stylesheetFiles: [
++                    'EXT:my_extension/Resources/Public/Css/editor.css'
++                ],
++                placeholderLabel: 'Custom Editor',
++                placeholderHtml: '<div>Loading editor...</div>'
++            );
++        }
++
++        public function getConfiguration(string $presetName): array
++        {
++            // The builder is free to resolve the configuration however it wants.
++            // It could load a YAML file, a JSON file, or even build it dynamically.
++            if ($presetName === 'minimal') {
++                return [
++                    'toolbar' => ['bold', 'italic'],
++                ];
++            }
++            return [
++                'toolbar' => 'full',
++            ];
++        }
++
++        public function getLinkBrowserModule(): ?JavaScriptModuleInstruction
++        {
++            // This JS module bridges the RTE and the TYPO3 Link Browser.
++            // It is loaded into the Link Browser's iframe.
++            return JavaScriptModuleInstruction::create('@my-vendor/my-extension/link-browser-integration.js');
++        }
++    }
++
++Impact
++======
++
++Integrators can now choose between different RTE implementations on a per-field
++basis. Developers can easily add new RTE implementations by implementing the
++:php:`RichtextEditorBuilderInterface` and using the
++:php:`AsRichtextEditorBuilder` attribute.
++
++..  index:: Backend, RTE, ext:backend

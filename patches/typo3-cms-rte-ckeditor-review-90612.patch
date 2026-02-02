@@ -1,0 +1,1509 @@
+From 8f2a01dd9dfb9eb40961ed65385df0448315aa34 Mon Sep 17 00:00:00 2001
+From: Andreas Nedbal <andy@pixelde.su>
+Date: Mon, 08 Sep 2025 18:42:14 +0200
+Subject: [PATCH] [FEATURE] Adjust RTE configuration loading to allow different editors
+
+This change adjusts the configuration structure to allow configuration
+and presets for multiple richtext editors at the same time. Previously,
+only one was supported, especially looking at things like presets.
+
+So now, you can configure the editor per-field in different ways:
+* $GLOBALS['TYPO3_CONF_VARS']['RTE']['defaultEditor']
+  as a global setting for a default RTE
+* in TCA type text using the config "richtextEditor"
+* in PageTS, using "RTE.default.richtextEditor"
+* in PageTS, using "RTE.config.tt_content.bodytext.richtextEditor"
+
+Preset handling has also been adjusted to handle multiple richtext
+editors. The new configuration structure is only in use if an editor
+is specified via one of the above options, otherwise it follows the
+old style.
+
+Now, presets per-editor can be configured like this, with CKEditor
+as an example:
+* $GLOBALS['TYPO3_CONF_VARS']['RTE']['ckeditor5']['Presets'][$presetName]
+* in TCA type text using the config "richtextConfiguration" (as previously)
+* in PageTS, using "RTE.default.ckeditor5.preset"
+* in PageTS, using "RTE.config.tt_content.bodytext.ckeditor5.preset"
+
+Technical details:
+* Introduced `RichtextEditorRegistry` to manage RTE implementations.
+* Added `AsRichtextEditorBuilder` PHP attribute for autodiscovery of
+  editor builders.
+* Implemented `FallbackEditorBuilder` to handle missing editor
+  implementations gracefully with a textarea and warning.
+* Moved the shared `BrowseLinksController` to `ext:backend` to support
+  multiple RTE implementations.
+
+Resolves: #107421
+Releases: main
+Change-Id: I4646a9c6a372e23272f30b9c3c52dced68ad502a
+---
+
+diff --git a/Classes/Controller/BrowseLinksController.php b/Classes/Controller/BrowseLinksController.php
+deleted file mode 100644
+index fc30fa6..0000000
+--- a/Classes/Controller/BrowseLinksController.php
++++ /dev/null
+@@ -1,418 +0,0 @@
+-<?php
+-
+-declare(strict_types=1);
+-
+-/*
+- * This file is part of the TYPO3 CMS project.
+- *
+- * It is free software; you can redistribute it and/or modify it under
+- * the terms of the GNU General Public License, either version 2
+- * of the License, or any later version.
+- *
+- * For the full copyright and license information, please read the
+- * LICENSE.txt file that was distributed with this source code.
+- *
+- * The TYPO3 project - inspiring people to share!
+- */
+-
+-namespace TYPO3\CMS\RteCKEditor\Controller;
+-
+-use Psr\Http\Message\ServerRequestInterface;
+-use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
+-use TYPO3\CMS\Backend\Controller\AbstractLinkBrowserController;
+-use TYPO3\CMS\Core\Configuration\Richtext;
+-use TYPO3\CMS\Core\LinkHandling\Exception\UnknownLinkHandlerException;
+-use TYPO3\CMS\Core\LinkHandling\LinkService;
+-use TYPO3\CMS\Core\Localization\LanguageService;
+-use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
+-use TYPO3\CMS\Core\Messaging\FlashMessage;
+-use TYPO3\CMS\Core\Messaging\FlashMessageService;
+-use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
+-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+-use TYPO3\CMS\Core\Utility\GeneralUtility;
+-use TYPO3\CMS\Core\View\ViewInterface;
+-
+-/**
+- * Extended controller for link browser
+- * @internal This is a specific Backend Controller implementation and is not considered part of the Public TYPO3 API.
+- */
+-#[Autoconfigure(public: true, shared: false)]
+-class BrowseLinksController extends AbstractLinkBrowserController
+-{
+-    protected string $editorId;
+-
+-    /**
+-     * TYPO3 language code of the content language
+-     */
+-    protected string $contentsLanguage;
+-    protected ?LanguageService $contentLanguageService;
+-    protected array $buttonConfig = [];
+-    protected array $thisConfig = [];
+-    protected array $classesAnchorDefault = [];
+-    protected array $classesAnchorDefaultTarget = [];
+-    protected array $classesAnchorJSOptions = [];
+-    protected string $defaultLinkTarget = '';
+-    protected string $siteUrl = '';
+-
+-    public function __construct(
+-        protected readonly LinkService $linkService,
+-        protected readonly Richtext $richtext,
+-        protected readonly LanguageServiceFactory $languageServiceFactory,
+-        protected readonly FlashMessageService $flashMessageService,
+-    ) {}
+-
+-    /**
+-     * This is only used by RTE currently.
+-     */
+-    public function getConfiguration(): array
+-    {
+-        return $this->buttonConfig;
+-    }
+-
+-    /**
+-     * @return array{act: string, P: array, editorId: string, contentsLanguage: string} Array of parameters which have to be added to URLs
+-     */
+-    public function getUrlParameters(?array $overrides = null): array
+-    {
+-        return [
+-            'act' => $overrides['act'] ?? $this->displayedLinkHandlerId,
+-            'P' => $overrides['P'] ?? $this->parameters,
+-            'editorId' => $this->editorId,
+-            'contentsLanguage' => $this->contentsLanguage,
+-        ];
+-    }
+-
+-    protected function initDocumentTemplate(): void
+-    {
+-        $this->pageRenderer->getJavaScriptRenderer()->addJavaScriptModuleInstruction(
+-            JavaScriptModuleInstruction::create('@typo3/rte-ckeditor/rte-link-browser.js')
+-                ->invoke('initialize', $this->editorId)
+-        );
+-    }
+-
+-    protected function getCurrentPageId(): int
+-    {
+-        return (int)$this->parameters['pid'];
+-    }
+-
+-    protected function initVariables(ServerRequestInterface $request): void
+-    {
+-        parent::initVariables($request);
+-        $queryParameters = $request->getQueryParams();
+-        $this->siteUrl = $request->getAttribute('normalizedParams')->getSiteUrl();
+-        $this->currentLinkParts = $queryParameters['P']['curUrl'] ?? [];
+-        $this->editorId = $queryParameters['editorId'] ?? '';
+-        $this->contentsLanguage = $queryParameters['contentsLanguage'] ?? '';
+-        $this->contentLanguageService = $this->languageServiceFactory->create($this->contentsLanguage);
+-        $tcaFieldConf = [
+-            'enableRichtext' => true,
+-            'richtextConfiguration' => $this->parameters['richtextConfigurationName'] ?: null,
+-        ];
+-        $this->thisConfig = $this->richtext->getConfiguration(
+-            $this->parameters['table'],
+-            $this->parameters['fieldName'],
+-            (int)$this->parameters['pid'],
+-            $this->parameters['recordType'],
+-            $tcaFieldConf
+-        );
+-        $this->buttonConfig = $this->thisConfig['buttons']['link'] ?? [];
+-    }
+-
+-    protected function initCurrentUrl(): void
+-    {
+-        if (empty($this->currentLinkParts)) {
+-            return;
+-        }
+-        if (!empty($this->currentLinkParts['url'])) {
+-            try {
+-                $data = $this->linkService->resolve($this->currentLinkParts['url']);
+-                $this->currentLinkParts['type'] = $data['type'];
+-                unset($data['type']);
+-                $this->currentLinkParts['url'] = $data;
+-                if (!empty($this->currentLinkParts['url']['parameters'])) {
+-                    $this->currentLinkParts['params'] = '&' . $this->currentLinkParts['url']['parameters'];
+-                }
+-            } catch (UnknownLinkHandlerException $e) {
+-                $this->flashMessageService->getMessageQueueByIdentifier()->enqueue(
+-                    new FlashMessage(message: $e->getMessage(), severity: ContextualFeedbackSeverity::ERROR)
+-                );
+-            }
+-        }
+-        parent::initCurrentUrl();
+-    }
+-
+-    protected function renderLinkAttributeFields(ViewInterface $view): string
+-    {
+-        // Processing the classes configuration
+-        if (!empty($this->buttonConfig['properties']['class']['allowedClasses'])) {
+-            $classesAnchorArray = is_array($this->buttonConfig['properties']['class']['allowedClasses'])
+-                ? $this->buttonConfig['properties']['class']['allowedClasses']
+-                : GeneralUtility::trimExplode(',', $this->buttonConfig['properties']['class']['allowedClasses'], true);
+-            // Collecting allowed classes and configured default values
+-            $classesAnchor = [
+-                'all' => [],
+-            ];
+-
+-            if (is_array($this->thisConfig['classesAnchor'] ?? null)) {
+-                foreach ($this->thisConfig['classesAnchor'] as $conf) {
+-                    if (in_array($conf['class'] ?? null, $classesAnchorArray, true)) {
+-                        $classesAnchor['all'][] = $conf['class'];
+-                        if ($conf['type'] === $this->displayedLinkHandlerId) {
+-                            $classesAnchor[$conf['type']][] = $conf['class'];
+-                            if (($this->buttonConfig[$conf['type']]['properties']['class']['default'] ?? null) === $conf['class']) {
+-                                $this->classesAnchorDefault[$conf['type']] = $conf['class'];
+-                                if (isset($conf['target'])) {
+-                                    $this->classesAnchorDefaultTarget[$conf['type']] = trim((string)$conf['target']);
+-                                }
+-                            }
+-                        }
+-                    }
+-                }
+-            }
+-
+-            $linkClass = $this->linkAttributeValues['class'] ?? '';
+-            if ($linkClass !== '') {
+-                $currentLinkClassIsAllowed = true;
+-                if (!in_array($linkClass, $classesAnchorArray, true)) {
+-                    // Current class is not a globally allowed class
+-                    $currentLinkClassIsAllowed = false;
+-                }
+-                if (
+-                    isset($classesAnchor[$this->displayedLinkHandlerId]) &&
+-                    in_array($linkClass, $classesAnchor['all'], true) &&
+-                    !in_array($linkClass, $classesAnchor[$this->displayedLinkHandlerId], true)
+-                ) {
+-                    // Current class is limited to specific link types but not available in current link type
+-                    $currentLinkClassIsAllowed = false;
+-                }
+-
+-                if (!$currentLinkClassIsAllowed) {
+-                    $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] ??= '';
+-                    // Add a dummy option that preserved the current class value (despite being invalid)
+-                    // in order to prevent unintentional modification of assigned classes.
+-                    $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] .= sprintf(
+-                        '<option selected="selected" value="%s">%s</option>',
+-                        htmlspecialchars($linkClass),
+-                        htmlspecialchars(
+-                            @sprintf(
+-                                '[ ' . $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.noMatchingValue') . ' ]',
+-                                $linkClass
+-                            )
+-                        )
+-                    );
+-                }
+-            }
+-
+-            // Constructing the class selector options
+-            foreach ($classesAnchorArray as $class) {
+-                if (
+-                    !in_array($class, $classesAnchor['all'], true)
+-                    || (
+-                        in_array($class, $classesAnchor['all'], true)
+-                        && is_array($classesAnchor[$this->displayedLinkHandlerId] ?? null)
+-                        && in_array($class, $classesAnchor[$this->displayedLinkHandlerId])
+-                    )
+-                ) {
+-                    $selected = '';
+-                    if (
+-                        (($this->linkAttributeValues['class'] ?? false) === $class)
+-                        || ($this->classesAnchorDefault[$this->displayedLinkHandlerId] ?? false) === $class
+-                    ) {
+-                        $selected = 'selected="selected"';
+-                    }
+-                    $classLabel = !empty($this->thisConfig['classes'][$class]['name'])
+-                        ? $this->getPageConfigLabel($this->thisConfig['classes'][$class]['name'], false)
+-                        : $class;
+-                    $classStyle = !empty($this->thisConfig['classes'][$class]['value'])
+-                        ? $this->thisConfig['classes'][$class]['value']
+-                        : '';
+-
+-                    $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] ??= '';
+-                    $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] .= '<option ' . $selected . ' value="' . htmlspecialchars($class) . '"'
+-                        . ($classStyle ? ' style="' . htmlspecialchars($classStyle) . '"' : '')
+-                        . '>' . htmlspecialchars($classLabel)
+-                        . '</option>';
+-                }
+-            }
+-            if (
+-                ($this->classesAnchorJSOptions[$this->displayedLinkHandlerId] ?? false)
+-                && !(
+-                    ($this->buttonConfig['properties']['class']['required'] ?? false)
+-                    || ($this->buttonConfig[$this->displayedLinkHandlerId]['properties']['class']['required'] ?? false)
+-                )
+-            ) {
+-                $selected = '';
+-                if (!($this->linkAttributeValues['class'] ?? false) && !($this->classesAnchorDefault[$this->displayedLinkHandlerId] ?? false)) {
+-                    $selected = 'selected="selected"';
+-                }
+-                $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] = '<option ' . $selected . ' value=""></option>' . $this->classesAnchorJSOptions[$this->displayedLinkHandlerId];
+-            }
+-        }
+-        // Default target
+-        $this->defaultLinkTarget = ($this->classesAnchorDefault[$this->displayedLinkHandlerId] ?? false) && ($this->classesAnchorDefaultTarget[$this->displayedLinkHandlerId] ?? false)
+-            ? $this->classesAnchorDefaultTarget[$this->displayedLinkHandlerId]
+-            : ($this->buttonConfig[$this->displayedLinkHandlerId]['properties']['target']['default'] ?? $this->buttonConfig['properties']['target']['default'] ?? '');
+-
+-        return parent::renderLinkAttributeFields($view);
+-    }
+-
+-    /**
+-     * Localize a label obtained from Page TSConfig
+-     *
+-     * @param string $string The label to be localized
+-     * @param bool $JScharCode If it needs to be converted to an array of char numbers
+-     * @return string Localized string
+-     */
+-    protected function getPageConfigLabel(string $string, bool $JScharCode = true): string
+-    {
+-        $label = $this->getLanguageService()->sL(trim($string));
+-        $label = str_replace(['\\\'', '"'], ['\'', '\\"'], $label);
+-        return $JScharCode ? GeneralUtility::quoteJSvalue($label) : $label;
+-    }
+-
+-    protected function renderCurrentUrl(ViewInterface $view): void
+-    {
+-        $view->assign('removeCurrentLink', true);
+-        parent::renderCurrentUrl($view);
+-    }
+-
+-    /**
+-     * @return string[]
+-     */
+-    protected function getAllowedItems(): array
+-    {
+-        $allowedItems = parent::getAllowedItems();
+-
+-        if (isset($this->thisConfig['allowedTypes'])) {
+-            $allowedItems = array_intersect($allowedItems, GeneralUtility::trimExplode(',', $this->thisConfig['allowedTypes'], true));
+-        } elseif (isset($this->thisConfig['blindLinkOptions'])) {
+-            // @todo Deprecate this option
+-            $allowedItems = array_diff($allowedItems, GeneralUtility::trimExplode(',', $this->thisConfig['blindLinkOptions'], true));
+-        }
+-
+-        if (is_array($this->buttonConfig['options'] ?? null) && !empty($this->buttonConfig['options']['removeItems'])) {
+-            $allowedItems = array_diff($allowedItems, GeneralUtility::trimExplode(',', $this->buttonConfig['options']['removeItems'], true));
+-        }
+-
+-        return $allowedItems;
+-    }
+-
+-    /**
+-     * @return string[]
+-     */
+-    protected function getAllowedLinkAttributes(): array
+-    {
+-        $allowedLinkAttributes = parent::getAllowedLinkAttributes();
+-
+-        if (isset($this->thisConfig['allowedOptions'])) {
+-            $allowedLinkAttributes = array_intersect($allowedLinkAttributes, GeneralUtility::trimExplode(',', $this->thisConfig['allowedOptions'], true));
+-        } elseif (isset($this->thisConfig['blindLinkFields'])) {
+-            // @todo Deprecate this option
+-            $allowedLinkAttributes = array_diff($allowedLinkAttributes, GeneralUtility::trimExplode(',', $this->thisConfig['blindLinkFields'], true));
+-        }
+-
+-        return $allowedLinkAttributes;
+-    }
+-
+-    /**
+-     * Create an array of link attribute field rendering definitions
+-     *
+-     * @return string[]
+-     */
+-    protected function getLinkAttributeFieldDefinitions(): array
+-    {
+-        $fieldRenderingDefinitions = parent::getLinkAttributeFieldDefinitions();
+-        $fieldRenderingDefinitions['class'] = $this->getClassField();
+-        $fieldRenderingDefinitions['target'] = $this->getTargetField();
+-        $fieldRenderingDefinitions['rel'] = $this->getRelField();
+-        if (empty($this->buttonConfig['queryParametersSelector']['enabled'])) {
+-            unset($fieldRenderingDefinitions['params']);
+-        }
+-        return $fieldRenderingDefinitions;
+-    }
+-
+-    protected function getRelField(): string
+-    {
+-        if (empty($this->buttonConfig['relAttribute']['enabled'])) {
+-            return '';
+-        }
+-
+-        $currentRel = '';
+-        if ($this->displayedLinkHandler === $this->currentLinkHandler
+-            && !empty($this->currentLinkParts)
+-            && is_string($this->linkAttributeValues['rel'] ?? null)
+-        ) {
+-            $currentRel = $this->linkAttributeValues['rel'];
+-        }
+-
+-        return '
+-            <div class="element-browser-form-group">
+-                <label for="lrel" class="form-label">' .
+-                    htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:linkRelationship')) .
+-                '</label>
+-                <input type="text" name="lrel" class="form-control" value="' . htmlspecialchars($currentRel) . '" />
+-            </div>
+-            ';
+-    }
+-
+-    protected function getTargetField(): string
+-    {
+-        $targetSelectorConfig = [];
+-        if (is_array($this->buttonConfig['targetSelector'] ?? null)) {
+-            $targetSelectorConfig = $this->buttonConfig['targetSelector'];
+-        }
+-        $target = !empty($this->linkAttributeValues['target']) ? $this->linkAttributeValues['target'] : $this->defaultLinkTarget;
+-        $lang = $this->getLanguageService();
+-
+-        $disabled = $targetSelectorConfig['disabled'] ?? false;
+-        if ($disabled) {
+-            return '';
+-        }
+-
+-        return '
+-            <div class="element-browser-form-group">
+-                <label for="ltarget" class="form-label">
+-                    ' . htmlspecialchars($lang->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:target')) . '
+-                </label>
+-                <typo3-backend-combobox>
+-                    <input id="ltarget" type="text" name="ltarget" class="form-control" value="' . htmlspecialchars($this->linkAttributeValues['target'] ?? '') . '" />
+-                    <typo3-backend-combobox-choice value="_top" icon="actions-window">' . $lang->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:top') . '</typo3-backend-combobox-choice>
+-                    <typo3-backend-combobox-choice value="_blank" icon="actions-window-open">' . $lang->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:newWindow') . '</typo3-backend-combobox-choice>
+-                </typo3-backend-combobox>
+-            </div>';
+-    }
+-
+-    /**
+-     * Return html code for the class selector
+-     *
+-     * @return string the html code to be added to the form
+-     */
+-    protected function getClassField(): string
+-    {
+-        if (!isset($this->classesAnchorJSOptions[$this->displayedLinkHandlerId])) {
+-            return '';
+-        }
+-
+-        return '
+-            <div class="element-browser-form-group">
+-                <label for="lclass" class="form-label">
+-                    ' . htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:class')) . '
+-                </label>
+-                <select id="lclass" name="lclass" class="t3js-class-selector form-select">
+-                    ' . $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] . '
+-                </select>
+-            </div>
+-        ';
+-    }
+-
+-    /**
+-     * @return string[] Array of body-tag attributes
+-     */
+-    protected function getBodyTagAttributes(): array
+-    {
+-        $parameters = parent::getBodyTagAttributes();
+-        $parameters['data-site-url'] = $this->siteUrl;
+-        $parameters['data-default-link-target'] = $this->defaultLinkTarget;
+-        return $parameters;
+-    }
+-}
+diff --git a/Classes/Form/Element/RichTextElement.php b/Classes/Form/Element/RichTextElement.php
+deleted file mode 100644
+index 3d40601..0000000
+--- a/Classes/Form/Element/RichTextElement.php
++++ /dev/null
+@@ -1,473 +0,0 @@
+-<?php
+-
+-declare(strict_types=1);
+-
+-/*
+- * This file is part of the TYPO3 CMS project.
+- *
+- * It is free software; you can redistribute it and/or modify it under
+- * the terms of the GNU General Public License, either version 2
+- * of the License, or any later version.
+- *
+- * For the full copyright and license information, please read the
+- * LICENSE.txt file that was distributed with this source code.
+- *
+- * The TYPO3 project - inspiring people to share!
+- */
+-
+-namespace TYPO3\CMS\RteCKEditor\Form\Element;
+-
+-use Psr\EventDispatcher\EventDispatcherInterface;
+-use TYPO3\CMS\Backend\Form\Element\AbstractFormElement;
+-use TYPO3\CMS\Backend\Routing\UriBuilder;
+-use TYPO3\CMS\Core\Core\Environment;
+-use TYPO3\CMS\Core\Localization\Locales;
+-use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
+-use TYPO3\CMS\Core\SystemResource\Publishing\SystemResourcePublisherInterface;
+-use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
+-use TYPO3\CMS\Core\Utility\GeneralUtility;
+-use TYPO3\CMS\Core\Utility\PathUtility;
+-use TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterGetExternalPluginsEvent;
+-use TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent;
+-use TYPO3\CMS\RteCKEditor\Form\Element\Event\BeforeGetExternalPluginsEvent;
+-use TYPO3\CMS\RteCKEditor\Form\Element\Event\BeforePrepareConfigurationForEditorEvent;
+-
+-/**
+- * Render rich text editor in FormEngine
+- * @internal This is a specific Backend FormEngine implementation and is not considered part of the Public TYPO3 API.
+- */
+-class RichTextElement extends AbstractFormElement
+-{
+-    /**
+-     * Default field information enabled for this element.
+-     *
+-     * @var array
+-     */
+-    protected $defaultFieldInformation = [
+-        'tcaDescription' => [
+-            'renderType' => 'tcaDescription',
+-        ],
+-    ];
+-
+-    /**
+-     * Default field wizards enabled for this element.
+-     *
+-     * @var array
+-     */
+-    protected $defaultFieldWizard = [
+-        'localizationStateSelector' => [
+-            'renderType' => 'localizationStateSelector',
+-        ],
+-        'otherLanguageContent' => [
+-            'renderType' => 'otherLanguageContent',
+-            'after' => [
+-                'localizationStateSelector',
+-            ],
+-        ],
+-        'defaultLanguageDifferences' => [
+-            'renderType' => 'defaultLanguageDifferences',
+-            'after' => [
+-                'otherLanguageContent',
+-            ],
+-        ],
+-    ];
+-
+-    /**
+-     * This property contains configuration related to the RTE
+-     * But only the .editor configuration part
+-     *
+-     * @var array
+-     */
+-    protected $rteConfiguration = [];
+-
+-    public function __construct(
+-        private readonly EventDispatcherInterface $eventDispatcher,
+-        private readonly UriBuilder $uriBuilder,
+-        private readonly Locales $locales,
+-        private readonly SystemResourcePublisherInterface $resourcePublisher,
+-        private readonly SystemResourceFactory $systemResourceFactory,
+-    ) {}
+-
+-    /**
+-     * Renders the ckeditor element
+-     *
+-     * @throws \InvalidArgumentException
+-     */
+-    public function render(): array
+-    {
+-        $languageService = $this->getLanguageService();
+-
+-        $resultArray = $this->initializeResultArray();
+-        $parameterArray = $this->data['parameterArray'];
+-        $config = $parameterArray['fieldConf']['config'];
+-
+-        $fieldId = $this->sanitizeFieldId($parameterArray['itemFormElName']);
+-        $itemFormElementName = $this->data['parameterArray']['itemFormElName'];
+-
+-        $value = $this->data['parameterArray']['itemFormElValue'] ?? null;
+-
+-        $fieldInformationResult = $this->renderFieldInformation();
+-        $fieldInformationHtml = $fieldInformationResult['html'];
+-        $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldInformationResult, false);
+-
+-        $fieldControlResult = $this->renderFieldControl();
+-        $fieldControlHtml = $fieldControlResult['html'];
+-        $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldControlResult, false);
+-
+-        $fieldWizardResult = $this->renderFieldWizard();
+-        $fieldWizardHtml = $fieldWizardResult['html'];
+-        $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldWizardResult, false);
+-
+-        $this->rteConfiguration = $config['richtextConfiguration']['editor'] ?? [];
+-        $ckeditorConfiguration = $this->resolveCkEditorConfiguration();
+-
+-        $ckeditorAttributes = GeneralUtility::implodeAttributes([
+-            'id' => $fieldId . 'ckeditor5',
+-            'options' => GeneralUtility::jsonEncodeForHtmlAttribute($ckeditorConfiguration, false),
+-        ], true);
+-
+-        $textareaAttributes = GeneralUtility::implodeAttributes([
+-            'slot' => 'textarea',
+-            'id' => $fieldId,
+-            'name' => $itemFormElementName,
+-            'rows' => '18',
+-            'class' => 'form-control',
+-            'data-formengine-validation-rules' => $this->getValidationDataAsJsonString($config),
+-        ], true);
+-
+-        $html = [];
+-        $html[] =   $fieldInformationHtml;
+-        $html[] =   '<div class="form-control-wrap">';
+-        $html[] =       '<div class="form-wizards-wrap">';
+-        $html[] =           '<div class="form-wizards-item-element">';
+-        $html[] =               '<typo3-rte-ckeditor-ckeditor5 ' . $ckeditorAttributes . '>';
+-        $html[] =                 '<textarea ' . $textareaAttributes . '>';
+-        $html[] =                   htmlspecialchars((string)$value);
+-        $html[] =                 '</textarea>';
+-        $html[] =               '</typo3-rte-ckeditor-ckeditor5>';
+-        $html[] =           '</div>';
+-        if (!empty($fieldControlHtml)) {
+-            $html[] =           '<div class="form-wizards-item-aside form-wizards-item-aside--field-control">';
+-            $html[] =               '<div class="btn-group">';
+-            $html[] =                   $fieldControlHtml;
+-            $html[] =               '</div>';
+-            $html[] =           '</div>';
+-        }
+-        if (!empty($fieldWizardHtml)) {
+-            $html[] = '<div class="form-wizards-item-bottom">';
+-            $html[] = $fieldWizardHtml;
+-            $html[] = '</div>';
+-        }
+-        $html[] =       '</div>';
+-        $html[] =   '</div>';
+-
+-        $nullControlNameEscaped = htmlspecialchars('control[active][' . $this->data['tableName'] . '][' . $this->data['databaseRow']['uid'] . '][' . $this->data['fieldName'] . ']');
+-
+-        $fullElement = $html;
+-        // @todo - The logic for hasNullCheckboxButNoPlaceholder() / hasNullCheckboxWithPlaceholder() wants to be streamlined here;
+-        // Ideally, a placeholder should only be an instructive placeholder and not conflict with usage of a "default fallback".
+-        // Instead of "[x] Set value (Default: …)" it might better be to use "[x] Set value (Fallback: …)", because what is shown as "default" here is not really the final value
+-        // of the saved element, but what is inerhited as fallback values from a possible rendering chain. Looking at you, sys_file_reference IRRE.
+-        if ($this->hasNullCheckboxButNoPlaceholder()) {
+-            $checked = $value !== null ? ' checked="checked"' : '';
+-            $fullElement = [];
+-            $fullElement[] = '<div class="t3-form-field-disable"></div>';
+-            $fullElement[] = '<div class="form-check t3-form-field-eval-null-checkbox">';
+-            $fullElement[] =     '<input type="hidden" name="' . $nullControlNameEscaped . '" value="0" />';
+-            $fullElement[] =     '<input type="checkbox" class="form-check-input" name="' . $nullControlNameEscaped . '" id="' . $nullControlNameEscaped . '" value="1"' . $checked . ' />';
+-            $fullElement[] =     '<label class="form-check-label" for="' . $nullControlNameEscaped . '">';
+-            $fullElement[] =         $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.nullCheckbox');
+-            $fullElement[] =     '</label>';
+-            $fullElement[] = '</div>';
+-            $fullElement[] = implode(LF, $html);
+-        } elseif ($this->hasNullCheckboxWithPlaceholder()) {
+-            $checked = $value !== null ? ' checked="checked"' : '';
+-            // Note that we draw the raw placeholder from $config instead of $ckeditorConfiguration so it
+-            // contains the full HTML markup. $ckeditorConfiguration['placeholder'] has strip_tags() applied.
+-            // The full HTML is only emitted with htmlspecialchars(), and later parsed by CKEditor.
+-            // The HTML-stripped placeholder is used for the label of the nullable checkbox.
+-
+-            $placeholder = trim((string)($ckeditorConfiguration['placeholder'] ?? ''));
+-            $defaultValue = '';
+-            $rawPlaceholder = trim((string)($config['placeholder'] ?? ''));
+-            if ($rawPlaceholder !== '') {
+-                $defaultValue = $rawPlaceholder;
+-            }
+-            if ($placeholder !== '') {
+-                $shortenedPlaceholder = GeneralUtility::fixed_lgd_cs($placeholder, 20);
+-                if ($placeholder !== $shortenedPlaceholder) {
+-                    $overrideLabel = sprintf(
+-                        $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'),
+-                        '<span title="' . htmlspecialchars($placeholder) . '">' . htmlspecialchars($shortenedPlaceholder) . '</span>'
+-                    );
+-                } else {
+-                    $overrideLabel = sprintf(
+-                        $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'),
+-                        htmlspecialchars($placeholder)
+-                    );
+-                }
+-            } else {
+-                $overrideLabel = $languageService->sL(
+-                    'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override_not_available'
+-                );
+-            }
+-
+-            $placeholderCkeditorAttributes = GeneralUtility::implodeAttributes([
+-                'id' => $fieldId . '-placeholder-ckeditor5',
+-                'options' => GeneralUtility::jsonEncodeForHtmlAttribute([
+-                    ...$ckeditorConfiguration,
+-                    'readOnly' => true,
+-                ], false),
+-            ], true);
+-
+-            $placeholderTextareaAttributes = GeneralUtility::implodeAttributes([
+-                'slot' => 'textarea',
+-                'id' => $fieldId . '-placeholder',
+-                'rows' => '18',
+-                'class' => 'form-control',
+-            ], true);
+-
+-            $fullElement = [];
+-            $fullElement[] = '<div class="form-check t3js-form-field-eval-null-placeholder-checkbox">';
+-            $fullElement[] =     '<input type="hidden" name="' . $nullControlNameEscaped . '" value="0" />';
+-            $fullElement[] =     '<input type="checkbox" class="form-check-input" name="' . $nullControlNameEscaped . '" id="' . $nullControlNameEscaped . '" value="1"' . $checked . ' />';
+-            $fullElement[] =     '<label class="form-check-label" for="' . $nullControlNameEscaped . '">';
+-            $fullElement[] =         $overrideLabel;
+-            $fullElement[] =     '</label>';
+-            $fullElement[] = '</div>';
+-            $fullElement[] = '<div class="t3js-formengine-placeholder-placeholder">';
+-            $fullElement[] =    '<div class="form-control-wrap">';
+-            $fullElement[] =        '<typo3-rte-ckeditor-ckeditor5 ' . $placeholderCkeditorAttributes . '>';
+-            $fullElement[] =            '<textarea ' . $placeholderTextareaAttributes . '>';
+-            $fullElement[] =                htmlspecialchars($defaultValue);
+-            $fullElement[] =            '</textarea>';
+-            $fullElement[] =        '</typo3-rte-ckeditor-ckeditor5>';
+-            $fullElement[] =    '</div>';
+-            $fullElement[] = '</div>';
+-            $fullElement[] = '<div class="t3js-formengine-placeholder-formfield">';
+-            $fullElement[] =    implode(LF, $html);
+-            $fullElement[] = '</div>';
+-        }
+-
+-        $fullElement = '<div class="formengine-field-item t3js-formengine-field-item">' . implode(LF, $fullElement) . '</div>';
+-
+-        $resultArray['html'] = $this->wrapWithFieldsetAndLegend($fullElement);
+-        $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3/rte-ckeditor/ckeditor5.js');
+-
+-        $uiLanguage = $ckeditorConfiguration['language']['ui'];
+-        if ($this->translationExists($uiLanguage)) {
+-            $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3/ckeditor5/translations/' . $uiLanguage . '.js');
+-        }
+-
+-        $contentLanguage = $ckeditorConfiguration['language']['content'];
+-        if ($this->translationExists($contentLanguage)) {
+-            $resultArray['javaScriptModules'][] = JavaScriptModuleInstruction::create('@typo3/ckeditor5/translations/' . $contentLanguage . '.js');
+-        }
+-
+-        $resultArray['stylesheetFiles'][] = 'EXT:rte_ckeditor/Resources/Public/Css/editor.css';
+-
+-        return $resultArray;
+-    }
+-
+-    /**
+-     * Determine the contents language iso code
+-     */
+-    protected function getLanguageIsoCodeOfContent(): string
+-    {
+-        $currentLanguageUid = ($this->data['databaseRow']['sys_language_uid'] ?? 0);
+-        if (is_array($currentLanguageUid)) {
+-            $currentLanguageUid = $currentLanguageUid[0];
+-        }
+-        $contentLanguageUid = (int)max($currentLanguageUid, 0);
+-        if ($contentLanguageUid) {
+-            // the language rows might not be fully initialized, so we fall back to en-US in this case
+-            $contentLanguage = $this->data['systemLanguageRows'][$currentLanguageUid]['iso'] ?? 'en-US';
+-        } else {
+-            $contentLanguage = $this->rteConfiguration['config']['defaultContentLanguage'] ?? 'en-US';
+-        }
+-        $languageCodeParts = explode('_', $contentLanguage);
+-        $contentLanguage = strtolower($languageCodeParts[0]) . (!empty($languageCodeParts[1]) ? '_' . strtoupper($languageCodeParts[1]) : '');
+-        // Find the configured language in the list of localization locales, if not found, default to 'en'.
+-        if ($contentLanguage === 'default' || !$this->locales->isValidLanguageKey($contentLanguage)) {
+-            $contentLanguage = 'en';
+-        }
+-        return $contentLanguage;
+-    }
+-
+-    protected function resolveCkEditorConfiguration(): array
+-    {
+-        $configuration = $this->prepareConfigurationForEditor();
+-
+-        foreach ($this->getExtraPlugins() as $extraPluginName => $extraPluginConfig) {
+-            $configName = $extraPluginConfig['configName'] ?? $extraPluginName;
+-            if (!empty($extraPluginConfig['config']) && is_array($extraPluginConfig['config'])) {
+-                if (empty($configuration[$configName])) {
+-                    $configuration[$configName] = $extraPluginConfig['config'];
+-                } elseif (is_array($configuration[$configName])) {
+-                    $configuration[$configName] = array_replace_recursive($extraPluginConfig['config'], $configuration[$configName]);
+-                }
+-            }
+-        }
+-        if (isset($this->data['parameterArray']['fieldConf']['config']['placeholder'])) {
+-            // Note that HTML tags are stripped here, because CKEditor does not parse placeholder text.
+-            // Without it, the HTML code would be displayed as-is.
+-            $configuration['placeholder'] = strip_tags((string)$this->data['parameterArray']['fieldConf']['config']['placeholder']);
+-        }
+-        return $configuration;
+-    }
+-
+-    /**
+-     * Get configuration of external/additional plugins
+-     */
+-    protected function getExtraPlugins(): array
+-    {
+-        $externalPlugins = $this->rteConfiguration['externalPlugins'] ?? [];
+-        $externalPlugins = $this->eventDispatcher
+-            ->dispatch(new BeforeGetExternalPluginsEvent($externalPlugins, $this->data))
+-            ->getConfiguration();
+-
+-        $urlParameters = [
+-            'P' => [
+-                'table'      => $this->data['tableName'],
+-                'uid'        => $this->data['databaseRow']['uid'],
+-                'fieldName'  => $this->data['fieldName'],
+-                'recordType' => $this->data['recordTypeValue'],
+-                'pid'        => $this->data['effectivePid'],
+-                'richtextConfigurationName' => $this->data['parameterArray']['fieldConf']['config']['richtextConfigurationName'],
+-            ],
+-        ];
+-
+-        $pluginConfiguration = [];
+-        foreach ($externalPlugins as $pluginName => $configuration) {
+-            $pluginConfiguration[$pluginName] = [
+-                'configName' => $configuration['configName'] ?? $pluginName,
+-            ];
+-            unset($configuration['configName']);
+-            // CKEditor 4 style config, unused in CKEditor 5 and not forwarded to the resutling plugin config
+-            unset($configuration['resource']);
+-
+-            if ($configuration['route'] ?? null) {
+-                $configuration['routeUrl'] = (string)$this->uriBuilder->buildUriFromRoute($configuration['route'], $urlParameters);
+-            }
+-
+-            $pluginConfiguration[$pluginName]['config'] = $configuration;
+-        }
+-
+-        $pluginConfiguration = $this->eventDispatcher
+-            ->dispatch(new AfterGetExternalPluginsEvent($pluginConfiguration, $this->data))
+-            ->getConfiguration();
+-        return $pluginConfiguration;
+-    }
+-
+-    /**
+-     * Add configuration to replace LLL: references with the translated value
+-     */
+-    protected function replaceLanguageFileReferences(array $configuration): array
+-    {
+-        foreach ($configuration as $key => $value) {
+-            if (is_array($value)) {
+-                $configuration[$key] = $this->replaceLanguageFileReferences($value);
+-            } elseif (is_string($value)) {
+-                $configuration[$key] = $this->getLanguageService()->sL($value);
+-            }
+-        }
+-        return $configuration;
+-    }
+-
+-    /**
+-     * Add configuration to replace absolute EXT: paths with relative ones
+-     */
+-    protected function replaceAbsolutePathsToRelativeResourcesPath(array $configuration): array
+-    {
+-        foreach ($configuration as $key => $value) {
+-            if (is_array($value)) {
+-                $configuration[$key] = $this->replaceAbsolutePathsToRelativeResourcesPath($value);
+-            } elseif (is_string($value)
+-                && $value !== ''
+-                // @todo: this check should vanish, once not every config key is iterated over
+-                && PathUtility::isExtensionPath(strtoupper($value), true)
+-            ) {
+-                $configuration[$key] = $this->resolveUrlPath($value);
+-            }
+-        }
+-        return $configuration;
+-    }
+-
+-    /**
+-     * Resolves system resources an absolute web URL
+-     */
+-    protected function resolveUrlPath(string $value): string
+-    {
+-        $resource = $this->systemResourceFactory->createPublicResource($value);
+-        return (string)$this->resourcePublisher->generateUri($resource, null);
+-    }
+-
+-    /**
+-     * Compiles the configuration set from the outside
+-     * to have it easily injected into the CKEditor.
+-     *
+-     * @return array the configuration
+-     */
+-    protected function prepareConfigurationForEditor(): array
+-    {
+-        // Ensure custom config is empty so nothing additional is loaded
+-        // Of course this can be overridden by the editor configuration below
+-        $configuration = [
+-            'customConfig' => '',
+-            'label' => $this->data['parameterArray']['fieldConf']['label'] ?? '',
+-        ];
+-
+-        if ($this->data['parameterArray']['fieldConf']['config']['readOnly'] ?? false) {
+-            $configuration['readOnly'] = true;
+-        }
+-
+-        if (is_array($this->rteConfiguration['config'] ?? null)) {
+-            $configuration = array_replace_recursive($configuration, $this->rteConfiguration['config']);
+-        }
+-
+-        $configuration = $this->eventDispatcher
+-            ->dispatch(new BeforePrepareConfigurationForEditorEvent($configuration, $this->data))
+-            ->getConfiguration();
+-
+-        // Set the UI language of the editor if not hard-coded by the existing configuration
+-        if (empty($configuration['language']) ||
+-            (is_array($configuration['language']) && empty($configuration['language']['ui']))
+-        ) {
+-            $userLang = (string)($this->getBackendUser()->user['lang'] ?: 'en');
+-            $configuration['language']['ui'] = $userLang === 'default' ? 'en' : $userLang;
+-        } elseif (!is_array($configuration['language'])) {
+-            $configuration['language'] = [
+-                'ui' => $configuration['language'],
+-            ];
+-        }
+-        $configuration['language']['content'] = $this->getLanguageIsoCodeOfContent();
+-
+-        // Replace all label references
+-        $configuration = $this->replaceLanguageFileReferences($configuration);
+-        // Replace all paths
+-        $configuration = $this->replaceAbsolutePathsToRelativeResourcesPath($configuration);
+-
+-        // unless explicitly set, the debug mode is enabled in development context
+-        if (!isset($configuration['debug'])) {
+-            $configuration['debug'] = ($GLOBALS['TYPO3_CONF_VARS']['BE']['debug'] ?? false) && Environment::getContext()->isDevelopment();
+-        }
+-
+-        $configuration = $this->eventDispatcher
+-            ->dispatch(new AfterPrepareConfigurationForEditorEvent($configuration, $this->data))
+-            ->getConfiguration();
+-
+-        return $configuration;
+-    }
+-
+-    protected function sanitizeFieldId(string $itemFormElementName): string
+-    {
+-        $fieldId = (string)preg_replace('/[^a-zA-Z0-9_:-]/', '_', $itemFormElementName);
+-        return htmlspecialchars((string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId));
+-    }
+-
+-    protected function translationExists(string $language): bool
+-    {
+-        $fileName = GeneralUtility::getFileAbsFileName('EXT:rte_ckeditor/Resources/Public/Contrib/translations/' . $language . '.js');
+-        return file_exists($fileName);
+-    }
+-}
+diff --git a/Classes/Form/Resolver/RichTextNodeResolver.php b/Classes/Form/Resolver/RichTextNodeResolver.php
+deleted file mode 100644
+index 0cdb80e..0000000
+--- a/Classes/Form/Resolver/RichTextNodeResolver.php
++++ /dev/null
+@@ -1,56 +0,0 @@
+-<?php
+-
+-declare(strict_types=1);
+-
+-/*
+- * This file is part of the TYPO3 CMS project.
+- *
+- * It is free software; you can redistribute it and/or modify it under
+- * the terms of the GNU General Public License, either version 2
+- * of the License, or any later version.
+- *
+- * For the full copyright and license information, please read the
+- * LICENSE.txt file that was distributed with this source code.
+- *
+- * The TYPO3 project - inspiring people to share!
+- */
+-
+-namespace TYPO3\CMS\RteCKEditor\Form\Resolver;
+-
+-use TYPO3\CMS\Backend\Form\NodeResolverInterface;
+-use TYPO3\CMS\RteCKEditor\Form\Element\RichTextElement;
+-
+-/**
+- * This resolver will return the RichTextElement render class if RTE is enabled for this field.
+- *
+- * @internal This is a specific Backend FormEngine implementation and is not considered part of the Public TYPO3 API.
+- */
+-class RichTextNodeResolver implements NodeResolverInterface
+-{
+-    protected array $data;
+-
+-    public function setData(array $data): void
+-    {
+-        $this->data = $data;
+-    }
+-
+-    /**
+-     * Returns RichTextElement as class name if RTE widget should be rendered.
+-     *
+-     * @return string|null New class name or null if this resolver does not change current class name.
+-     */
+-    public function resolve(): ?string
+-    {
+-        $parameterArray = $this->data['parameterArray'];
+-        if (// If RTE is enabled for field
+-            (bool)($parameterArray['fieldConf']['config']['enableRichtext'] ?? false) === true
+-            // If RTE config is found (prepared by TcaText data provider)
+-            && is_array($parameterArray['fieldConf']['config']['richtextConfiguration'] ?? null)
+-            // If RTE is not disabled on configuration level
+-            && !($parameterArray['fieldConf']['config']['richtextConfiguration']['disabled'] ?? false)
+-        ) {
+-            return RichTextElement::class;
+-        }
+-        return null;
+-    }
+-}
+diff --git a/Classes/Richtext/CKEditorBuilder.php b/Classes/Richtext/CKEditorBuilder.php
+new file mode 100644
+index 0000000..0ec0d87
+--- /dev/null
++++ b/Classes/Richtext/CKEditorBuilder.php
+@@ -0,0 +1,441 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\RteCKEditor\Richtext;
++
++use Psr\EventDispatcher\EventDispatcherInterface;
++use TYPO3\CMS\Backend\Attribute\AsRichtextEditorBuilder;
++use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorBuilderInterface;
++use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorDefinition;
++use TYPO3\CMS\Backend\Routing\UriBuilder;
++use TYPO3\CMS\Core\Authentication\BackendUserAuthentication;
++use TYPO3\CMS\Core\Cache\CacheManager;
++use TYPO3\CMS\Core\Configuration\Loader\YamlFileLoader;
++use TYPO3\CMS\Core\Core\Environment;
++use TYPO3\CMS\Core\Localization\LanguageService;
++use TYPO3\CMS\Core\Localization\Locales;
++use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
++use TYPO3\CMS\Core\SystemResource\Publishing\SystemResourcePublisherInterface;
++use TYPO3\CMS\Core\SystemResource\SystemResourceFactory;
++use TYPO3\CMS\Core\Utility\ArrayUtility;
++use TYPO3\CMS\Core\Utility\GeneralUtility;
++use TYPO3\CMS\Core\Utility\PathUtility;
++use TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterGetExternalPluginsEvent;
++use TYPO3\CMS\RteCKEditor\Form\Element\Event\AfterPrepareConfigurationForEditorEvent;
++use TYPO3\CMS\RteCKEditor\Form\Element\Event\BeforeGetExternalPluginsEvent;
++use TYPO3\CMS\RteCKEditor\Form\Element\Event\BeforePrepareConfigurationForEditorEvent;
++
++#[AsRichtextEditorBuilder(editor: 'ckeditor5')]
++class CKEditorBuilder implements RichtextEditorBuilderInterface
++{
++    public function __construct(
++        private readonly EventDispatcherInterface $eventDispatcher,
++        private readonly UriBuilder $uriBuilder,
++        private readonly Locales $locales,
++        private readonly SystemResourcePublisherInterface $resourcePublisher,
++        private readonly SystemResourceFactory $systemResourceFactory,
++    ) {}
++
++    public function buildDefinition(string $presetName, array $data): RichtextEditorDefinition
++    {
++        $rteConfiguration = $this->getResolvedConfiguration($presetName, $data);
++
++        return new RichtextEditorDefinition(
++            html: $this->getHTML($data, $rteConfiguration),
++            javascriptModules: $this->getJavascriptModules($rteConfiguration),
++            stylesheetFiles: $this->getStylesheetFiles(),
++            placeholderLabel: $this->getPlaceholderLabel($data),
++            placeholderHtml: $this->getPlaceholderHTML($data, $rteConfiguration),
++        );
++    }
++
++    public function getConfiguration(string $presetName): array
++    {
++        return $this->getResolvedConfiguration($presetName);
++    }
++
++    protected function getResolvedConfiguration(string $presetName, array $data = []): array
++    {
++        if (!empty($presetName) && isset($GLOBALS['TYPO3_CONF_VARS']['RTE']['ckeditor5']['Presets'][$presetName])) {
++            $runtimeCache = GeneralUtility::makeInstance(CacheManager::class)->getCache('runtime');
++            $identifier = 'richtext_' . $presetName;
++            $configuration = $runtimeCache->get($identifier);
++
++            if ($configuration === false) {
++                $fileLoader = GeneralUtility::makeInstance(YamlFileLoader::class);
++                $configuration = $fileLoader->load($GLOBALS['TYPO3_CONF_VARS']['RTE']['ckeditor5']['Presets'][$presetName]);
++                // For future versions, you should however rely on the "processing" key and not the "proc" key.
++                if (is_array($configuration['processing'] ?? null)) {
++                    $configuration['proc.'] = ArrayUtility::convertPlainArrayToTypoScriptArray($configuration['processing']);
++                }
++                $runtimeCache->set($identifier, $configuration);
++            }
++
++            return $this->resolveCkEditorConfiguration($data, $configuration['editor'] ?? []);
++        }
++
++        return [];
++    }
++
++    public function getLinkBrowserModule(): JavascriptModuleInstruction
++    {
++        return JavaScriptModuleInstruction::create('@typo3/rte-ckeditor/rte-link-browser.js');
++    }
++
++    protected function getJavascriptModules(array $rteConfiguration): array
++    {
++        $javascriptModules = [];
++        $javascriptModules[] = JavaScriptModuleInstruction::create('@typo3/rte-ckeditor/ckeditor5.js');
++
++        $uiLanguage = $rteConfiguration['language']['ui'];
++        if ($this->translationExists($uiLanguage)) {
++            $javascriptModules[] = JavaScriptModuleInstruction::create('@typo3/ckeditor5/translations/' . $uiLanguage . '.js');
++        }
++
++        $contentLanguage = $rteConfiguration['language']['content'];
++        if ($this->translationExists($contentLanguage)) {
++            $javascriptModules[] = JavaScriptModuleInstruction::create('@typo3/ckeditor5/translations/' . $contentLanguage . '.js');
++        }
++
++        return $javascriptModules;
++    }
++
++    protected function getStylesheetFiles(): array
++    {
++        return ['EXT:rte_ckeditor/Resources/Public/Css/editor.css'];
++    }
++
++    protected function getHTML(array $data, array $rteConfiguration): string
++    {
++        $fieldId = $this->sanitizeFieldId($data['parameterArray']['itemFormElName']);
++        $itemFormElementName = $data['parameterArray']['itemFormElName'];
++        $value = $data['parameterArray']['itemFormElValue'] ?? null;
++
++        $ckeditorAttributes = GeneralUtility::implodeAttributes([
++            'id' => $fieldId . 'ckeditor5',
++            'options' => GeneralUtility::jsonEncodeForHtmlAttribute($rteConfiguration, false),
++        ], true);
++
++        $textareaAttributes = GeneralUtility::implodeAttributes([
++            'slot' => 'textarea',
++            'id' => $fieldId,
++            'name' => $itemFormElementName,
++            'rows' => '18',
++            'class' => 'form-control',
++            'data-formengine-validation-rules' => $data['formEngineValidation'],
++        ], true);
++
++        $html = [];
++        $html[] =  '<typo3-rte-ckeditor-ckeditor5 ' . $ckeditorAttributes . '>';
++        $html[] =    '<textarea ' . $textareaAttributes . '>';
++        $html[] =       htmlspecialchars((string)$value);
++        $html[] =    '</textarea>';
++        $html[] =  '</typo3-rte-ckeditor-ckeditor5>';
++
++        return implode(LF, $html);
++    }
++
++    protected function getPlaceholderHTML(array $data, array $rteConfiguration): string
++    {
++        $config = $data['parameterArray']['fieldConf']['config'];
++        $fieldId = $this->sanitizeFieldId($data['parameterArray']['itemFormElName']);
++
++        $defaultValue = '';
++        $rawPlaceholder = trim((string)($config['placeholder'] ?? ''));
++        if ($rawPlaceholder !== '') {
++            $defaultValue = $rawPlaceholder;
++        }
++
++        $placeholderCkeditorAttributes = GeneralUtility::implodeAttributes([
++            'id' => $fieldId . '-placeholder-ckeditor5',
++            'options' => GeneralUtility::jsonEncodeForHtmlAttribute([
++                ...$rteConfiguration,
++                'readOnly' => true,
++            ], false),
++        ], true);
++
++        $placeholderTextareaAttributes = GeneralUtility::implodeAttributes([
++            'slot' => 'textarea',
++            'id' => $fieldId . '-placeholder',
++            'rows' => '18',
++            'class' => 'form-control',
++        ], true);
++
++        $placeholderHtml = [];
++        $placeholderHtml[] = '<typo3-rte-ckeditor-ckeditor5 ' . $placeholderCkeditorAttributes . '>';
++        $placeholderHtml[] =   '<textarea ' . $placeholderTextareaAttributes . '>';
++        $placeholderHtml[] =     htmlspecialchars($defaultValue);
++        $placeholderHtml[] =   '</textarea>';
++        $placeholderHtml[] = '</typo3-rte-ckeditor-ckeditor5>';
++
++        return implode(LF, $placeholderHtml);
++    }
++
++    protected function getPlaceholderLabel(array $data): string
++    {
++        $config = $data['parameterArray']['fieldConf']['config'];
++
++        // Note that we draw the raw placeholder from $config instead of $ckeditorConfiguration so it
++        // contains the full HTML markup. $ckeditorConfiguration['placeholder'] has strip_tags() applied.
++        // The full HTML is only emitted with htmlspecialchars(), and later parsed by CKEditor.
++        // The HTML-stripped placeholder is used for the label of the nullable checkbox.
++
++        $placeholder = trim((string)($config['placeholder'] ?? ''));
++        if ($placeholder !== '') {
++            $shortenedPlaceholder = GeneralUtility::fixed_lgd_cs($placeholder, 20);
++            if ($placeholder !== $shortenedPlaceholder) {
++                $overrideLabel = sprintf(
++                    $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'),
++                    '<span title="' . htmlspecialchars($placeholder) . '">' . htmlspecialchars($shortenedPlaceholder) . '</span>'
++                );
++            } else {
++                $overrideLabel = sprintf(
++                    $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'),
++                    htmlspecialchars($placeholder)
++                );
++            }
++        } else {
++            $overrideLabel = $this->getLanguageService()->sL(
++                'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override_not_available'
++            );
++        }
++
++        return $overrideLabel;
++    }
++
++    /**
++     * Determine the contents language iso code
++     */
++    protected function getLanguageIsoCodeOfContent(array $data, array $rteConfiguration): string
++    {
++        $currentLanguageUid = ($data['databaseRow']['sys_language_uid'] ?? 0);
++        if (is_array($currentLanguageUid)) {
++            $currentLanguageUid = $currentLanguageUid[0];
++        }
++        $contentLanguageUid = (int)max($currentLanguageUid, 0);
++        if ($contentLanguageUid > 0 && isset($data['systemLanguageRows'][$currentLanguageUid]['iso'])) {
++            // the language rows might not be fully initialized, so we fall back to en-US in this case
++            $contentLanguage = $data['systemLanguageRows'][$currentLanguageUid]['iso'];
++        } else {
++            $contentLanguage = $rteConfiguration['config']['defaultContentLanguage'] ?? 'en-US';
++        }
++        $languageCodeParts = explode('_', $contentLanguage);
++        $contentLanguage = strtolower($languageCodeParts[0]) . (!empty($languageCodeParts[1]) ? '_' . strtoupper($languageCodeParts[1]) : '');
++        // Find the configured language in the list of localization locales, if not found, default to 'en'.
++        if ($contentLanguage === 'default' || !$this->locales->isValidLanguageKey($contentLanguage)) {
++            $contentLanguage = 'en';
++        }
++        return $contentLanguage;
++    }
++
++    protected function resolveCkEditorConfiguration(array $data, array $rteConfiguration): array
++    {
++        $configuration = $this->prepareConfigurationForEditor($data, $rteConfiguration);
++
++        foreach ($this->getExtraPlugins($data, $rteConfiguration) as $extraPluginName => $extraPluginConfig) {
++            $configName = $extraPluginConfig['configName'] ?? $extraPluginName;
++            if (!empty($extraPluginConfig['config']) && is_array($extraPluginConfig['config'])) {
++                if (empty($configuration[$configName])) {
++                    $configuration[$configName] = $extraPluginConfig['config'];
++                } elseif (is_array($configuration[$configName])) {
++                    $configuration[$configName] = array_replace_recursive($extraPluginConfig['config'], $configuration[$configName]);
++                }
++            }
++        }
++        if (isset($data['parameterArray']['fieldConf']['config']['placeholder'])) {
++            // Note that HTML tags are stripped here, because CKEditor does not parse placeholder text.
++            // Without it, the HTML code would be displayed as-is.
++            $configuration['placeholder'] = strip_tags((string)$data['parameterArray']['fieldConf']['config']['placeholder']);
++        } elseif (isset($rteConfiguration['placeholder'])) {
++            $configuration['placeholder'] = strip_tags((string)$rteConfiguration['placeholder']);
++        }
++        return $configuration;
++    }
++
++    /**
++     * Get configuration of external/additional plugins
++     */
++    protected function getExtraPlugins(array $data, array $rteConfiguration): array
++    {
++        $externalPlugins = $rteConfiguration['externalPlugins'] ?? [];
++        $externalPlugins = $this->eventDispatcher
++            ->dispatch(new BeforeGetExternalPluginsEvent($externalPlugins, $data))
++            ->getConfiguration();
++
++        $urlParameters = [];
++        if (!empty($data)) {
++            $urlParameters = [
++                'P' => [
++                    'table'      => $data['tableName'],
++                    'uid'        => $data['databaseRow']['uid'],
++                    'fieldName'  => $data['fieldName'],
++                    'recordType' => $data['recordTypeValue'],
++                    'pid'        => $data['effectivePid'],
++                    'richtextConfigurationName' => $data['parameterArray']['fieldConf']['config']['richtextConfigurationName'],
++                    'richtextEditor' => 'ckeditor5',
++                ],
++            ];
++        }
++
++        $pluginConfiguration = [];
++        foreach ($externalPlugins as $pluginName => $configuration) {
++            $pluginConfiguration[$pluginName] = [
++                'configName' => $configuration['configName'] ?? $pluginName,
++            ];
++            unset($configuration['configName']);
++            // CKEditor4 style config, unused in CKEditor5 and not forwarded to the resutling plugin config
++            unset($configuration['resource']);
++
++            if ($configuration['route'] ?? null) {
++                if ($urlParameters !== []) {
++                    $configuration['routeUrl'] = (string)$this->uriBuilder->buildUriFromRoute($configuration['route'], $urlParameters);
++                } else {
++                    unset($configuration['route']);
++                }
++            }
++
++            $pluginConfiguration[$pluginName]['config'] = $configuration;
++        }
++
++        $pluginConfiguration = $this->eventDispatcher
++            ->dispatch(new AfterGetExternalPluginsEvent($pluginConfiguration, $data))
++            ->getConfiguration();
++        return $pluginConfiguration;
++    }
++
++    /**
++     * Add configuration to replace LLL: references with the translated value
++     */
++    protected function replaceLanguageFileReferences(array $configuration): array
++    {
++        foreach ($configuration as $key => $value) {
++            if (is_array($value)) {
++                $configuration[$key] = $this->replaceLanguageFileReferences($value);
++            } elseif (is_string($value)) {
++                $configuration[$key] = $this->getLanguageService()->sL($value);
++            }
++        }
++        return $configuration;
++    }
++
++    /**
++     * Add configuration to replace absolute EXT: paths with relative ones
++     */
++    protected function replaceAbsolutePathsToRelativeResourcesPath(array $configuration): array
++    {
++        foreach ($configuration as $key => $value) {
++            if (is_array($value)) {
++                $configuration[$key] = $this->replaceAbsolutePathsToRelativeResourcesPath($value);
++            } elseif (is_string($value)
++                && $value !== ''
++                // @todo: this check should vanish, once not every config key is iterated over
++                && PathUtility::isExtensionPath(strtoupper($value), true)
++            ) {
++                $configuration[$key] = $this->resolveUrlPath($value);
++            }
++        }
++        return $configuration;
++    }
++
++    /**
++     * Resolves system resources an absolute web URL
++     */
++    protected function resolveUrlPath(string $value): string
++    {
++        $resource = $this->systemResourceFactory->createPublicResource($value);
++        return (string)$this->resourcePublisher->generateUri($resource, null);
++    }
++
++    /**
++     * Compiles the configuration set from the outside
++     * to have it easily injected into the CKEditor.
++     *
++     * @return array the configuration
++     */
++    protected function prepareConfigurationForEditor(array $data, array $rteConfiguration): array
++    {
++        // Ensure custom config is empty so nothing additional is loaded
++        // Of course this can be overridden by the editor configuration below
++        $configuration = [
++            'customConfig' => '',
++            'label' => $data['parameterArray']['fieldConf']['label'] ?? $rteConfiguration['config']['label'] ?? '',
++        ];
++
++        if ($data['parameterArray']['fieldConf']['config']['readOnly'] ?? $rteConfiguration['config']['readOnly'] ?? false) {
++            $configuration['readOnly'] = true;
++        }
++
++        if (is_array($rteConfiguration['config'] ?? null)) {
++            $configuration = array_replace_recursive($configuration, $rteConfiguration['config']);
++        }
++
++        $configuration = $this->eventDispatcher
++            ->dispatch(new BeforePrepareConfigurationForEditorEvent($configuration, $data))
++            ->getConfiguration();
++
++        // Set the UI language of the editor if not hard-coded by the existing configuration
++        if (empty($configuration['language']) ||
++            (is_array($configuration['language']) && empty($configuration['language']['ui']))
++        ) {
++            $userLang = (string)($this->getBackendUser()->user['lang'] ?: 'en');
++            $configuration['language']['ui'] = $userLang === 'default' ? 'en' : $userLang;
++        } elseif (!is_array($configuration['language'])) {
++            $configuration['language'] = [
++                'ui' => $configuration['language'],
++            ];
++        }
++        $configuration['language']['content'] = $this->getLanguageIsoCodeOfContent($data, $rteConfiguration);
++
++        // Replace all label references
++        $configuration = $this->replaceLanguageFileReferences($configuration);
++        // Replace all paths
++        $configuration = $this->replaceAbsolutePathsToRelativeResourcesPath($configuration);
++
++        // unless explicitly set, the debug mode is enabled in development context
++        if (!isset($configuration['debug'])) {
++            $configuration['debug'] = ($GLOBALS['TYPO3_CONF_VARS']['BE']['debug'] ?? false) && Environment::getContext()->isDevelopment();
++        }
++
++        $configuration = $this->eventDispatcher
++            ->dispatch(new AfterPrepareConfigurationForEditorEvent($configuration, $data))
++            ->getConfiguration();
++
++        return $configuration;
++    }
++
++    protected function sanitizeFieldId(string $itemFormElementName): string
++    {
++        $fieldId = (string)preg_replace('/[^a-zA-Z0-9_:-]/', '_', $itemFormElementName);
++        return htmlspecialchars((string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId));
++    }
++
++    protected function translationExists(string $language): bool
++    {
++        $fileName = GeneralUtility::getFileAbsFileName('EXT:rte_ckeditor/Resources/Public/Contrib/translations/' . $language . '.js');
++        return file_exists($fileName);
++    }
++
++    protected function getLanguageService(): LanguageService
++    {
++        return $GLOBALS['LANG'];
++    }
++
++    protected function getBackendUser(): BackendUserAuthentication
++    {
++        return $GLOBALS['BE_USER'];
++    }
++}
+diff --git a/Configuration/Backend/Routes.php b/Configuration/Backend/Routes.php
+deleted file mode 100644
+index e80a7ba..0000000
+--- a/Configuration/Backend/Routes.php
++++ /dev/null
+@@ -1,15 +0,0 @@
+-<?php
+-
+-use TYPO3\CMS\RteCKEditor\Controller\BrowseLinksController;
+-
+-/**
+- * Definitions of routes for rte-ckeditor.
+- */
+-
+-return [
+-    // Register RTE browse links wizard
+-    'rteckeditor_wizard_browse_links' => [
+-        'path' => '/rte/wizard/browselinks',
+-        'target' => BrowseLinksController::class . '::mainAction',
+-    ],
+-];
+diff --git a/ext_localconf.php b/ext_localconf.php
+index 8ceb1fa..81049b8 100644
+--- a/ext_localconf.php
++++ b/ext_localconf.php
+@@ -2,24 +2,11 @@
+ 
+ declare(strict_types=1);
+ 
+-use TYPO3\CMS\RteCKEditor\Form\Resolver\RichTextNodeResolver;
+-
+ defined('TYPO3') or die();
+ 
+-// Register FormEngine node type resolver hook to render RTE in FormEngine if enabled
+-$GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'][1480314091] = [
+-    'nodeName' => 'text',
+-    'priority' => 50,
+-    'class' => RichTextNodeResolver::class,
+-];
++// Set editor-specific presets
++$GLOBALS['TYPO3_CONF_VARS']['RTE']['ckeditor5']['Presets']['default'] = 'EXT:rte_ckeditor/Configuration/RTE/Default.yaml';
++$GLOBALS['TYPO3_CONF_VARS']['RTE']['ckeditor5']['Presets']['minimal'] = 'EXT:rte_ckeditor/Configuration/RTE/Minimal.yaml';
++$GLOBALS['TYPO3_CONF_VARS']['RTE']['ckeditor5']['Presets']['full'] = 'EXT:rte_ckeditor/Configuration/RTE/Full.yaml';
+ 
+-// Register the presets
+-if (empty($GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'])) {
+-    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:rte_ckeditor/Configuration/RTE/Default.yaml';
+-}
+-if (empty($GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['minimal'])) {
+-    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['minimal'] = 'EXT:rte_ckeditor/Configuration/RTE/Minimal.yaml';
+-}
+-if (empty($GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['full'])) {
+-    $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['full'] = 'EXT:rte_ckeditor/Configuration/RTE/Full.yaml';
+-}
++$GLOBALS['TYPO3_CONF_VARS']['RTE']['defaultEditor'] = 'ckeditor5';

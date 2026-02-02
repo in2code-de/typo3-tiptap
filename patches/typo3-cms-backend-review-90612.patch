@@ -1,0 +1,1198 @@
+From 8f2a01dd9dfb9eb40961ed65385df0448315aa34 Mon Sep 17 00:00:00 2001
+From: Andreas Nedbal <andy@pixelde.su>
+Date: Mon, 08 Sep 2025 18:42:14 +0200
+Subject: [PATCH] [FEATURE] Adjust RTE configuration loading to allow different editors
+
+This change adjusts the configuration structure to allow configuration
+and presets for multiple richtext editors at the same time. Previously,
+only one was supported, especially looking at things like presets.
+
+So now, you can configure the editor per-field in different ways:
+* $GLOBALS['TYPO3_CONF_VARS']['RTE']['defaultEditor']
+  as a global setting for a default RTE
+* in TCA type text using the config "richtextEditor"
+* in PageTS, using "RTE.default.richtextEditor"
+* in PageTS, using "RTE.config.tt_content.bodytext.richtextEditor"
+
+Preset handling has also been adjusted to handle multiple richtext
+editors. The new configuration structure is only in use if an editor
+is specified via one of the above options, otherwise it follows the
+old style.
+
+Now, presets per-editor can be configured like this, with CKEditor
+as an example:
+* $GLOBALS['TYPO3_CONF_VARS']['RTE']['ckeditor5']['Presets'][$presetName]
+* in TCA type text using the config "richtextConfiguration" (as previously)
+* in PageTS, using "RTE.default.ckeditor5.preset"
+* in PageTS, using "RTE.config.tt_content.bodytext.ckeditor5.preset"
+
+Technical details:
+* Introduced `RichtextEditorRegistry` to manage RTE implementations.
+* Added `AsRichtextEditorBuilder` PHP attribute for autodiscovery of
+  editor builders.
+* Implemented `FallbackEditorBuilder` to handle missing editor
+  implementations gracefully with a textarea and warning.
+* Moved the shared `BrowseLinksController` to `ext:backend` to support
+  multiple RTE implementations.
+
+Resolves: #107421
+Releases: main
+Change-Id: I4646a9c6a372e23272f30b9c3c52dced68ad502a
+---
+
+diff --git a/Classes/Attribute/AsRichtextEditorBuilder.php b/Classes/Attribute/AsRichtextEditorBuilder.php
+new file mode 100644
+index 0000000..a281b3f
+--- /dev/null
++++ b/Classes/Attribute/AsRichtextEditorBuilder.php
+@@ -0,0 +1,31 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\Attribute;
++
++/**
++ * Service tag to autoconfigure RTE builders
++ */
++#[\Attribute(\Attribute::TARGET_CLASS)]
++class AsRichtextEditorBuilder
++{
++    public const TAG_NAME = 'richtext.builder';
++
++    public function __construct(
++        public string $editor,
++    ) {}
++}
+diff --git a/Classes/Controller/BrowseLinksController.php b/Classes/Controller/BrowseLinksController.php
+new file mode 100644
+index 0000000..b1c8854
+--- /dev/null
++++ b/Classes/Controller/BrowseLinksController.php
+@@ -0,0 +1,424 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\Controller;
++
++use Psr\Http\Message\ServerRequestInterface;
++use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
++use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorRegistry;
++use TYPO3\CMS\Core\Configuration\Richtext;
++use TYPO3\CMS\Core\LinkHandling\Exception\UnknownLinkHandlerException;
++use TYPO3\CMS\Core\LinkHandling\LinkService;
++use TYPO3\CMS\Core\Localization\LanguageService;
++use TYPO3\CMS\Core\Localization\LanguageServiceFactory;
++use TYPO3\CMS\Core\Messaging\FlashMessage;
++use TYPO3\CMS\Core\Messaging\FlashMessageService;
++use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
++use TYPO3\CMS\Core\Utility\GeneralUtility;
++use TYPO3\CMS\Core\View\ViewInterface;
++
++/**
++ * Extended controller for link browser
++ * @internal This is a specific Backend Controller implementation and is not considered part of the Public TYPO3 API.
++ */
++#[Autoconfigure(public: true, shared: false)]
++class BrowseLinksController extends AbstractLinkBrowserController
++{
++    protected string $editorId;
++
++    /**
++     * TYPO3 language code of the content language
++     */
++    protected string $contentsLanguage;
++    protected ?LanguageService $contentLanguageService;
++    protected array $buttonConfig = [];
++    protected array $thisConfig = [];
++    protected array $classesAnchorDefault = [];
++    protected array $classesAnchorDefaultTarget = [];
++    protected array $classesAnchorJSOptions = [];
++    protected string $defaultLinkTarget = '';
++    protected string $siteUrl = '';
++
++    public function __construct(
++        protected readonly LinkService $linkService,
++        protected readonly Richtext $richtext,
++        protected readonly LanguageServiceFactory $languageServiceFactory,
++        protected readonly FlashMessageService $flashMessageService,
++        protected readonly RichtextEditorRegistry $richtextEditorRegistry,
++    ) {}
++
++    /**
++     * This is only used by RTE currently.
++     */
++    public function getConfiguration(): array
++    {
++        return $this->buttonConfig;
++    }
++
++    /**
++     * @return array{act: string, P: array, editorId: string, contentsLanguage: string} Array of parameters which have to be added to URLs
++     */
++    public function getUrlParameters(?array $overrides = null): array
++    {
++        return [
++            'act' => $overrides['act'] ?? $this->displayedLinkHandlerId,
++            'P' => $overrides['P'] ?? $this->parameters,
++            'editorId' => $this->editorId,
++            'contentsLanguage' => $this->contentsLanguage,
++        ];
++    }
++
++    protected function initDocumentTemplate(): void
++    {
++        $builder = $this->richtextEditorRegistry->get($this->parameters['richtextEditor'] ?? null);
++        $linkBrowserModule = $builder->getLinkBrowserModule();
++
++        if (!$linkBrowserModule) {
++            return;
++        }
++
++        $this->pageRenderer->getJavaScriptRenderer()->addJavaScriptModuleInstruction(
++            $linkBrowserModule->invoke('initialize', $this->editorId)
++        );
++    }
++
++    protected function getCurrentPageId(): int
++    {
++        return (int)$this->parameters['pid'];
++    }
++
++    protected function initVariables(ServerRequestInterface $request): void
++    {
++        parent::initVariables($request);
++        $queryParameters = $request->getQueryParams();
++        $this->siteUrl = $request->getAttribute('normalizedParams')->getSiteUrl();
++        $this->currentLinkParts = $queryParameters['P']['curUrl'] ?? [];
++        $this->editorId = $queryParameters['editorId'] ?? '';
++        $this->contentsLanguage = $queryParameters['contentsLanguage'] ?? '';
++        $this->contentLanguageService = $this->languageServiceFactory->create($this->contentsLanguage);
++        $tcaFieldConf = [
++            'enableRichtext' => true,
++            'richtextConfiguration' => ($this->parameters['richtextConfigurationName'] ?? '') ?: null,
++        ];
++        $this->thisConfig = $this->richtext->getConfiguration(
++            $this->parameters['table'] ?? '',
++            $this->parameters['fieldName'] ?? '',
++            (int)($this->parameters['pid'] ?? 0),
++            $this->parameters['recordType'] ?? '',
++            $tcaFieldConf
++        );
++        $this->buttonConfig = $this->thisConfig['buttons']['link'] ?? [];
++    }
++
++    protected function initCurrentUrl(): void
++    {
++        if (empty($this->currentLinkParts)) {
++            return;
++        }
++        if (!empty($this->currentLinkParts['url'])) {
++            try {
++                $data = $this->linkService->resolve($this->currentLinkParts['url']);
++                $this->currentLinkParts['type'] = $data['type'];
++                unset($data['type']);
++                $this->currentLinkParts['url'] = $data;
++                if (!empty($this->currentLinkParts['url']['parameters'])) {
++                    $this->currentLinkParts['params'] = '&' . $this->currentLinkParts['url']['parameters'];
++                }
++            } catch (UnknownLinkHandlerException $e) {
++                $this->flashMessageService->getMessageQueueByIdentifier()->enqueue(
++                    new FlashMessage(message: $e->getMessage(), severity: ContextualFeedbackSeverity::ERROR)
++                );
++            }
++        }
++        parent::initCurrentUrl();
++    }
++
++    protected function renderLinkAttributeFields(ViewInterface $view): string
++    {
++        // Processing the classes configuration
++        if (!empty($this->buttonConfig['properties']['class']['allowedClasses'])) {
++            $classesAnchorArray = is_array($this->buttonConfig['properties']['class']['allowedClasses'])
++                ? $this->buttonConfig['properties']['class']['allowedClasses']
++                : GeneralUtility::trimExplode(',', $this->buttonConfig['properties']['class']['allowedClasses'], true);
++            // Collecting allowed classes and configured default values
++            $classesAnchor = [
++                'all' => [],
++            ];
++
++            if (is_array($this->thisConfig['classesAnchor'] ?? null)) {
++                foreach ($this->thisConfig['classesAnchor'] as $conf) {
++                    if (in_array($conf['class'] ?? null, $classesAnchorArray, true)) {
++                        $classesAnchor['all'][] = $conf['class'];
++                        if ($conf['type'] === $this->displayedLinkHandlerId) {
++                            $classesAnchor[$conf['type']][] = $conf['class'];
++                            if (($this->buttonConfig[$conf['type']]['properties']['class']['default'] ?? null) === $conf['class']) {
++                                $this->classesAnchorDefault[$conf['type']] = $conf['class'];
++                                if (isset($conf['target'])) {
++                                    $this->classesAnchorDefaultTarget[$conf['type']] = trim((string)$conf['target']);
++                                }
++                            }
++                        }
++                    }
++                }
++            }
++
++            $linkClass = $this->linkAttributeValues['class'] ?? '';
++            if ($linkClass !== '') {
++                $currentLinkClassIsAllowed = true;
++                if (!in_array($linkClass, $classesAnchorArray, true)) {
++                    // Current class is not a globally allowed class
++                    $currentLinkClassIsAllowed = false;
++                }
++                if (
++                    isset($classesAnchor[$this->displayedLinkHandlerId]) &&
++                    in_array($linkClass, $classesAnchor['all'], true) &&
++                    !in_array($linkClass, $classesAnchor[$this->displayedLinkHandlerId], true)
++                ) {
++                    // Current class is limited to specific link types but not available in current link type
++                    $currentLinkClassIsAllowed = false;
++                }
++
++                if (!$currentLinkClassIsAllowed) {
++                    $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] ??= '';
++                    // Add a dummy option that preserved the current class value (despite being invalid)
++                    // in order to prevent unintentional modification of assigned classes.
++                    $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] .= sprintf(
++                        '<option selected="selected" value="%s">%s</option>',
++                        htmlspecialchars($linkClass),
++                        htmlspecialchars(
++                            @sprintf(
++                                '[ ' . $this->getLanguageService()->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.noMatchingValue') . ' ]',
++                                $linkClass
++                            )
++                        )
++                    );
++                }
++            }
++
++            // Constructing the class selector options
++            foreach ($classesAnchorArray as $class) {
++                if (
++                    !in_array($class, $classesAnchor['all'], true)
++                    || (
++                        in_array($class, $classesAnchor['all'], true)
++                        && is_array($classesAnchor[$this->displayedLinkHandlerId] ?? null)
++                        && in_array($class, $classesAnchor[$this->displayedLinkHandlerId])
++                    )
++                ) {
++                    $selected = '';
++                    if (
++                        (($this->linkAttributeValues['class'] ?? false) === $class)
++                        || ($this->classesAnchorDefault[$this->displayedLinkHandlerId] ?? false) === $class
++                    ) {
++                        $selected = 'selected="selected"';
++                    }
++                    $classLabel = !empty($this->thisConfig['classes'][$class]['name'])
++                        ? $this->getPageConfigLabel($this->thisConfig['classes'][$class]['name'], false)
++                        : $class;
++                    $classStyle = !empty($this->thisConfig['classes'][$class]['value'])
++                        ? $this->thisConfig['classes'][$class]['value']
++                        : '';
++
++                    $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] ??= '';
++                    $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] .= '<option ' . $selected . ' value="' . htmlspecialchars($class) . '"'
++                        . ($classStyle ? ' style="' . htmlspecialchars($classStyle) . '"' : '')
++                        . '>' . htmlspecialchars($classLabel)
++                        . '</option>';
++                }
++            }
++            if (
++                ($this->classesAnchorJSOptions[$this->displayedLinkHandlerId] ?? false)
++                && !(
++                    ($this->buttonConfig['properties']['class']['required'] ?? false)
++                    || ($this->buttonConfig[$this->displayedLinkHandlerId]['properties']['class']['required'] ?? false)
++                )
++            ) {
++                $selected = '';
++                if (!($this->linkAttributeValues['class'] ?? false) && !($this->classesAnchorDefault[$this->displayedLinkHandlerId] ?? false)) {
++                    $selected = 'selected="selected"';
++                }
++                $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] = '<option ' . $selected . ' value=""></option>' . $this->classesAnchorJSOptions[$this->displayedLinkHandlerId];
++            }
++        }
++        // Default target
++        $this->defaultLinkTarget = ($this->classesAnchorDefault[$this->displayedLinkHandlerId] ?? false) && ($this->classesAnchorDefaultTarget[$this->displayedLinkHandlerId] ?? false)
++            ? $this->classesAnchorDefaultTarget[$this->displayedLinkHandlerId]
++            : ($this->buttonConfig[$this->displayedLinkHandlerId]['properties']['target']['default'] ?? $this->buttonConfig['properties']['target']['default'] ?? '');
++
++        return parent::renderLinkAttributeFields($view);
++    }
++
++    /**
++     * Localize a label obtained from Page TSConfig
++     *
++     * @param string $string The label to be localized
++     * @param bool $JScharCode If it needs to be converted to an array of char numbers
++     * @return string Localized string
++     */
++    protected function getPageConfigLabel(string $string, bool $JScharCode = true): string
++    {
++        $label = $this->getLanguageService()->sL(trim($string));
++        $label = str_replace(['\\\'', '"'], ['\'', '\\"'], $label);
++        return $JScharCode ? GeneralUtility::quoteJSvalue($label) : $label;
++    }
++
++    protected function renderCurrentUrl(ViewInterface $view): void
++    {
++        $view->assign('removeCurrentLink', true);
++        parent::renderCurrentUrl($view);
++    }
++
++    /**
++     * @return string[]
++     */
++    protected function getAllowedItems(): array
++    {
++        $allowedItems = parent::getAllowedItems();
++
++        if (isset($this->thisConfig['allowedTypes'])) {
++            $allowedItems = array_intersect($allowedItems, GeneralUtility::trimExplode(',', $this->thisConfig['allowedTypes'], true));
++        } elseif (isset($this->thisConfig['blindLinkOptions'])) {
++            // @todo Deprecate this option
++            $allowedItems = array_diff($allowedItems, GeneralUtility::trimExplode(',', $this->thisConfig['blindLinkOptions'], true));
++        }
++
++        if (is_array($this->buttonConfig['options'] ?? null) && !empty($this->buttonConfig['options']['removeItems'])) {
++            $allowedItems = array_diff($allowedItems, GeneralUtility::trimExplode(',', $this->buttonConfig['options']['removeItems'], true));
++        }
++
++        return $allowedItems;
++    }
++
++    /**
++     * @return string[]
++     */
++    protected function getAllowedLinkAttributes(): array
++    {
++        $allowedLinkAttributes = parent::getAllowedLinkAttributes();
++
++        if (isset($this->thisConfig['allowedOptions'])) {
++            $allowedLinkAttributes = array_intersect($allowedLinkAttributes, GeneralUtility::trimExplode(',', $this->thisConfig['allowedOptions'], true));
++        } elseif (isset($this->thisConfig['blindLinkFields'])) {
++            // @todo Deprecate this option
++            $allowedLinkAttributes = array_diff($allowedLinkAttributes, GeneralUtility::trimExplode(',', $this->thisConfig['blindLinkFields'], true));
++        }
++
++        return $allowedLinkAttributes;
++    }
++
++    /**
++     * Create an array of link attribute field rendering definitions
++     *
++     * @return string[]
++     */
++    protected function getLinkAttributeFieldDefinitions(): array
++    {
++        $fieldRenderingDefinitions = parent::getLinkAttributeFieldDefinitions();
++        $fieldRenderingDefinitions['class'] = $this->getClassField();
++        $fieldRenderingDefinitions['target'] = $this->getTargetField();
++        $fieldRenderingDefinitions['rel'] = $this->getRelField();
++        if (empty($this->buttonConfig['queryParametersSelector']['enabled'])) {
++            unset($fieldRenderingDefinitions['params']);
++        }
++        return $fieldRenderingDefinitions;
++    }
++
++    protected function getRelField(): string
++    {
++        if (empty($this->buttonConfig['relAttribute']['enabled'])) {
++            return '';
++        }
++
++        $currentRel = '';
++        if ($this->displayedLinkHandler === $this->currentLinkHandler
++            && !empty($this->currentLinkParts)
++            && is_string($this->linkAttributeValues['rel'] ?? null)
++        ) {
++            $currentRel = $this->linkAttributeValues['rel'];
++        }
++
++        return '
++            <div class="element-browser-form-group">
++                <label for="lrel" class="form-label">' .
++                    htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:linkRelationship')) .
++                '</label>
++                <input type="text" name="lrel" class="form-control" value="' . htmlspecialchars($currentRel) . '" />
++            </div>
++            ';
++    }
++
++    protected function getTargetField(): string
++    {
++        $targetSelectorConfig = [];
++        if (is_array($this->buttonConfig['targetSelector'] ?? null)) {
++            $targetSelectorConfig = $this->buttonConfig['targetSelector'];
++        }
++        $target = !empty($this->linkAttributeValues['target']) ? $this->linkAttributeValues['target'] : $this->defaultLinkTarget;
++        $lang = $this->getLanguageService();
++
++        $disabled = $targetSelectorConfig['disabled'] ?? false;
++        if ($disabled) {
++            return '';
++        }
++
++        return '
++            <div class="element-browser-form-group">
++                <label for="ltarget" class="form-label">
++                    ' . htmlspecialchars($lang->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:target')) . '
++                </label>
++                <typo3-backend-combobox>
++                    <input id="ltarget" type="text" name="ltarget" class="form-control" value="' . htmlspecialchars($this->linkAttributeValues['target'] ?? '') . '" />
++                    <typo3-backend-combobox-choice value="_top" icon="actions-window">' . $lang->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:top') . '</typo3-backend-combobox-choice>
++                    <typo3-backend-combobox-choice value="_blank" icon="actions-window-open">' . $lang->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:newWindow') . '</typo3-backend-combobox-choice>
++                </typo3-backend-combobox>
++            </div>';
++    }
++
++    /**
++     * Return html code for the class selector
++     *
++     * @return string the html code to be added to the form
++     */
++    protected function getClassField(): string
++    {
++        if (!isset($this->classesAnchorJSOptions[$this->displayedLinkHandlerId])) {
++            return '';
++        }
++
++        return '
++            <div class="element-browser-form-group">
++                <label for="lclass" class="form-label">
++                    ' . htmlspecialchars($this->getLanguageService()->sL('LLL:EXT:backend/Resources/Private/Language/locallang_browse_links.xlf:class')) . '
++                </label>
++                <select id="lclass" name="lclass" class="t3js-class-selector form-select">
++                    ' . $this->classesAnchorJSOptions[$this->displayedLinkHandlerId] . '
++                </select>
++            </div>
++        ';
++    }
++
++    /**
++     * @return string[] Array of body-tag attributes
++     */
++    protected function getBodyTagAttributes(): array
++    {
++        $parameters = parent::getBodyTagAttributes();
++        $parameters['data-site-url'] = $this->siteUrl;
++        $parameters['data-default-link-target'] = $this->defaultLinkTarget;
++        return $parameters;
++    }
++}
+diff --git a/Classes/DependencyInjection/RichtextBuilderPass.php b/Classes/DependencyInjection/RichtextBuilderPass.php
+new file mode 100644
+index 0000000..2fb37ab
+--- /dev/null
++++ b/Classes/DependencyInjection/RichtextBuilderPass.php
+@@ -0,0 +1,54 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\DependencyInjection;
++
++use Symfony\Component\DependencyInjection\Compiler\CompilerPassInterface;
++use Symfony\Component\DependencyInjection\ContainerBuilder;
++use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorRegistry;
++
++class RichtextBuilderPass implements CompilerPassInterface
++{
++    public function process(ContainerBuilder $container)
++    {
++        if (!$container->hasDefinition(RichtextEditorRegistry::class)) {
++            // If there's no richtext editor registry registered to begin with, don't bother registering builders with it.
++            return;
++        }
++        $richtextEditorRegistryDefinition = $container->findDefinition(RichtextEditorRegistry::class);
++
++        $builders = $this->collectBuilders($container);
++
++        foreach ($builders as $editor => $builder) {
++            $richtextEditorRegistryDefinition->addMethodCall('register', [$editor, $builder]);
++        }
++    }
++
++    private function collectBuilders(ContainerBuilder $container): array
++    {
++        $builders = [];
++        foreach ($container->findTaggedServiceIds('richtext.builder') as $serviceName => $tags) {
++            $service = $container->findDefinition($serviceName);
++            $service->setPublic(true);
++            foreach ($tags as $attributes) {
++                $editorName = $attributes['editor'];
++                $builders[$editorName] = $service->getClass();
++            }
++        }
++        return $builders;
++    }
++}
+diff --git a/Classes/Form/Element/RichTextElement.php b/Classes/Form/Element/RichTextElement.php
+new file mode 100644
+index 0000000..66eb013
+--- /dev/null
++++ b/Classes/Form/Element/RichTextElement.php
+@@ -0,0 +1,168 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\Form\Element;
++
++use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorRegistry;
++
++/**
++ * Render rich text editor in FormEngine
++ * @internal This is a specific Backend FormEngine implementation and is not considered part of the Public TYPO3 API.
++ */
++class RichTextElement extends AbstractFormElement
++{
++    /**
++     * Default field information enabled for this element.
++     *
++     * @var array
++     */
++    protected $defaultFieldInformation = [
++        'tcaDescription' => [
++            'renderType' => 'tcaDescription',
++        ],
++    ];
++
++    /**
++     * Default field wizards enabled for this element.
++     *
++     * @var array
++     */
++    protected $defaultFieldWizard = [
++        'localizationStateSelector' => [
++            'renderType' => 'localizationStateSelector',
++        ],
++        'otherLanguageContent' => [
++            'renderType' => 'otherLanguageContent',
++            'after' => [
++                'localizationStateSelector',
++            ],
++        ],
++        'defaultLanguageDifferences' => [
++            'renderType' => 'defaultLanguageDifferences',
++            'after' => [
++                'otherLanguageContent',
++            ],
++        ],
++    ];
++
++    public function __construct(
++        private readonly RichtextEditorRegistry $richtextEditorRegistry,
++    ) {}
++
++    /**
++     * Renders the ckeditor element
++     *
++     * @throws \InvalidArgumentException
++     */
++    public function render(): array
++    {
++        $languageService = $this->getLanguageService();
++
++        $resultArray = $this->initializeResultArray();
++        $parameterArray = $this->data['parameterArray'];
++        $config = $parameterArray['fieldConf']['config'];
++        $value = $this->data['parameterArray']['itemFormElValue'] ?? null;
++
++        $fieldInformationResult = $this->renderFieldInformation();
++        $fieldInformationHtml = $fieldInformationResult['html'];
++        $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldInformationResult, false);
++
++        $fieldControlResult = $this->renderFieldControl();
++        $fieldControlHtml = $fieldControlResult['html'];
++        $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldControlResult, false);
++
++        $fieldWizardResult = $this->renderFieldWizard();
++        $fieldWizardHtml = $fieldWizardResult['html'];
++        $resultArray = $this->mergeChildReturnIntoExistingResult($resultArray, $fieldWizardResult, false);
++
++        // @todo? getValidationDataAsJsonString is part of the Node API but would be cool to have in RichtextEditorBuilders
++        $this->data['formEngineValidation'] = $this->getValidationDataAsJsonString($parameterArray['fieldConf']['config']);
++
++        $richtextEditorBuilder = $this->richtextEditorRegistry->get($config['richtextConfiguration']['richtextEditor']);
++        $richtextEditor = $richtextEditorBuilder->buildDefinition($config['richtextConfiguration']['preset'], $this->data);
++
++        $html = [];
++        $html[] =   $fieldInformationHtml;
++        $html[] =   '<div class="form-control-wrap">';
++        $html[] =       '<div class="form-wizards-wrap">';
++        $html[] =           '<div class="form-wizards-item-element">';
++        $html[] =               $richtextEditor->html;
++        $html[] =           '</div>';
++        if (!empty($fieldControlHtml)) {
++            $html[] =           '<div class="form-wizards-item-aside form-wizards-item-aside--field-control">';
++            $html[] =               '<div class="btn-group">';
++            $html[] =                   $fieldControlHtml;
++            $html[] =               '</div>';
++            $html[] =           '</div>';
++        }
++        if (!empty($fieldWizardHtml)) {
++            $html[] = '<div class="form-wizards-item-bottom">';
++            $html[] = $fieldWizardHtml;
++            $html[] = '</div>';
++        }
++        $html[] =       '</div>';
++        $html[] =   '</div>';
++
++        $nullControlNameEscaped = htmlspecialchars('control[active][' . $this->data['tableName'] . '][' . $this->data['databaseRow']['uid'] . '][' . $this->data['fieldName'] . ']');
++
++        $fullElement = $html;
++        // @todo - The logic for hasNullCheckboxButNoPlaceholder() / hasNullCheckboxWithPlaceholder() wants to be streamlined here;
++        // Ideally, a placeholder should only be an instructive placeholder and not conflict with usage of a "default fallback".
++        // Instead of "[x] Set value (Default: …)" it might better be to use "[x] Set value (Fallback: …)", because what is shown as "default" here is not really the final value
++        // of the saved element, but what is inerhited as fallback values from a possible rendering chain. Looking at you, sys_file_reference IRRE.
++        if ($this->hasNullCheckboxButNoPlaceholder()) {
++            $checked = $value !== null ? ' checked="checked"' : '';
++            $fullElement = [];
++            $fullElement[] = '<div class="t3-form-field-disable"></div>';
++            $fullElement[] = '<div class="form-check t3-form-field-eval-null-checkbox">';
++            $fullElement[] =     '<input type="hidden" name="' . $nullControlNameEscaped . '" value="0" />';
++            $fullElement[] =     '<input type="checkbox" class="form-check-input" name="' . $nullControlNameEscaped . '" id="' . $nullControlNameEscaped . '" value="1"' . $checked . ' />';
++            $fullElement[] =     '<label class="form-check-label" for="' . $nullControlNameEscaped . '">';
++            $fullElement[] =         $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.nullCheckbox');
++            $fullElement[] =     '</label>';
++            $fullElement[] = '</div>';
++            $fullElement[] = implode(LF, $html);
++        } elseif ($this->hasNullCheckboxWithPlaceholder()) {
++            $checked = $value !== null ? ' checked="checked"' : '';
++
++            $fullElement = [];
++            $fullElement[] = '<div class="form-check t3js-form-field-eval-null-placeholder-checkbox">';
++            $fullElement[] =     '<input type="hidden" name="' . $nullControlNameEscaped . '" value="0" />';
++            $fullElement[] =     '<input type="checkbox" class="form-check-input" name="' . $nullControlNameEscaped . '" id="' . $nullControlNameEscaped . '" value="1"' . $checked . ' />';
++            $fullElement[] =     '<label class="form-check-label" for="' . $nullControlNameEscaped . '">';
++            $fullElement[] =         $richtextEditor->placeholderLabel;
++            $fullElement[] =     '</label>';
++            $fullElement[] = '</div>';
++            $fullElement[] = '<div class="t3js-formengine-placeholder-placeholder">';
++            $fullElement[] =    '<div class="form-control-wrap">';
++            $fullElement[] =        $richtextEditor->placeholderHtml;
++            $fullElement[] =    '</div>';
++            $fullElement[] = '</div>';
++            $fullElement[] = '<div class="t3js-formengine-placeholder-formfield">';
++            $fullElement[] =    implode(LF, $html);
++            $fullElement[] = '</div>';
++        }
++
++        $fullElement = '<div class="formengine-field-item t3js-formengine-field-item">' . implode(LF, $fullElement) . '</div>';
++
++        $resultArray['html'] = $this->wrapWithFieldsetAndLegend($fullElement);
++        $resultArray['javaScriptModules'] = $richtextEditor->javascriptModules;
++        $resultArray['stylesheetFiles'] = $richtextEditor->stylesheetFiles;
++
++        return $resultArray;
++    }
++}
+diff --git a/Classes/Form/Resolver/RichTextNodeResolver.php b/Classes/Form/Resolver/RichTextNodeResolver.php
+new file mode 100644
+index 0000000..9d1a623
+--- /dev/null
++++ b/Classes/Form/Resolver/RichTextNodeResolver.php
+@@ -0,0 +1,56 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\Form\Resolver;
++
++use TYPO3\CMS\Backend\Form\Element\RichTextElement;
++use TYPO3\CMS\Backend\Form\NodeResolverInterface;
++
++/**
++ * This resolver will return the RichTextElement render class if RTE is enabled for this field.
++ *
++ * @internal This is a specific Backend FormEngine implementation and is not considered part of the Public TYPO3 API.
++ */
++class RichTextNodeResolver implements NodeResolverInterface
++{
++    protected array $data;
++
++    public function setData(array $data): void
++    {
++        $this->data = $data;
++    }
++
++    /**
++     * Returns RichTextElement as class name if RTE widget should be rendered.
++     *
++     * @return string|null New class name or null if this resolver does not change current class name.
++     */
++    public function resolve(): ?string
++    {
++        $parameterArray = $this->data['parameterArray'];
++        if (// If RTE is enabled for field
++            (bool)($parameterArray['fieldConf']['config']['enableRichtext'] ?? false) === true
++            // If RTE config is found (prepared by TcaText data provider)
++            && is_array($parameterArray['fieldConf']['config']['richtextConfiguration'] ?? null)
++            // If RTE is not disabled on configuration level
++            && !($parameterArray['fieldConf']['config']['richtextConfiguration']['disabled'] ?? false)
++        ) {
++            return RichTextElement::class;
++        }
++        return null;
++    }
++}
+diff --git a/Classes/Form/Richtext/FallbackEditorBuilder.php b/Classes/Form/Richtext/FallbackEditorBuilder.php
+new file mode 100644
+index 0000000..8b22c13
+--- /dev/null
++++ b/Classes/Form/Richtext/FallbackEditorBuilder.php
+@@ -0,0 +1,137 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\Form\Richtext;
++
++use TYPO3\CMS\Backend\Attribute\AsRichtextEditorBuilder;
++use TYPO3\CMS\Core\Localization\LanguageService;
++use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
++use TYPO3\CMS\Core\Utility\GeneralUtility;
++
++#[AsRichtextEditorBuilder(editor: 'fallback')]
++class FallbackEditorBuilder implements RichtextEditorBuilderInterface
++{
++    public function buildDefinition(string $presetName, array $data): RichtextEditorDefinition
++    {
++        $languageService = $this->getLanguageService();
++
++        $parameterArray = $data['parameterArray'];
++        $config = $parameterArray['fieldConf']['config'];
++
++        $fieldId = $this->sanitizeFieldId($parameterArray['itemFormElName']);
++        $itemFormElementName = $data['parameterArray']['itemFormElName'];
++
++        $value = $data['parameterArray']['itemFormElValue'] ?? null;
++
++        $textareaAttributes = GeneralUtility::implodeAttributes([
++            'slot' => 'textarea',
++            'id' => $fieldId,
++            'name' => $itemFormElementName,
++            'rows' => '18',
++            'class' => 'form-control',
++            'data-formengine-validation-rules' => $data['formEngineValidation'],
++        ], true);
++
++        $html = [];
++        $html[] =   $this->getFallbackReason($data);
++        $html[] =  '<textarea ' . $textareaAttributes . '>';
++        $html[] =     htmlspecialchars((string)$value);
++        $html[] =  '</textarea>';
++
++        $placeholderTextareaAttributes = GeneralUtility::implodeAttributes([
++            'slot' => 'textarea',
++            'id' => $fieldId . '-placeholder',
++            'rows' => '18',
++            'class' => 'form-control',
++        ], true);
++
++        $placeholder = trim((string)($config['placeholder'] ?? ''));
++        if ($placeholder !== '') {
++            $shortenedPlaceholder = GeneralUtility::fixed_lgd_cs($placeholder, 20);
++            if ($placeholder !== $shortenedPlaceholder) {
++                $overrideLabel = sprintf(
++                    $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'),
++                    '<span title="' . htmlspecialchars($placeholder) . '">' . htmlspecialchars($shortenedPlaceholder) . '</span>'
++                );
++            } else {
++                $overrideLabel = sprintf(
++                    $languageService->sL('LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override'),
++                    htmlspecialchars($placeholder)
++                );
++            }
++        } else {
++            $overrideLabel = $languageService->sL(
++                'LLL:EXT:core/Resources/Private/Language/locallang_core.xlf:labels.placeholder.override_not_available'
++            );
++        }
++
++        $placeholderHtml = [];
++        $placeholderHtml[] =   '<textarea ' . $placeholderTextareaAttributes . '></textarea>';
++
++        return new RichtextEditorDefinition(
++            html: implode(LF, $html),
++            javascriptModules: [],
++            stylesheetFiles: [],
++            placeholderLabel: $overrideLabel,
++            placeholderHtml: implode(LF, $placeholderHtml),
++        );
++    }
++
++    public function getConfiguration(string $presetName): array
++    {
++        return [
++            'proc.' => [],
++        ];
++    }
++
++    public function getLinkBrowserModule(): ?JavaScriptModuleInstruction
++    {
++        return null;
++    }
++
++    protected function getFallbackReason(array $data): string
++    {
++        $languageService = $this->getLanguageService();
++        $registry = GeneralUtility::makeInstance(RichtextEditorRegistry::class);
++        $config = $data['parameterArray']['fieldConf']['config']['richtextConfiguration'];
++        $message = '';
++
++        if (!isset($config['richtextEditor'])) {
++            $message = $languageService->sL('LLL:EXT:backend/Resources/Private/Language/locallang.xlf:richtext.fallback.noneConfigured');
++        } elseif (isset($config['richtextEditor']) && !$registry->isRegistered($config['richtextEditor'])) {
++            $message = sprintf($languageService->sL('LLL:EXT:backend/Resources/Private/Language/locallang.xlf:richtext.fallback.notRegistered'), $config['richtextEditor']);
++        }
++
++        $html = [];
++        $html[] = '<div class="alert alert-warning">';
++        $html[] =   htmlspecialchars($message);
++        $html[] = '</div>';
++
++        return implode(LF, $html);
++    }
++
++    protected function sanitizeFieldId(string $itemFormElementName): string
++    {
++        $fieldId = (string)preg_replace('/[^a-zA-Z0-9_:-]/', '_', $itemFormElementName);
++        return htmlspecialchars((string)preg_replace('/^[^a-zA-Z]/', 'x', $fieldId));
++    }
++
++    protected function getLanguageService(): LanguageService
++    {
++        return $GLOBALS['LANG'];
++    }
++}
+diff --git a/Classes/Form/Richtext/RichtextEditorBuilderInterface.php b/Classes/Form/Richtext/RichtextEditorBuilderInterface.php
+new file mode 100644
+index 0000000..84e80ed
+--- /dev/null
++++ b/Classes/Form/Richtext/RichtextEditorBuilderInterface.php
+@@ -0,0 +1,29 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\Form\Richtext;
++
++use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
++
++interface RichtextEditorBuilderInterface
++{
++    public function buildDefinition(string $presetName, array $data): RichtextEditorDefinition;
++
++    public function getConfiguration(string $presetName): array;
++
++    public function getLinkBrowserModule(): ?JavaScriptModuleInstruction;
++}
+diff --git a/Classes/Form/Richtext/RichtextEditorDefinition.php b/Classes/Form/Richtext/RichtextEditorDefinition.php
+new file mode 100644
+index 0000000..2446612
+--- /dev/null
++++ b/Classes/Form/Richtext/RichtextEditorDefinition.php
+@@ -0,0 +1,29 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\Form\Richtext;
++
++class RichtextEditorDefinition
++{
++    public function __construct(
++        public string $html,
++        public array $javascriptModules,
++        public array $stylesheetFiles,
++        public string $placeholderLabel,
++        public string $placeholderHtml,
++    ) {}
++}
+diff --git a/Classes/Form/Richtext/RichtextEditorRegistry.php b/Classes/Form/Richtext/RichtextEditorRegistry.php
+new file mode 100644
+index 0000000..d0710f5
+--- /dev/null
++++ b/Classes/Form/Richtext/RichtextEditorRegistry.php
+@@ -0,0 +1,48 @@
++<?php
++
++declare(strict_types=1);
++
++/*
++ * This file is part of the TYPO3 CMS project.
++ *
++ * It is free software; you can redistribute it and/or modify it under
++ * the terms of the GNU General Public License, either version 2
++ * of the License, or any later version.
++ *
++ * For the full copyright and license information, please read the
++ * LICENSE.txt file that was distributed with this source code.
++ *
++ * The TYPO3 project - inspiring people to share!
++ */
++
++namespace TYPO3\CMS\Backend\Form\Richtext;
++
++use TYPO3\CMS\Core\SingletonInterface;
++use TYPO3\CMS\Core\Utility\GeneralUtility;
++
++class RichtextEditorRegistry implements SingletonInterface
++{
++    /**
++     * @var array
++     */
++    protected array $editors = [];
++
++    public function register(string $editorName, string $richtextEditorBuilderClass)
++    {
++        $this->editors[$editorName] = $richtextEditorBuilderClass;
++    }
++
++    public function isRegistered(string $editorName): bool
++    {
++        return isset($this->editors[$editorName]);
++    }
++
++    public function get(?string $editorName): RichtextEditorBuilderInterface
++    {
++        if (!isset($editorName) || !$this->isRegistered($editorName)) {
++            return GeneralUtility::makeInstance(FallbackEditorBuilder::class);
++        }
++
++        return GeneralUtility::makeInstance($this->editors[$editorName]);
++    }
++}
+diff --git a/Classes/ServiceProvider.php b/Classes/ServiceProvider.php
+index 9c4395c..2a16130 100644
+--- a/Classes/ServiceProvider.php
++++ b/Classes/ServiceProvider.php
+@@ -18,6 +18,7 @@
+ namespace TYPO3\CMS\Backend;
+ 
+ use Psr\Container\ContainerInterface;
++use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorRegistry;
+ use TYPO3\CMS\Backend\Module\ModuleFactory;
+ use TYPO3\CMS\Backend\Module\ModuleRegistry;
+ use TYPO3\CMS\Core\Cache\Event\CacheWarmupEvent;
+@@ -44,6 +45,7 @@
+     {
+         return [
+             ModuleRegistry::class => self::getModuleRegistry(...),
++            RichtextEditorRegistry::class => self::getRichtextEditorRegistry(...),
+             'backend.routes' => self::getBackendRoutes(...),
+             'backend.routes.warmer' => self::getBackendRoutesWarmer(...),
+             'backend.modules' => self::getBackendModules(...),
+@@ -111,6 +113,11 @@
+         };
+     }
+ 
++    public static function getRichtextEditorRegistry(ContainerInterface $container): RichtextEditorRegistry
++    {
++        return self::new($container, RichtextEditorRegistry::class);
++    }
++
+     public static function addEventListeners(ContainerInterface $container, ListenerProvider $listenerProvider): ListenerProvider
+     {
+         $listenerProvider->addListener(CacheWarmupEvent::class, 'backend.routes.warmer');
+diff --git a/Configuration/Backend/Routes.php b/Configuration/Backend/Routes.php
+index 0412322..49903ee 100644
+--- a/Configuration/Backend/Routes.php
++++ b/Configuration/Backend/Routes.php
+@@ -300,4 +300,10 @@
+         'methods' => ['GET'],
+         'target' => Controller\Resource\ResourceController::class . '::requestThumbnailAction',
+     ],
++
++    // RTE link browser
++    'rteckeditor_wizard_browse_links' => [
++        'path' => '/rte/wizard/browselinks',
++        'target' => Controller\BrowseLinksController::class . '::mainAction',
++    ],
+ ];
+diff --git a/Configuration/Services.php b/Configuration/Services.php
+index 7c503e6..d342edf 100644
+--- a/Configuration/Services.php
++++ b/Configuration/Services.php
+@@ -9,9 +9,11 @@
+ use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
+ use TYPO3\CMS\Backend\Attribute\AsAvatarProvider;
+ use TYPO3\CMS\Backend\Attribute\AsController;
++use TYPO3\CMS\Backend\Attribute\AsRichtextEditorBuilder;
+ use TYPO3\CMS\Backend\Attribute\AsSidebarComponent;
+ use TYPO3\CMS\Backend\ContextMenu\ItemProviders\ProviderInterface;
+ use TYPO3\CMS\Backend\DependencyInjection\AvatarProviderPass;
++use TYPO3\CMS\Backend\DependencyInjection\RichtextBuilderPass;
+ use TYPO3\CMS\Backend\DependencyInjection\SidebarComponentsPass;
+ use TYPO3\CMS\Backend\ElementBrowser\ElementBrowserInterface;
+ use TYPO3\CMS\Backend\Form\NodeInterface;
+@@ -51,6 +53,20 @@
+         }
+     );
+ 
++    $containerBuilder->registerAttributeForAutoconfiguration(
++        AsRichtextEditorBuilder::class,
++        static function (ChildDefinition $definition, AsRichtextEditorBuilder $attribute): void {
++            $definition->addTag(
++                AsRichtextEditorBuilder::TAG_NAME,
++                [
++                    'editor' => $attribute->editor,
++                ]
++            );
++        }
++    );
++
++    $containerBuilder->addCompilerPass(new RichtextBuilderPass());
++
+     // Autoconfigure backend avatar providers
+     $containerBuilder->registerAttributeForAutoconfiguration(
+         AsAvatarProvider::class,
+diff --git a/Resources/Private/Language/locallang.xlf b/Resources/Private/Language/locallang.xlf
+index ca06d8c..32a6889 100644
+--- a/Resources/Private/Language/locallang.xlf
++++ b/Resources/Private/Language/locallang.xlf
+@@ -264,6 +264,12 @@
+       <trans-unit id="viewport.navigation.hide">
+         <source>Hide navigation</source>
+       </trans-unit>
++      <trans-unit id="richtext.fallback.noneConfigured">
++        <source>No richtext editor is configured</source>
++      </trans-unit>
++      <trans-unit id="richtext.fallback.notRegistered">
++        <source>The richtext editor "%s" is not registered</source>
++      </trans-unit>
+     </body>
+   </file>
+ </xliff>
+diff --git a/ext_localconf.php b/ext_localconf.php
+index 784b69f..31126e9 100644
+--- a/ext_localconf.php
++++ b/ext_localconf.php
+@@ -2,12 +2,20 @@
+ 
+ declare(strict_types=1);
+ 
++use TYPO3\CMS\Backend\Form\Resolver\RichTextNodeResolver;
+ use TYPO3\CMS\Backend\Hooks\DataHandlerAuthenticationContext;
+ use TYPO3\CMS\Backend\Hooks\DataHandlerContentElementRestrictionHook;
+ use TYPO3\CMS\Backend\LoginProvider\UsernamePasswordLoginProvider;
+ 
+ defined('TYPO3') or die();
+ 
++// Register FormEngine node type resolver hook to render RTE in FormEngine if enabled
++$GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'][1480314091] = [
++    'nodeName' => 'text',
++    'priority' => 50,
++    'class' => RichTextNodeResolver::class,
++];
++
+ $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['backend']['loginProviders'][1433416747] = [
+     'provider' => UsernamePasswordLoginProvider::class,
+     'sorting' => 50,

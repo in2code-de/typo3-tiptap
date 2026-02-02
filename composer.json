@@ -1,8 +1,12 @@
 {
   "name": "in2code/typo3-tiptap",
   "type": "typo3-cms-extension",
-  "license": ["GPL-2.0-or-later"],
-  "keywords": ["TYPO3 CMS"],
+  "license": [
+    "GPL-2.0-or-later"
+  ],
+  "keywords": [
+    "TYPO3 CMS"
+  ],
   "authors": [
     {
       "name": "In2code GmbH",
@@ -11,32 +15,33 @@
   ],
   "require": {
     "php": ">=8.3.0",
-    "typo3/cms-core": "^v14.0"
+    "gilbertsoft/typo3-core-patches": "@beta",
+    "typo3/cms-core": "dev-main"
   },
   "require-dev": {
-    "typo3/cms-backend": "^14.0",
-    "typo3/cms-belog": "^14.0",
-    "typo3/cms-beuser": "^14.0",
-    "typo3/cms-dashboard": "^14.0",
-    "typo3/cms-extbase": "^14.0",
-    "typo3/cms-extensionmanager": "^14.0",
-    "typo3/cms-felogin": "^14.0",
-    "typo3/cms-filelist": "^14.0",
-    "typo3/cms-filemetadata": "^14.0",
-    "typo3/cms-fluid": "^14.0",
-    "typo3/cms-fluid-styled-content": "^14.0",
-    "typo3/cms-form": "^14.0",
-    "typo3/cms-frontend": "^14.0",
-    "typo3/cms-impexp": "^14.0",
-    "typo3/cms-indexed-search": "^14.0",
-    "typo3/cms-info": "^14.0",
-    "typo3/cms-install": "^14.0",
-    "typo3/cms-lowlevel": "^14.0",
-    "typo3/cms-rte-ckeditor": "^14.0",
-    "typo3/cms-scheduler": "^14.0",
-    "typo3/cms-seo": "^14.0",
-    "typo3/cms-setup": "^14.0",
-    "typo3/cms-tstemplate": "^14.0"
+    "typo3/cms-backend": "dev-main",
+    "typo3/cms-belog": "dev-main",
+    "typo3/cms-beuser": "dev-main",
+    "typo3/cms-dashboard": "dev-main",
+    "typo3/cms-extbase": "dev-main",
+    "typo3/cms-extensionmanager": "dev-main",
+    "typo3/cms-felogin": "dev-main",
+    "typo3/cms-filelist": "dev-main",
+    "typo3/cms-filemetadata": "dev-main",
+    "typo3/cms-fluid": "dev-main",
+    "typo3/cms-fluid-styled-content": "dev-main",
+    "typo3/cms-form": "dev-main",
+    "typo3/cms-frontend": "dev-main",
+    "typo3/cms-impexp": "dev-main",
+    "typo3/cms-indexed-search": "dev-main",
+    "typo3/cms-info": "dev-main",
+    "typo3/cms-install": "dev-main",
+    "typo3/cms-lowlevel": "dev-main",
+    "typo3/cms-rte-ckeditor": "dev-main",
+    "typo3/cms-scheduler": "dev-main",
+    "typo3/cms-seo": "dev-main",
+    "typo3/cms-setup": "dev-main",
+    "typo3/cms-tstemplate": "dev-main"
   },
   "autoload": {
     "psr-4": {
@@ -48,6 +53,28 @@
       "extension-key": "typo3_tiptap",
       "cms-package-dir": "{$vendor-dir}/typo3/cms",
       "web-dir": ".Build/public"
+    },
+    "patches": {
+      "typo3/cms-backend": {
+        "Adjust RTE configuration loading to allow different editors": "patches/typo3-cms-backend-review-90612.patch"
+      },
+      "typo3/cms-core": {
+        "Adjust RTE configuration loading to allow different editors": "patches/typo3-cms-core-review-90612.patch"
+      },
+      "typo3/cms-rte-ckeditor": {
+        "Adjust RTE configuration loading to allow different editors": "patches/typo3-cms-rte-ckeditor-review-90612.patch"
+      }
+    },
+    "gilbertsoft/typo3-core-patches": {
+      "applied-changes": {
+        "90612": {
+          "packages": [
+            "typo3/cms-backend",
+            "typo3/cms-core",
+            "typo3/cms-rte-ckeditor"
+          ]
+        }
+      }
     }
   },
   "config": {
@@ -55,6 +82,8 @@
     "bin-dir": ".Build/bin",
     "sort-packages": true,
     "allow-plugins": {
+      "cweagans/composer-patches": true,
+      "gilbertsoft/typo3-core-patches": true,
       "typo3/class-alias-loader": true,
       "typo3/cms-composer-installers": true
     }
