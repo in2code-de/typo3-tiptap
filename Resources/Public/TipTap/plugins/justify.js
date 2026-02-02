@@ -1,5 +1,5 @@
-import { E as s } from "../index-DYaQFPxE.js";
-import { p as r, d as l } from "../configuration-CsNrhtrS.js";
+import { E as s } from "../index-Dv80tyPl.js";
+import { p as r, d as l } from "../configuration-DkMIcjSq.js";
 var u = s.create({
   name: "textAlign",
   addOptions() {
@@ -28,8 +28,8 @@ var u = s.create({
   },
   addCommands() {
     return {
-      setTextAlign: (e) => ({ commands: i }) => this.options.alignments.includes(e) ? this.options.types.map((n) => i.updateAttributes(n, { textAlign: e })).some((n) => n) : !1,
-      unsetTextAlign: () => ({ commands: e }) => this.options.types.map((i) => e.resetAttributes(i, "textAlign")).some((i) => i),
+      setTextAlign: (e) => ({ commands: i }) => this.options.alignments.includes(e) ? this.options.types.map((n) => i.updateAttributes(n, { textAlign: e })).every((n) => n) : !1,
+      unsetTextAlign: () => ({ commands: e }) => this.options.types.map((i) => e.resetAttributes(i, "textAlign")).every((i) => i),
       toggleTextAlign: (e) => ({ editor: i, commands: n }) => this.options.alignments.includes(e) ? i.isActive({ textAlign: e }) ? n.unsetTextAlign() : n.setTextAlign(e) : !1
     };
   },

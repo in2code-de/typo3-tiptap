@@ -1,5 +1,5 @@
-import { C as i } from "../index-BDCkLhi2.js";
-import { p as o, d as a } from "../configuration-CsNrhtrS.js";
+import { C as i } from "../index-DNW1a_UZ.js";
+import { p as o, d as a } from "../configuration-DkMIcjSq.js";
 function p(n) {
   const e = o({
     pluginId: "character-count",

@@ -1,5 +1,5 @@
-import { j as l, k as a, i } from "./index-DYaQFPxE.js";
-var o = l.create({
+import { h as s, i as n, g as r } from "./index-Dv80tyPl.js";
+var i = s.create({
   name: "heading",
   addOptions() {
     return {
@@ -25,13 +25,7 @@ var o = l.create({
     }));
   },
   renderHTML({ node: e, HTMLAttributes: t }) {
-    return [`h${this.options.levels.includes(e.attrs.level) ? e.attrs.level : this.options.levels[0]}`, i(this.options.HTMLAttributes, t), 0];
-  },
-  parseMarkdown: (e, t) => t.createNode("heading", { level: e.depth || 1 }, t.parseInline(e.tokens || [])),
-  renderMarkdown: (e, t) => {
-    var r;
-    const s = (r = e.attrs) != null && r.level ? parseInt(e.attrs.level, 10) : 1, n = "#".repeat(s);
-    return e.content ? `${n} ${t.renderChildren(e.content)}` : "";
+    return [`h${this.options.levels.includes(e.attrs.level) ? e.attrs.level : this.options.levels[0]}`, r(this.options.HTMLAttributes, t), 0];
   },
   addCommands() {
     return {
@@ -49,7 +43,7 @@ var o = l.create({
     );
   },
   addInputRules() {
-    return this.options.levels.map((e) => a({
+    return this.options.levels.map((e) => n({
       find: new RegExp(`^(#{${Math.min(...this.options.levels)},${e}})\\s$`),
       type: this.type,
       getAttributes: {
@@ -57,8 +51,8 @@ var o = l.create({
       }
     }));
   }
-}), u = o;
+}), d = i;
 export {
-  o as H,
-  u as i
+  i as H,
+  d as i
 };

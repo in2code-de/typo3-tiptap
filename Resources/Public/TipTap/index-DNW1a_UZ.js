@@ -1,12 +1,12 @@
-import { P as C, bb as X, q as Y, F as R, S as G, T as B, N as H, D as x, c as k, b as O, a as M, bc as J, E, H as Z, ah as Q, aN as q, o as $ } from "./index-DYaQFPxE.js";
-function ee(i = {}) {
+import { P as C, aY as K, o as U, F as R, S as B, T as G, N as H, D as x, c as k, b as T, a as I, aZ as X, E, B as J, a9 as Z, aD as Q, k as q } from "./index-Dv80tyPl.js";
+function $(i = {}) {
   return new C({
     view(e) {
-      return new te(e, i);
+      return new ee(e, i);
     }
   });
 }
-class te {
+class ee {
   constructor(e, t) {
     var n;
     this.editorView = e, this.cursorPos = null, this.element = null, this.timeout = -1, this.width = (n = t.width) !== null && n !== void 0 ? n : 1, this.color = t.color === !1 ? void 0 : t.color || "black", this.class = t.class, this.handlers = ["dragover", "dragend", "drop", "dragleave"].map((r) => {
@@ -28,31 +28,31 @@ class te {
   updateOverlay() {
     let e = this.editorView.state.doc.resolve(this.cursorPos), t = !e.parent.inlineContent, n, r = this.editorView.dom, s = r.getBoundingClientRect(), o = s.width / r.offsetWidth, l = s.height / r.offsetHeight;
     if (t) {
-      let d = e.nodeBefore, p = e.nodeAfter;
-      if (d || p) {
-        let f = this.editorView.nodeDOM(this.cursorPos - (d ? d.nodeSize : 0));
+      let p = e.nodeBefore, u = e.nodeAfter;
+      if (p || u) {
+        let f = this.editorView.nodeDOM(this.cursorPos - (p ? p.nodeSize : 0));
         if (f) {
-          let g = f.getBoundingClientRect(), I = d ? g.bottom : g.top;
-          d && p && (I = (I + this.editorView.nodeDOM(this.cursorPos).getBoundingClientRect().top) / 2);
+          let g = f.getBoundingClientRect(), b = p ? g.bottom : g.top;
+          p && u && (b = (b + this.editorView.nodeDOM(this.cursorPos).getBoundingClientRect().top) / 2);
           let P = this.width / 2 * l;
-          n = { left: g.left, right: g.right, top: I - P, bottom: I + P };
+          n = { left: g.left, right: g.right, top: b - P, bottom: b + P };
         }
       }
     }
     if (!n) {
-      let d = this.editorView.coordsAtPos(this.cursorPos), p = this.width / 2 * o;
-      n = { left: d.left - p, right: d.left + p, top: d.top, bottom: d.bottom };
+      let p = this.editorView.coordsAtPos(this.cursorPos), u = this.width / 2 * o;
+      n = { left: p.left - u, right: p.left + u, top: p.top, bottom: p.bottom };
     }
     let a = this.editorView.dom.offsetParent;
     this.element || (this.element = a.appendChild(document.createElement("div")), this.class && (this.element.className = this.class), this.element.style.cssText = "position: absolute; z-index: 50; pointer-events: none;", this.color && (this.element.style.backgroundColor = this.color)), this.element.classList.toggle("prosemirror-dropcursor-block", t), this.element.classList.toggle("prosemirror-dropcursor-inline", !t);
-    let c, u;
+    let d, c;
     if (!a || a == document.body && getComputedStyle(a).position == "static")
-      c = -pageXOffset, u = -pageYOffset;
+      d = -pageXOffset, c = -pageYOffset;
     else {
-      let d = a.getBoundingClientRect(), p = d.width / a.offsetWidth, f = d.height / a.offsetHeight;
-      c = d.left - a.scrollLeft * p, u = d.top - a.scrollTop * f;
+      let p = a.getBoundingClientRect(), u = p.width / a.offsetWidth, f = p.height / a.offsetHeight;
+      d = p.left - a.scrollLeft * u, c = p.top - a.scrollTop * f;
     }
-    this.element.style.left = (n.left - c) / o + "px", this.element.style.top = (n.top - u) / l + "px", this.element.style.width = (n.right - n.left) / o + "px", this.element.style.height = (n.bottom - n.top) / l + "px";
+    this.element.style.left = (n.left - d) / o + "px", this.element.style.top = (n.top - c) / l + "px", this.element.style.width = (n.right - n.left) / o + "px", this.element.style.height = (n.bottom - n.top) / l + "px";
   }
   scheduleRemoval(e) {
     clearTimeout(this.timeout), this.timeout = setTimeout(() => this.setCursor(null), e);
@@ -64,7 +64,7 @@ class te {
     if (t && !s) {
       let o = t.pos;
       if (this.editorView.dragging && this.editorView.dragging.slice) {
-        let l = X(this.editorView.state.doc, o, this.editorView.dragging.slice);
+        let l = K(this.editorView.state.doc, o, this.editorView.dragging.slice);
         l != null && (o = l);
       }
       this.setCursor(o), this.scheduleRemoval(5e3);
@@ -80,7 +80,7 @@ class te {
     this.editorView.dom.contains(e.relatedTarget) || this.setCursor(null);
   }
 }
-class h extends O {
+class h extends T {
   /**
   Create a gap cursor.
   */
@@ -89,10 +89,10 @@ class h extends O {
   }
   map(e, t) {
     let n = e.resolve(t.map(this.head));
-    return h.valid(n) ? new h(n) : O.near(n);
+    return h.valid(n) ? new h(n) : T.near(n);
   }
   content() {
-    return G.empty;
+    return B.empty;
   }
   eq(e) {
     return e instanceof h && e.head == this.head;
@@ -112,14 +112,14 @@ class h extends O {
   @internal
   */
   getBookmark() {
-    return new z(this.anchor);
+    return new N(this.anchor);
   }
   /**
   @internal
   */
   static valid(e) {
     let t = e.parent;
-    if (t.isTextblock || !ne(e) || !re(e))
+    if (t.isTextblock || !te(e) || !ne(e))
       return !1;
     let n = t.type.spec.allowGapCursor;
     if (n != null)
@@ -167,23 +167,20 @@ class h extends O {
 }
 h.prototype.visible = !1;
 h.findFrom = h.findGapCursorFrom;
-O.jsonID("gapcursor", h);
-class z {
+T.jsonID("gapcursor", h);
+class N {
   constructor(e) {
     this.pos = e;
   }
   map(e) {
-    return new z(e.map(this.pos));
+    return new N(e.map(this.pos));
   }
   resolve(e) {
     let t = e.resolve(this.pos);
-    return h.valid(t) ? new h(t) : O.near(t);
+    return h.valid(t) ? new h(t) : T.near(t);
   }
 }
-function _(i) {
-  return i.isAtom || i.spec.isolating || i.spec.createGapCursor;
-}
-function ne(i) {
+function te(i) {
   for (let e = i.depth; e >= 0; e--) {
     let t = i.index(e), n = i.node(e);
     if (t == 0) {
@@ -192,7 +189,7 @@ function ne(i) {
       continue;
     }
     for (let r = n.child(t - 1); ; r = r.lastChild) {
-      if (r.childCount == 0 && !r.inlineContent || _(r.type))
+      if (r.childCount == 0 && !r.inlineContent || r.isAtom || r.type.spec.isolating)
         return !0;
       if (r.inlineContent)
         return !1;
@@ -200,7 +197,7 @@ function ne(i) {
   }
   return !0;
 }
-function re(i) {
+function ne(i) {
   for (let e = i.depth; e >= 0; e--) {
     let t = i.indexAfter(e), n = i.node(e);
     if (t == n.childCount) {
@@ -209,7 +206,7 @@ function re(i) {
       continue;
     }
     for (let r = n.child(t); ; r = r.firstChild) {
-      if (r.childCount == 0 && !r.inlineContent || _(r.type))
+      if (r.childCount == 0 && !r.inlineContent || r.isAtom || r.type.spec.isolating)
         return !0;
       if (r.inlineContent)
         return !1;
@@ -217,20 +214,20 @@ function re(i) {
   }
   return !0;
 }
-function ie() {
+function re() {
   return new C({
     props: {
-      decorations: ae,
+      decorations: le,
       createSelectionBetween(i, e, t) {
         return e.pos == t.pos && h.valid(t) ? new h(t) : null;
       },
-      handleClick: oe,
-      handleKeyDown: se,
-      handleDOMEvents: { beforeinput: le }
+      handleClick: se,
+      handleKeyDown: ie,
+      handleDOMEvents: { beforeinput: oe }
     }
   });
 }
-const se = Y({
+const ie = U({
   ArrowLeft: S("horiz", -1),
   ArrowRight: S("horiz", 1),
   ArrowUp: S("vert", -1),
@@ -240,16 +237,16 @@ function S(i, e) {
   const t = i == "vert" ? e > 0 ? "down" : "up" : e > 0 ? "right" : "left";
   return function(n, r, s) {
     let o = n.selection, l = e > 0 ? o.$to : o.$from, a = o.empty;
-    if (o instanceof B) {
+    if (o instanceof G) {
       if (!s.endOfTextblock(t) || l.depth == 0)
         return !1;
       a = !1, l = n.doc.resolve(e > 0 ? l.after() : l.before());
     }
-    let c = h.findGapCursorFrom(l, e, a);
-    return c ? (r && r(n.tr.setSelection(new h(c))), !0) : !1;
+    let d = h.findGapCursorFrom(l, e, a);
+    return d ? (r && r(n.tr.setSelection(new h(d))), !0) : !1;
   };
 }
-function oe(i, e, t) {
+function se(i, e, t) {
   if (!i || !i.editable)
     return !1;
   let n = i.state.doc.resolve(e);
@@ -258,7 +255,7 @@ function oe(i, e, t) {
   let r = i.posAtCoords({ left: t.clientX, top: t.clientY });
   return r && r.inside > -1 && H.isSelectable(i.state.doc.nodeAt(r.inside)) ? !1 : (i.dispatch(i.state.tr.setSelection(new h(n))), !0);
 }
-function le(i, e) {
+function oe(i, e) {
   if (e.inputType != "insertCompositionText" || !(i.state.selection instanceof h))
     return !1;
   let { $from: t } = i.state.selection, n = t.parent.contentMatchAt(t.index()).findWrapping(i.state.schema.nodes.text);
@@ -267,10 +264,10 @@ function le(i, e) {
   let r = R.empty;
   for (let o = n.length - 1; o >= 0; o--)
     r = R.from(n[o].createAndFill(null, r));
-  let s = i.state.tr.replace(t.pos, t.pos, new G(r, 0, 0));
-  return s.setSelection(B.near(s.doc.resolve(t.pos + 1))), i.dispatch(s), !1;
+  let s = i.state.tr.replace(t.pos, t.pos, new B(r, 0, 0));
+  return s.setSelection(G.near(s.doc.resolve(t.pos + 1))), i.dispatch(s), !1;
 }
-function ae(i) {
+function le(i) {
   if (!(i.selection instanceof h))
     return null;
   let e = document.createElement("div");
@@ -285,7 +282,7 @@ m.prototype.prepend = function(e) {
   return e.length ? m.from(e).append(this) : this;
 };
 m.prototype.appendInner = function(e) {
-  return new de(this, e);
+  return new ae(this, e);
 };
 m.prototype.slice = function(e, t) {
   return e === void 0 && (e = 0), t === void 0 && (t = this.length), e >= t ? m.empty : this.sliceInner(Math.max(0, e), Math.min(this.length, t));
@@ -340,7 +337,7 @@ var W = /* @__PURE__ */ (function(i) {
   }, Object.defineProperties(e.prototype, t), e;
 })(m);
 m.empty = new W([]);
-var de = /* @__PURE__ */ (function(i) {
+var ae = /* @__PURE__ */ (function(i) {
   function e(t, n) {
     i.call(this), this.left = t, this.right = n, this.length = t.length + n.length, this.depth = Math.max(t.depth, n.depth) + 1;
   }
@@ -373,7 +370,7 @@ var de = /* @__PURE__ */ (function(i) {
     return this.left.depth >= Math.max(this.right.depth, n.depth) + 1 ? new e(this.left, new e(this.right, n)) : new e(this, n);
   }, e;
 })(m);
-const ce = 500;
+const de = 500;
 class v {
   constructor(e, t) {
     this.items = e, this.eventCount = t;
@@ -391,34 +388,34 @@ class v {
       }
     let r, s;
     t && (r = this.remapping(n, this.items.length), s = r.maps.length);
-    let o = e.tr, l, a, c = [], u = [];
-    return this.items.forEach((d, p) => {
-      if (!d.step) {
-        r || (r = this.remapping(n, p + 1), s = r.maps.length), s--, u.push(d);
+    let o = e.tr, l, a, d = [], c = [];
+    return this.items.forEach((p, u) => {
+      if (!p.step) {
+        r || (r = this.remapping(n, u + 1), s = r.maps.length), s--, c.push(p);
         return;
       }
       if (r) {
-        u.push(new w(d.map));
-        let f = d.step.map(r.slice(s)), g;
-        f && o.maybeStep(f).doc && (g = o.mapping.maps[o.mapping.maps.length - 1], c.push(new w(g, void 0, void 0, c.length + u.length))), s--, g && r.appendMap(g, s);
+        c.push(new w(p.map));
+        let f = p.step.map(r.slice(s)), g;
+        f && o.maybeStep(f).doc && (g = o.mapping.maps[o.mapping.maps.length - 1], d.push(new w(g, void 0, void 0, d.length + c.length))), s--, g && r.appendMap(g, s);
       } else
-        o.maybeStep(d.step);
-      if (d.selection)
-        return l = r ? d.selection.map(r.slice(s)) : d.selection, a = new v(this.items.slice(0, n).append(u.reverse().concat(c)), this.eventCount - 1), !1;
+        o.maybeStep(p.step);
+      if (p.selection)
+        return l = r ? p.selection.map(r.slice(s)) : p.selection, a = new v(this.items.slice(0, n).append(c.reverse().concat(d)), this.eventCount - 1), !1;
     }, this.items.length, 0), { remaining: a, transform: o, selection: l };
   }
   // Create a new branch with the given transform added.
   addTransform(e, t, n, r) {
     let s = [], o = this.eventCount, l = this.items, a = !r && l.length ? l.get(l.length - 1) : null;
-    for (let u = 0; u < e.steps.length; u++) {
-      let d = e.steps[u].invert(e.docs[u]), p = new w(e.mapping.maps[u], d, t), f;
-      (f = a && a.merge(p)) && (p = f, u ? s.pop() : l = l.slice(0, l.length - 1)), s.push(p), t && (o++, t = void 0), r || (a = p);
+    for (let c = 0; c < e.steps.length; c++) {
+      let p = e.steps[c].invert(e.docs[c]), u = new w(e.mapping.maps[c], p, t), f;
+      (f = a && a.merge(u)) && (u = f, c ? s.pop() : l = l.slice(0, l.length - 1)), s.push(u), t && (o++, t = void 0), r || (a = u);
     }
-    let c = o - n.depth;
-    return c > pe && (l = ue(l, c), o -= c), new v(l.append(s), o);
+    let d = o - n.depth;
+    return d > ce && (l = pe(l, d), o -= d), new v(l.append(s), o);
   }
   remapping(e, t) {
-    let n = new J();
+    let n = new X();
     return this.items.forEach((r, s) => {
       let o = r.mirrorOffset != null && s - r.mirrorOffset >= e ? n.maps.length - r.mirrorOffset : void 0;
       n.appendMap(r.map, o);
@@ -435,27 +432,27 @@ class v {
     if (!this.eventCount)
       return this;
     let n = [], r = Math.max(0, this.items.length - t), s = e.mapping, o = e.steps.length, l = this.eventCount;
-    this.items.forEach((p) => {
-      p.selection && l--;
+    this.items.forEach((u) => {
+      u.selection && l--;
     }, r);
     let a = t;
-    this.items.forEach((p) => {
+    this.items.forEach((u) => {
       let f = s.getMirror(--a);
       if (f == null)
         return;
       o = Math.min(o, f);
       let g = s.maps[f];
-      if (p.step) {
-        let I = e.steps[f].invert(e.docs[f]), P = p.selection && p.selection.map(s.slice(a + 1, f));
-        P && l++, n.push(new w(g, I, P));
+      if (u.step) {
+        let b = e.steps[f].invert(e.docs[f]), P = u.selection && u.selection.map(s.slice(a + 1, f));
+        P && l++, n.push(new w(g, b, P));
       } else
         n.push(new w(g));
     }, r);
-    let c = [];
-    for (let p = t; p < o; p++)
-      c.push(new w(s.maps[p]));
-    let u = this.items.slice(0, r).append(c).append(n), d = new v(u, l);
-    return d.emptyItemCount() > ce && (d = d.compress(this.items.length - n.length)), d;
+    let d = [];
+    for (let u = t; u < o; u++)
+      d.push(new w(s.maps[u]));
+    let c = this.items.slice(0, r).append(d).append(n), p = new v(c, l);
+    return p.emptyItemCount() > de && (p = p.compress(this.items.length - n.length)), p;
   }
   emptyItemCount() {
     let e = 0;
@@ -475,19 +472,19 @@ class v {
       if (l >= e)
         r.push(o), o.selection && s++;
       else if (o.step) {
-        let a = o.step.map(t.slice(n)), c = a && a.getMap();
-        if (n--, c && t.appendMap(c, n), a) {
-          let u = o.selection && o.selection.map(t.slice(n));
-          u && s++;
-          let d = new w(c.invert(), a, u), p, f = r.length - 1;
-          (p = r.length && r[f].merge(d)) ? r[f] = p : r.push(d);
+        let a = o.step.map(t.slice(n)), d = a && a.getMap();
+        if (n--, d && t.appendMap(d, n), a) {
+          let c = o.selection && o.selection.map(t.slice(n));
+          c && s++;
+          let p = new w(d.invert(), a, c), u, f = r.length - 1;
+          (u = r.length && r[f].merge(p)) ? r[f] = u : r.push(p);
         }
       } else o.map && n--;
     }, this.items.length, 0), new v(m.from(r.reverse()), s);
   }
 }
 v.empty = new v(m.empty, 0);
-function ue(i, e) {
+function pe(i, e) {
   let t;
   return i.forEach((n, r) => {
     if (n.selection && e-- == 0)
@@ -511,23 +508,23 @@ class y {
     this.done = e, this.undone = t, this.prevRanges = n, this.prevTime = r, this.prevComposition = s;
   }
 }
-const pe = 20;
-function he(i, e, t, n) {
-  let r = t.getMeta(b), s;
+const ce = 20;
+function ue(i, e, t, n) {
+  let r = t.getMeta(M), s;
   if (r)
     return r.historyState;
-  t.getMeta(ge) && (i = new y(i.done, i.undone, null, 0, -1));
+  t.getMeta(me) && (i = new y(i.done, i.undone, null, 0, -1));
   let o = t.getMeta("appendedTransaction");
   if (t.steps.length == 0)
     return i;
-  if (o && o.getMeta(b))
-    return o.getMeta(b).redo ? new y(i.done.addTransform(t, void 0, n, T(e)), i.undone, V(t.mapping.maps), i.prevTime, i.prevComposition) : new y(i.done, i.undone.addTransform(t, void 0, n, T(e)), null, i.prevTime, i.prevComposition);
+  if (o && o.getMeta(M))
+    return o.getMeta(M).redo ? new y(i.done.addTransform(t, void 0, n, O(e)), i.undone, V(t.mapping.maps), i.prevTime, i.prevComposition) : new y(i.done, i.undone.addTransform(t, void 0, n, O(e)), null, i.prevTime, i.prevComposition);
   if (t.getMeta("addToHistory") !== !1 && !(o && o.getMeta("addToHistory") === !1)) {
-    let l = t.getMeta("composition"), a = i.prevTime == 0 || !o && i.prevComposition != l && (i.prevTime < (t.time || 0) - n.newGroupDelay || !fe(t, i.prevRanges)), c = o ? D(i.prevRanges, t.mapping) : V(t.mapping.maps);
-    return new y(i.done.addTransform(t, a ? e.selection.getBookmark() : void 0, n, T(e)), v.empty, c, t.time, l ?? i.prevComposition);
+    let l = t.getMeta("composition"), a = i.prevTime == 0 || !o && i.prevComposition != l && (i.prevTime < (t.time || 0) - n.newGroupDelay || !he(t, i.prevRanges)), d = o ? D(i.prevRanges, t.mapping) : V(t.mapping.maps);
+    return new y(i.done.addTransform(t, a ? e.selection.getBookmark() : void 0, n, O(e)), v.empty, d, t.time, l ?? i.prevComposition);
   } else return (s = t.getMeta("rebased")) ? new y(i.done.rebased(t, s), i.undone.rebased(t, s), D(i.prevRanges, t.mapping), i.prevTime, i.prevComposition) : new y(i.done.addMaps(t.mapping.maps), i.undone.addMaps(t.mapping.maps), D(i.prevRanges, t.mapping), i.prevTime, i.prevComposition);
 }
-function fe(i, e) {
+function he(i, e) {
   if (!e)
     return !1;
   if (!i.docChanged)
@@ -554,66 +551,66 @@ function D(i, e) {
   }
   return t;
 }
-function me(i, e, t) {
-  let n = T(e), r = b.get(e).spec.config, s = (t ? i.undone : i.done).popEvent(e, n);
+function fe(i, e, t) {
+  let n = O(e), r = M.get(e).spec.config, s = (t ? i.undone : i.done).popEvent(e, n);
   if (!s)
     return null;
   let o = s.selection.resolve(s.transform.doc), l = (t ? i.done : i.undone).addTransform(s.transform, e.selection.getBookmark(), r, n), a = new y(t ? l : s.remaining, t ? s.remaining : l, null, 0, -1);
-  return s.transform.setSelection(o).setMeta(b, { redo: t, historyState: a });
+  return s.transform.setSelection(o).setMeta(M, { redo: t, historyState: a });
 }
-let N = !1, F = null;
-function T(i) {
+let z = !1, F = null;
+function O(i) {
   let e = i.plugins;
   if (F != e) {
-    N = !1, F = e;
+    z = !1, F = e;
     for (let t = 0; t < e.length; t++)
       if (e[t].spec.historyPreserveItems) {
-        N = !0;
+        z = !0;
         break;
       }
   }
-  return N;
+  return z;
 }
-const b = new M("history"), ge = new M("closeHistory");
-function ve(i = {}) {
+const M = new I("history"), me = new I("closeHistory");
+function ge(i = {}) {
   return i = {
     depth: i.depth || 100,
     newGroupDelay: i.newGroupDelay || 500
   }, new C({
-    key: b,
+    key: M,
     state: {
       init() {
         return new y(v.empty, v.empty, null, 0, -1);
       },
       apply(e, t, n) {
-        return he(t, n, e, i);
+        return ue(t, n, e, i);
       }
     },
     config: i,
     props: {
       handleDOMEvents: {
         beforeinput(e, t) {
-          let n = t.inputType, r = n == "historyUndo" ? K : n == "historyRedo" ? U : null;
-          return !r || !e.editable ? !1 : (t.preventDefault(), r(e.state, e.dispatch));
+          let n = t.inputType, r = n == "historyUndo" ? j : n == "historyRedo" ? Y : null;
+          return r ? (t.preventDefault(), r(e.state, e.dispatch)) : !1;
         }
       }
     }
   });
 }
-function j(i, e) {
+function _(i, e) {
   return (t, n) => {
-    let r = b.getState(t);
+    let r = M.getState(t);
     if (!r || (i ? r.undone : r.done).eventCount == 0)
       return !1;
     if (n) {
-      let s = me(r, t, i);
+      let s = fe(r, t, i);
       s && n(e ? s.scrollIntoView() : s);
     }
     return !0;
   };
 }
-const K = j(!1, !0), U = j(!0, !0);
-var ye = E.create({
+const j = _(!1, !0), Y = _(!0, !0);
+var we = E.create({
   name: "characterCount",
   addOptions() {
     return {
@@ -646,7 +643,7 @@ var ye = E.create({
     let i = !1;
     return [
       new C({
-        key: new M("characterCount"),
+        key: new I("characterCount"),
         appendTransaction: (e, t, n) => {
           if (i)
             return;
@@ -661,8 +658,8 @@ var ye = E.create({
             console.warn(
               `[CharacterCount] Initial content exceeded limit of ${r} characters. Content was automatically trimmed.`
             );
-            const c = n.tr.deleteRange(l, a);
-            return i = !0, c;
+            const d = n.tr.deleteRange(l, a);
+            return i = !0, d;
           }
           i = !0;
         },
@@ -675,13 +672,13 @@ var ye = E.create({
             return !0;
           if (r > n && s > n && s > r || !e.getMeta("paste"))
             return !1;
-          const l = e.selection.$head.pos, a = s - n, c = l - a, u = l;
-          return e.deleteRange(c, u), !(this.storage.characters({ node: e.doc }) > n);
+          const l = e.selection.$head.pos, a = s - n, d = l - a, c = l;
+          return e.deleteRange(d, c), !(this.storage.characters({ node: e.doc }) > n);
         }
       })
     ];
   }
-}), Ce = E.create({
+}), ye = E.create({
   name: "dropCursor",
   addOptions() {
     return {
@@ -691,7 +688,7 @@ var ye = E.create({
     };
   },
   addProseMirrorPlugins() {
-    return [ee(this.options)];
+    return [$(this.options)];
   }
 });
 E.create({
@@ -705,28 +702,28 @@ E.create({
   addProseMirrorPlugins() {
     return [
       new C({
-        key: new M("focus"),
+        key: new I("focus"),
         props: {
           decorations: ({ doc: i, selection: e }) => {
             const { isEditable: t, isFocused: n } = this.editor, { anchor: r } = e, s = [];
             if (!t || !n)
               return x.create(i, []);
             let o = 0;
-            this.options.mode === "deepest" && i.descendants((a, c) => {
+            this.options.mode === "deepest" && i.descendants((a, d) => {
               if (a.isText)
                 return;
-              if (!(r >= c && r <= c + a.nodeSize - 1))
+              if (!(r >= d && r <= d + a.nodeSize - 1))
                 return !1;
               o += 1;
             });
             let l = 0;
-            return i.descendants((a, c) => {
-              if (a.isText || !(r >= c && r <= c + a.nodeSize - 1))
+            return i.descendants((a, d) => {
+              if (a.isText || !(r >= d && r <= d + a.nodeSize - 1))
                 return !1;
               if (l += 1, this.options.mode === "deepest" && o - l > 0 || this.options.mode === "shallowest" && l > 1)
                 return this.options.mode === "deepest";
               s.push(
-                k.node(c, c + a.nodeSize, {
+                k.node(d, d + a.nodeSize, {
                   class: this.options.className
                 })
               );
@@ -737,10 +734,10 @@ E.create({
     ];
   }
 });
-var Ee = E.create({
+var Ce = E.create({
   name: "gapCursor",
   addProseMirrorPlugins() {
-    return [ie()];
+    return [re()];
   },
   extendNodeSchema(i) {
     var e;
@@ -750,7 +747,7 @@ var Ee = E.create({
       storage: i.storage
     };
     return {
-      allowGapCursor: (e = Z(Q(i, "allowGapCursor", t))) != null ? e : null
+      allowGapCursor: (e = J(Z(i, "allowGapCursor", t))) != null ? e : null
     };
   }
 });
@@ -769,7 +766,7 @@ E.create({
   addProseMirrorPlugins() {
     return [
       new C({
-        key: new M("placeholder"),
+        key: new I("placeholder"),
         props: {
           decorations: ({ doc: i, selection: e }) => {
             const t = this.editor.isEditable || !this.options.showOnlyWhenEditable, { anchor: n } = e, r = [];
@@ -777,12 +774,12 @@ E.create({
               return null;
             const s = this.editor.isEmpty;
             return i.descendants((o, l) => {
-              const a = n >= l && n <= l + o.nodeSize, c = !o.isLeaf && q(o);
-              if ((a || !this.options.showOnlyCurrent) && c) {
-                const u = [this.options.emptyNodeClass];
-                s && u.push(this.options.emptyEditorClass);
-                const d = k.node(l, l + o.nodeSize, {
-                  class: u.join(" "),
+              const a = n >= l && n <= l + o.nodeSize, d = !o.isLeaf && Q(o);
+              if ((a || !this.options.showOnlyCurrent) && d) {
+                const c = [this.options.emptyNodeClass];
+                s && c.push(this.options.emptyEditorClass);
+                const p = k.node(l, l + o.nodeSize, {
+                  class: c.join(" "),
                   "data-placeholder": typeof this.options.placeholder == "function" ? this.options.placeholder({
                     editor: this.editor,
                     node: o,
@@ -790,7 +787,7 @@ E.create({
                     hasAnchor: a
                   }) : this.options.placeholder
                 });
-                r.push(d);
+                r.push(p);
               }
               return this.options.includeChildren;
             }), x.create(i, r);
@@ -811,10 +808,10 @@ E.create({
     const { editor: i, options: e } = this;
     return [
       new C({
-        key: new M("selection"),
+        key: new I("selection"),
         props: {
           decorations(t) {
-            return t.selection.empty || i.isFocused || !i.isEditable || $(t.selection) || i.view.dragging ? null : x.create(t.doc, [
+            return t.selection.empty || i.isFocused || !i.isEditable || q(t.selection) || i.view.dragging ? null : x.create(t.doc, [
               k.inline(t.selection.from, t.selection.to, {
                 class: e.className
               })
@@ -828,35 +825,34 @@ E.create({
 function L({ types: i, node: e }) {
   return e && Array.isArray(i) && i.includes(e.type) || e?.type === i;
 }
-var be = E.create({
+var Ee = E.create({
   name: "trailingNode",
   addOptions() {
     return {
-      node: void 0,
+      node: "paragraph",
       notAfter: []
     };
   },
   addProseMirrorPlugins() {
-    var i;
-    const e = new M(this.name), t = this.options.node || ((i = this.editor.schema.topNodeType.contentMatch.defaultType) == null ? void 0 : i.name) || "paragraph", n = Object.entries(this.editor.schema.nodes).map(([, r]) => r).filter((r) => (this.options.notAfter || []).concat(t).includes(r.name));
+    const i = new I(this.name), e = Object.entries(this.editor.schema.nodes).map(([, t]) => t).filter((t) => (this.options.notAfter || []).concat(this.options.node).includes(t.name));
     return [
       new C({
-        key: e,
-        appendTransaction: (r, s, o) => {
-          const { doc: l, tr: a, schema: c } = o, u = e.getState(o), d = l.content.size, p = c.nodes[t];
-          if (u)
-            return a.insert(d, p.create());
+        key: i,
+        appendTransaction: (t, n, r) => {
+          const { doc: s, tr: o, schema: l } = r, a = i.getState(r), d = s.content.size, c = l.nodes[this.options.node];
+          if (a)
+            return o.insert(d, c.create());
         },
         state: {
-          init: (r, s) => {
-            const o = s.tr.doc.lastChild;
-            return !L({ node: o, types: n });
+          init: (t, n) => {
+            const r = n.tr.doc.lastChild;
+            return !L({ node: r, types: e });
           },
-          apply: (r, s) => {
-            if (!r.docChanged || r.getMeta("__uniqueIDTransaction"))
-              return s;
-            const o = r.doc.lastChild;
-            return !L({ node: o, types: n });
+          apply: (t, n) => {
+            if (!t.docChanged)
+              return n;
+            const r = t.doc.lastChild;
+            return !L({ node: r, types: e });
           }
         }
       })
@@ -872,12 +868,12 @@ var be = E.create({
   },
   addCommands() {
     return {
-      undo: () => ({ state: i, dispatch: e }) => K(i, e),
-      redo: () => ({ state: i, dispatch: e }) => U(i, e)
+      undo: () => ({ state: i, dispatch: e }) => j(i, e),
+      redo: () => ({ state: i, dispatch: e }) => Y(i, e)
     };
   },
   addProseMirrorPlugins() {
-    return [ve(this.options)];
+    return [ge(this.options)];
   },
   addKeyboardShortcuts() {
     return {
@@ -891,9 +887,9 @@ var be = E.create({
   }
 });
 export {
-  ye as C,
-  Ce as D,
-  Ee as G,
-  be as T,
+  we as C,
+  ye as D,
+  Ce as G,
+  Ee as T,
   Me as U
 };

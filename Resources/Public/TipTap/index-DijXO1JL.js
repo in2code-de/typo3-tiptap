@@ -1,6 +1,6 @@
-import { f as a, m as r, h as s, i as o } from "./index-DYaQFPxE.js";
-import { h as n } from "./jsx-runtime-CT7Pcg-t.js";
-var d = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))$/, i = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))/g, l = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))$/, u = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))/g, g = a.create({
+import { M as a, m as e, f as r, g as n } from "./index-Dv80tyPl.js";
+import { h as s } from "./jsx-runtime-CT7Pcg-t.js";
+var o = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))$/, d = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))/g, i = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))$/, u = /(?:^|\s)(__(?!\s+__)((?:[^_]+))__(?!\s+__))/g, l = a.create({
   name: "bold",
   addOptions() {
     return {
@@ -27,11 +27,8 @@ var d = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))$/, i = /(?:^|\s)(\*
     ];
   },
   renderHTML({ HTMLAttributes: t }) {
-    return /* @__PURE__ */ n("strong", { ...o(this.options.HTMLAttributes, t), children: /* @__PURE__ */ n("slot", {}) });
+    return /* @__PURE__ */ s("strong", { ...n(this.options.HTMLAttributes, t), children: /* @__PURE__ */ s("slot", {}) });
   },
-  markdownTokenName: "strong",
-  parseMarkdown: (t, e) => e.applyMark("bold", e.parseInline(t.tokens || [])),
-  renderMarkdown: (t, e) => `**${e.renderChildren(t)}**`,
   addCommands() {
     return {
       setBold: () => ({ commands: t }) => t.setMark(this.name),
@@ -47,30 +44,30 @@ var d = /(?:^|\s)(\*\*(?!\s+\*\*)((?:[^*]+))\*\*(?!\s+\*\*))$/, i = /(?:^|\s)(\*
   },
   addInputRules() {
     return [
-      s({
-        find: d,
+      r({
+        find: o,
         type: this.type
       }),
-      s({
-        find: l,
+      r({
+        find: i,
         type: this.type
       })
     ];
   },
   addPasteRules() {
     return [
-      r({
-        find: i,
+      e({
+        find: d,
         type: this.type
       }),
-      r({
+      e({
         find: u,
         type: this.type
       })
     ];
   }
-}), _ = g;
+}), p = l;
 export {
-  g as B,
-  _ as i
+  l as B,
+  p as i
 };
