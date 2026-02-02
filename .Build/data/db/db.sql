@@ -1,9 +1,9 @@
 /*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.11.11-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.13-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: db    Database: db
 -- ------------------------------------------------------
--- Server version	10.11.11-MariaDB-ubu2204-log
+-- Server version	10.11.13-MariaDB-ubu2204-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -220,7 +220,7 @@ CREATE TABLE `cache_pages` (
   `content` longblob DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(180),`expires`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -237,7 +237,7 @@ CREATE TABLE `cache_pages_tags` (
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(191)),
   KEY `cache_tag` (`tag`(191))
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -254,7 +254,7 @@ CREATE TABLE `cache_rootline` (
   `content` longblob DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(180),`expires`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -271,7 +271,7 @@ CREATE TABLE `cache_rootline_tags` (
   PRIMARY KEY (`id`),
   KEY `cache_id` (`identifier`(191)),
   KEY `cache_tag` (`tag`(191))
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1069,7 +1069,7 @@ CREATE TABLE `sys_lockedrecords` (
   `feuserid` int(10) unsigned NOT NULL DEFAULT 0,
   PRIMARY KEY (`uid`),
   KEY `event` (`userid`,`tstamp`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1111,7 +1111,7 @@ CREATE TABLE `sys_log` (
   KEY `errorcount` (`tstamp`,`error`),
   KEY `index_channel` (`channel`),
   KEY `index_level` (`level`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1455,13 +1455,13 @@ CREATE TABLE `tx_scheduler_task_group` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-04 12:06:44
+-- Dump completed on 2026-02-02 12:18:47
 /*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.11.11-MariaDB, for debian-linux-gnu (x86_64)
+-- MariaDB dump 10.19  Distrib 10.11.13-MariaDB, for debian-linux-gnu (x86_64)
 --
 -- Host: db    Database: db
 -- ------------------------------------------------------
--- Server version	10.11.11-MariaDB-ubu2204-log
+-- Server version	10.11.13-MariaDB-ubu2204-log
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -1509,7 +1509,7 @@ UNLOCK TABLES;
 LOCK TABLES `be_users` WRITE;
 /*!40000 ALTER TABLE `be_users` DISABLE KEYS */;
 INSERT INTO `be_users` VALUES
-(1,0,1751622449,1751622449,0,0,0,0,NULL,'default','a:5:{s:10:\"moduleData\";a:5:{s:28:\"dashboard/current_dashboard/\";s:40:\"54d2bacbb7e23dfa5d30e16d0e0c5753e3966203\";s:10:\"FormEngine\";a:2:{i:0;a:2:{s:32:\"c312013d83c1a6ad7fec8b36a37ba3c8\";a:5:{i:0;s:13:\"ckeditor test\";i:1;a:5:{s:4:\"edit\";a:1:{s:10:\"tt_content\";a:1:{i:1;s:4:\"edit\";}}s:7:\"defVals\";N;s:12:\"overrideVals\";N;s:11:\"columnsOnly\";N;s:6:\"noView\";N;}i:2;s:33:\"&edit%5Btt_content%5D%5B1%5D=edit\";i:3;a:5:{s:5:\"table\";s:10:\"tt_content\";s:3:\"uid\";i:1;s:3:\"pid\";i:1;s:3:\"cmd\";s:4:\"edit\";s:12:\"deleteAccess\";b:1;}i:4;s:76:\"/typo3/module/web/layout?token=e2cbbb6d11521759690fc0cfba2c5b4b14c6d747&id=1\";}s:32:\"deac478137dd48a97e299bd046412e21\";a:5:{i:0;s:15:\"Tip tap element\";i:1;a:5:{s:4:\"edit\";a:1:{s:10:\"tt_content\";a:1:{i:2;s:4:\"edit\";}}s:7:\"defVals\";N;s:12:\"overrideVals\";N;s:11:\"columnsOnly\";N;s:6:\"noView\";N;}i:2;s:33:\"&edit%5Btt_content%5D%5B2%5D=edit\";i:3;a:5:{s:5:\"table\";s:10:\"tt_content\";s:3:\"uid\";i:2;s:3:\"pid\";i:1;s:3:\"cmd\";s:4:\"edit\";s:12:\"deleteAccess\";b:1;}i:4;s:76:\"/typo3/module/web/layout?token=e2cbbb6d11521759690fc0cfba2c5b4b14c6d747&id=1\";}}i:1;s:32:\"deac478137dd48a97e299bd046412e21\";}s:57:\"TYPO3\\CMS\\Backend\\Utility\\BackendUtility::getUpdateSignal\";a:0:{}s:6:\"web_ts\";a:1:{s:6:\"action\";s:17:\"typoscript_active\";}s:17:\"typoscript_active\";a:6:{s:18:\"sortAlphabetically\";b:1;s:28:\"displayConstantSubstitutions\";b:1;s:15:\"displayComments\";b:1;s:23:\"selectedTemplatePerPage\";a:1:{i:1;i:1;}s:18:\"constantConditions\";a:0:{}s:15:\"setupConditions\";a:0:{}}}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";s:15:\"moduleSessionID\";a:5:{s:28:\"dashboard/current_dashboard/\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:10:\"FormEngine\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:57:\"TYPO3\\CMS\\Backend\\Utility\\BackendUtility::getUpdateSignal\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:6:\"web_ts\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:17:\"typoscript_active\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";}}',0,NULL,'','admin','$argon2i$v=19$m=65536,t=16,p=1$SHRvd3duUlJuNjFCRndFTA$uubdApo8DCWUrSRhe0oVDzT5ZA7WDwLuBSgdy15FHC0','',0,NULL,'','','',1,3,NULL,1,NULL,'',NULL,1751622462,NULL);
+(1,0,1751622449,1751622449,0,0,0,0,NULL,'default','a:5:{s:10:\"moduleData\";a:6:{s:28:\"dashboard/current_dashboard/\";s:40:\"54d2bacbb7e23dfa5d30e16d0e0c5753e3966203\";s:10:\"FormEngine\";a:2:{i:0;a:1:{s:32:\"c312013d83c1a6ad7fec8b36a37ba3c8\";a:5:{i:0;s:13:\"ckeditor test\";i:1;a:5:{s:4:\"edit\";a:1:{s:10:\"tt_content\";a:1:{i:1;s:4:\"edit\";}}s:7:\"defVals\";N;s:12:\"overrideVals\";N;s:11:\"columnsOnly\";N;s:6:\"noView\";N;}i:2;s:33:\"&edit%5Btt_content%5D%5B1%5D=edit\";i:3;a:5:{s:5:\"table\";s:10:\"tt_content\";s:3:\"uid\";i:1;s:3:\"pid\";i:1;s:3:\"cmd\";s:4:\"edit\";s:12:\"deleteAccess\";b:1;}i:4;s:97:\"/typo3/module/web/layout?token=679788b3320d164c4f337baf47c0af29cd5410f2&id=1#element-tt_content-1\";}}i:1;s:32:\"c312013d83c1a6ad7fec8b36a37ba3c8\";}s:57:\"TYPO3\\CMS\\Backend\\Utility\\BackendUtility::getUpdateSignal\";a:0:{}s:6:\"web_ts\";a:1:{s:6:\"action\";s:17:\"typoscript_active\";}s:17:\"typoscript_active\";a:6:{s:18:\"sortAlphabetically\";b:1;s:28:\"displayConstantSubstitutions\";b:1;s:15:\"displayComments\";b:1;s:23:\"selectedTemplatePerPage\";a:1:{i:1;i:1;}s:18:\"constantConditions\";a:0:{}s:15:\"setupConditions\";a:0:{}}s:14:\"opendocs::open\";a:1:{s:12:\"tt_content:1\";a:6:{s:5:\"table\";s:10:\"tt_content\";s:3:\"uid\";s:1:\"1\";s:5:\"title\";s:13:\"ckeditor test\";s:10:\"parameters\";a:1:{s:4:\"edit\";a:1:{s:10:\"tt_content\";a:1:{i:1;s:4:\"edit\";}}}s:3:\"pid\";i:1;s:9:\"returnUrl\";s:0:\"\";}}}s:14:\"emailMeAtLogin\";i:0;s:8:\"titleLen\";i:50;s:20:\"edit_docModuleUpload\";s:1:\"1\";s:15:\"moduleSessionID\";a:6:{s:28:\"dashboard/current_dashboard/\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:10:\"FormEngine\";s:40:\"35a0ad279127b29b7c4703343f23860bc298aeb0\";s:57:\"TYPO3\\CMS\\Backend\\Utility\\BackendUtility::getUpdateSignal\";s:40:\"9cfc9843d44882589c3d251f2e70ff5ce36d6934\";s:6:\"web_ts\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:17:\"typoscript_active\";s:40:\"d959571bdf4507dfb9e54f7300e0ddabea43e452\";s:14:\"opendocs::open\";s:40:\"9cfc9843d44882589c3d251f2e70ff5ce36d6934\";}}',0,NULL,'','admin','$argon2i$v=19$m=65536,t=16,p=1$SHRvd3duUlJuNjFCRndFTA$uubdApo8DCWUrSRhe0oVDzT5ZA7WDwLuBSgdy15FHC0','',0,NULL,'','','',1,3,NULL,1,NULL,'',NULL,1770031064,NULL);
 /*!40000 ALTER TABLE `be_users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1724,6 +1724,10 @@ UNLOCK TABLES;
 
 LOCK TABLES `sys_http_report` WRITE;
 /*!40000 ALTER TABLE `sys_http_report` DISABLE KEYS */;
+INSERT INTO `sys_http_report` VALUES
+('30114f45-7302-47fb-b53f-c76c127d787a',0,1770031092,1770031092,'csp-report','backend',1770031091622066,'{\"addr\":\"172.24.0.0\",\"agent\":\"Mozilla\\/5.0 (X11; Ubuntu; Linux x86_64; rv:147.0) Gecko\\/20100101 Firefox\\/147.0\"}','{\"blocked-uri\":\"eval\",\"column-number\":12,\"disposition\":\"enforce\",\"document-uri\":\"https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/record\\/edit?edit%5Btt_content%5D%5B1%5D=edit\",\"effective-directive\":\"script-src\",\"line-number\":881,\"original-policy\":\"default-src \'self\'; script-src \'self\' \'nonce-FZf4oRzyKbLyPWr7gSuNjK1mqDFImrajGWB4Qf3ldci9l4eU7tqLKQ\' \'report-sample\'; style-src \'self\' \'unsafe-inline\' \'report-sample\'; style-src-attr \'unsafe-inline\' \'report-sample\'; img-src \'self\' data: https:\\/\\/*.ytimg.com https:\\/\\/*.vimeocdn.com https:\\/\\/extensions.typo3.org; frame-src \'self\' https:\\/\\/*.youtube-nocookie.com https:\\/\\/*.youtube.com https:\\/\\/*.vimeo.com; base-uri \'none\'; object-src \'none\'; report-uri https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/@http-reporting?csp=report&requestTime=1770031091622066&requestHash=3b6130a073773e0f899fa2b3e71653f031b7d61c\",\"referrer\":\"https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/main?redirect=record_edit&redirectParams=edit%255Btt_content%255D%255B1%255D%3Dedit\",\"script-sample\":\"function anonymous(\\n) {\\n\\n}\",\"source-file\":\"https:\\/\\/typo3-tiptap.ddev.site\\/_assets\\/6666cd76f96956469e7be39d750cc7d9\\/TipTap\\/configuration-CsNrhtrS.js\",\"status-code\":200,\"violated-directive\":\"script-src\"}','b4987a6987a07386c538fcde34bd50065bc9e941'),
+('38aab12d-cc66-4bc6-9fa5-45549155af6a',0,1770030842,1770030842,'csp-report','backend',1770030841528499,'{\"addr\":\"172.24.0.0\",\"agent\":\"Mozilla\\/5.0 (X11; Ubuntu; Linux x86_64; rv:147.0) Gecko\\/20100101 Firefox\\/147.0\"}','{\"blocked-uri\":\"eval\",\"column-number\":12,\"disposition\":\"enforce\",\"document-uri\":\"https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/record\\/edit?edit%5Btt_content%5D%5B1%5D=edit&returnUrl=%2Ftypo3%2Fmodule%2Fweb%2Flayout%3Ftoken%3D679788b3320d164c4f337baf47c0af29cd5410f2%26id%3D1%23element-tt_content-1\",\"effective-directive\":\"script-src\",\"line-number\":881,\"original-policy\":\"default-src \'self\'; script-src \'self\' \'nonce-EAeVd4G3HovlYLZ0opw5sWZf_6v2ak0VNjoLs7X4XRb7dEP3qDfzMg\' \'report-sample\'; style-src \'self\' \'unsafe-inline\' \'report-sample\'; style-src-attr \'unsafe-inline\' \'report-sample\'; img-src \'self\' data: https:\\/\\/*.ytimg.com https:\\/\\/*.vimeocdn.com https:\\/\\/extensions.typo3.org; frame-src \'self\' https:\\/\\/*.youtube-nocookie.com https:\\/\\/*.youtube.com https:\\/\\/*.vimeo.com; base-uri \'none\'; object-src \'none\'; report-uri https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/@http-reporting?csp=report&requestTime=1770030841528499&requestHash=7f2c9dd171757ecebb5e9cbd3cabe0c94f84cb7f\",\"referrer\":\"https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/module\\/web\\/layout?id=1\",\"script-sample\":\"function anonymous(\\n) {\\n\\n}\",\"source-file\":\"https:\\/\\/typo3-tiptap.ddev.site\\/_assets\\/6666cd76f96956469e7be39d750cc7d9\\/TipTap\\/configuration-CsNrhtrS.js\",\"status-code\":200,\"violated-directive\":\"script-src\"}','b4987a6987a07386c538fcde34bd50065bc9e941'),
+('66767873-d816-4a0f-8e72-3c4df47316b0',0,1759782194,1759782194,'csp-report','backend',1759782193853342,'{\"addr\":\"172.20.0.0\",\"agent\":\"Mozilla\\/5.0 (X11; Ubuntu; Linux x86_64; rv:143.0) Gecko\\/20100101 Firefox\\/143.0\"}','{\"blocked-uri\":\"eval\",\"column-number\":12,\"disposition\":\"enforce\",\"document-uri\":\"https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/record\\/edit?edit%5Btt_content%5D%5B1%5D=edit&returnUrl=%2Ftypo3%2Fmodule%2Fweb%2Flayout%3Ftoken%3Dccd09807ab44c4b9ef77ed4ab58cc7212e165901%26id%3D1%23element-tt_content-1\",\"effective-directive\":\"script-src\",\"line-number\":167,\"original-policy\":\"default-src \'self\'; script-src \'self\' \'nonce-vftWnMBTrIO04sHb8z9Nwd82uC3cb891WmNXG_XvrhKuhFDrkYPu9w\' \'report-sample\'; style-src \'self\' \'unsafe-inline\' \'report-sample\'; style-src-attr \'unsafe-inline\' \'report-sample\'; img-src \'self\' data: https:\\/\\/*.ytimg.com https:\\/\\/*.vimeocdn.com https:\\/\\/extensions.typo3.org; frame-src \'self\' https:\\/\\/*.youtube-nocookie.com https:\\/\\/*.youtube.com https:\\/\\/*.vimeo.com; base-uri \'none\'; object-src \'none\'; report-uri https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/@http-reporting?csp=report&requestTime=1759782193853342&requestHash=d418264727f0f6138f3938df411c178889038d10\",\"referrer\":\"https:\\/\\/typo3-tiptap.ddev.site\\/typo3\\/module\\/web\\/layout?id=1\",\"script-sample\":\"function anonymous(\\n) {\\n\\n}\",\"source-file\":\"https:\\/\\/typo3-tiptap.ddev.site\\/_assets\\/6666cd76f96956469e7be39d750cc7d9\\/TipTap\\/configuration-DkMIcjSq.js\",\"status-code\":200,\"violated-directive\":\"script-src\"}','b4987a6987a07386c538fcde34bd50065bc9e941');
 /*!40000 ALTER TABLE `sys_http_report` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1734,7 +1738,7 @@ UNLOCK TABLES;
 LOCK TABLES `sys_lockedrecords` WRITE;
 /*!40000 ALTER TABLE `sys_lockedrecords` DISABLE KEYS */;
 INSERT INTO `sys_lockedrecords` VALUES
-(4,1,1751623540,'tt_content',2,1,'admin',0);
+(8,1,1770031091,'tt_content',1,1,'admin',0);
 /*!40000 ALTER TABLE `sys_lockedrecords` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1748,7 +1752,13 @@ INSERT INTO `sys_log` VALUES
 (1,1751622462,1,1,0,'',0,0,'User %s logged in from ###IP###',255,'user',0,'172.20.0.5','[\"admin\"]',-1,-99,'',0,'','info',NULL,NULL),
 (2,1751622807,1,1,1,'tt_content',0,0,'Record {table}:{uid} was inserted on page {pid}',1,'content',0,'172.20.0.5','{\"table\":\"tt_content\",\"uid\":1,\"pid\":1}',1,0,'',0,'','info',NULL,NULL),
 (3,1751623518,1,1,0,'',0,0,'User {username} has cleared the cache (cacheCmd={command})',3,'default',0,'172.20.0.5','{\"username\":\"admin\",\"command\":\"all\"}',-1,0,'',0,'','info',NULL,NULL),
-(4,1751623539,1,1,2,'tt_content',0,0,'Record {table}:{uid} was inserted on page {pid}',1,'content',0,'172.20.0.5','{\"table\":\"tt_content\",\"uid\":2,\"pid\":1}',1,0,'',0,'','info',NULL,NULL);
+(4,1751623539,1,1,2,'tt_content',0,0,'Record {table}:{uid} was inserted on page {pid}',1,'content',0,'172.20.0.5','{\"table\":\"tt_content\",\"uid\":2,\"pid\":1}',1,0,'',0,'','info',NULL,NULL),
+(5,1759782173,0,3,0,'',0,3,'Login-attempt from ###IP###, username \'%s\', password not accepted!',255,'user',0,'172.20.0.5','[\"admin\"]',-1,-99,'',0,'','info',NULL,NULL),
+(6,1759782187,1,1,0,'',0,0,'User %s logged in from ###IP###',255,'user',0,'172.20.0.5','[\"admin\"]',-1,-99,'',0,'','info',NULL,NULL),
+(7,1759782566,1,1,0,'',0,0,'User {username} has cleared the cache (cacheCmd={command})',3,'default',0,'172.20.0.5','{\"username\":\"admin\",\"command\":\"all\"}',-1,0,'',0,'','info',NULL,NULL),
+(8,1770030828,1,1,0,'',0,0,'User %s logged in from ###IP###',255,'user',0,'172.24.0.5','[\"admin\"]',-1,-99,'',0,'','info',NULL,NULL),
+(9,1770031064,1,1,0,'',0,0,'User %s logged in from ###IP###',255,'user',0,'172.24.0.5','[\"admin\"]',-1,-99,'',0,'','info',NULL,NULL),
+(10,1770031067,1,0,0,'',0,2,'Core: Exception handler (WEB): Uncaught TYPO3 Exception: #1441706370: Button \"TYPO3\\CMS\\Backend\\Template\\Components\\Buttons\\LinkButton\" is not valid | InvalidArgumentException thrown in file /var/www/html/.Build/vendor/typo3/cms-backend/Classes/Template/Components/ButtonBar.php in line 164. Requested URL: https://typo3-tiptap.ddev.site/typo3/record/edit?token=--AnonymizedToken--83fad455289634d65d8d5d44&edit%%5Btt_content%%5D%%5B1%%5D=edit',5,'php',0,'172.24.0.5','',-1,0,'',0,'','error',NULL,NULL);
 /*!40000 ALTER TABLE `sys_log` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1798,7 +1808,7 @@ INSERT INTO `sys_registry` VALUES
 (10,'installUpdate','TYPO3\\CMS\\Install\\Updates\\SysTemplateNoWorkspaceMigration','i:1;'),
 (11,'installUpdate','TYPO3\\CMS\\Extensionmanager\\Updates\\FeLoginModeExtractionUpdate','i:1;'),
 (12,'installUpdateRows','rowUpdatersDone','a:1:{i:0;s:69:\"TYPO3\\CMS\\Install\\Updates\\RowUpdater\\SysRedirectRootPageMoveMigration\";}'),
-(13,'core','formProtectionSessionToken:1','s:64:\"eaaefb8a0c9ed54823c5114b5988beb5805d7df14de62eb046cc4737b112a436\";');
+(13,'core','formProtectionSessionToken:1','s:64:\"c6ee8eda6a6b093b659c177a6cb4095ab43b373bd3dabad960ee2b11038528e8\";');
 /*!40000 ALTER TABLE `sys_registry` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1869,4 +1879,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-07-04 12:06:44
+-- Dump completed on 2026-02-02 12:18:47
