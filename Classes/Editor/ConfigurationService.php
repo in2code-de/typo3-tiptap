@@ -18,6 +18,7 @@ class ConfigurationService
         $runtimeCache = GeneralUtility::makeInstance(CacheManager::class)->getCache('runtime');
         $identifier = 'richtext_' . $presetName;
         $configuration = $runtimeCache->get($identifier);
+        $presetName = isset($GLOBALS['TYPO3_CONF_VARS']['RTE']['tiptap']['Presets'][$presetName]) ? $presetName : 'default';
 
         if ($configuration === false) {
             $fileLoader = GeneralUtility::makeInstance(YamlFileLoader::class);
