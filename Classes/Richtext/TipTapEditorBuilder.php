@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace In2code\Typo3TipTap\Form;
+namespace In2code\Typo3TipTap\Richtext;
 
 use In2code\Typo3TipTap\Editor\ConfigurationService;
 use TYPO3\CMS\Backend\Attribute\AsRichtextEditorBuilder;
-use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorBuilderInterface;
-use TYPO3\CMS\Backend\Form\Richtext\RichtextEditorDefinition;
+use TYPO3\CMS\Backend\Richtext\RichtextEditorBuilderInterface;
+use TYPO3\CMS\Backend\Richtext\RichtextEditorConfiguration;
+use TYPO3\CMS\Backend\Richtext\RichtextEditorDefinition;
 use TYPO3\CMS\Core\Page\JavaScriptModuleInstruction;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -18,10 +19,10 @@ class TipTapEditorBuilder implements RichtextEditorBuilderInterface
     {
     }
 
-    public function buildDefinition(string $presetName, array $data): RichtextEditorDefinition
+    public function buildDefinition(string $presetName, RichtextEditorConfiguration $configuration): RichtextEditorDefinition
     {
         return new RichtextEditorDefinition(
-            html: $this->buildHtml($presetName, $data),
+            html: $this->buildHtml($presetName, $configuration),
             javascriptModules: [
                 JavaScriptModuleInstruction::create('@typo3-tiptap/tiptap/index.js')
             ],
@@ -41,10 +42,18 @@ class TipTapEditorBuilder implements RichtextEditorBuilderInterface
         return JavaScriptModuleInstruction::create('@typo3/rte-ckeditor/rte-link-browser.js');
     }
 
-    protected function buildHtml(string $presetName, array $data): string
+    protected function buildHtml(string $presetName, RichtextEditorConfiguration $configuration): string
     {
-        $editorOptions = $this->configurationService->getConfiguration($presetName, $data);
-        $editorOptions['id'] = htmlspecialchars($data['parameterArray']['itemFormElName']);
+        $editorOptions = $this->configurationService->getConfiguration($presetName, $configuration);
+        $editorOptions['id'] = htmlspecialchars($configuration->name);
+
+        $textareaAttributes = GeneralUtility::implodeAttributes([
+            'id' => $editorOptions['id'],
+            'name' => $editorOptions['id'],
+            'rows' => '18',
+            'class' => 'form-control t3js-formengine-input',
+            'style' => 'display:none;'
+        ], true);
 
         $editorAttributes = GeneralUtility::implodeAttributes([
             'options' => GeneralUtility::jsonEncodeForHtmlAttribute($editorOptions, false)
@@ -52,8 +61,8 @@ class TipTapEditorBuilder implements RichtextEditorBuilderInterface
 
         $html = [];
         $html[] =           '<editor-tiptap ' . $editorAttributes . '>';
-        $html[] =                 '<textarea>';
-        $html[] =                   htmlspecialchars($data['parameterArray']['itemFormElValue']);
+        $html[] =                 '<textarea ' . $textareaAttributes . '>';
+        $html[] =                   htmlspecialchars($configuration->value);
         $html[] =                 '</textarea>';
         $html[] =           '</editor-tiptap>';
         return implode(LF, $html);

@@ -16,7 +16,7 @@
   "require": {
     "php": ">=8.3.0",
     "gilbertsoft/typo3-core-patches": "@beta",
-    "typo3/cms-core": "dev-main"
+    "typo3/cms-core": "14.2.0-dev"
   },
   "require-dev": {
     "typo3/cms-backend": "dev-main",
