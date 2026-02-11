@@ -28,29 +28,27 @@ const ALIGNMENT_SHORTCUTS: Record<AlignmentType, string> = {
 /**
  * Text alignment plugin using CSS classes for TYPO3 compatibility
  *
- * @example Enable with defaults
- * alignments: { left: true, center: true, right: true }
- *
  * @example With Tailwind classes
  * alignments: { left: "text-left", center: "text-center", right: "text-right" }
  */
 export default function (unsafeConfig: unknown): void {
-  const safeClassName = (z: typeof import('zod').z) =>
-    z.string().regex(/^[\w-]+$/, 'Invalid CSS class name')
-
   const config = parseTipTapPluginYamlConfiguration({
     pluginId: 'justify',
     config: unsafeConfig,
-    getValidationSchema: z => z.object({
-      alignments: z.object({
-        left: z.union([safeClassName(z), z.boolean()]).optional(),
-        center: z.union([safeClassName(z), z.boolean()]).optional(),
-        right: z.union([safeClassName(z), z.boolean()]).optional(),
-      }).refine(
-        obj => obj.left || obj.center || obj.right,
-        { message: 'At least one alignment must be configured' },
-      ),
-    }),
+    getValidationSchema: (z) => {
+      const safeClassNameSchema = z.string().regex(/^[\w-]+$/, 'Invalid CSS class name')
+
+      return z.object({
+        alignments: z.object({
+          left: z.union([safeClassNameSchema, z.boolean()]).optional(),
+          center: z.union([safeClassNameSchema, z.boolean()]).optional(),
+          right: z.union([safeClassNameSchema, z.boolean()]).optional(),
+        }).refine(
+          obj => obj.left || obj.center || obj.right,
+          { message: 'At least one alignment class must be configured' },
+        ),
+      })
+    },
   })
 
   // Build alignment → class mapping for enabled alignments only
@@ -59,7 +57,10 @@ export default function (unsafeConfig: unknown): void {
       .filter(key => config.alignments[key])
       .map((key) => {
         const value = config.alignments[key]
-        const className = typeof value === 'string' && value.trim() ? value.trim() : DEFAULT_CLASSES[key]
+        const className = typeof value === 'string' && value.trim()
+          ? value.trim()
+          : DEFAULT_CLASSES[key]
+
         return [key, className]
       }),
   ) as Partial<Record<AlignmentType, string>>
@@ -133,7 +134,7 @@ export default function (unsafeConfig: unknown): void {
       const isActive = editor.isActive({ textAlign: alignment })
       const newAlignment = isActive ? null : alignment
 
-      // Use single chain to update both node types atomically
+      // Use single chain to update both node types automatically
       editor
         .chain()
         .focus()
