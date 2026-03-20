@@ -10,3 +10,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['formEngine']['nodeResolver'][1480314091] = [
 ];
 
 $GLOBALS['TYPO3_CONF_VARS']['RTE']['Presets']['default'] = 'EXT:typo3_tiptap/Configuration/RTE/Full.yaml';
+
+\TYPO3\CMS\Core\Utility\ExtensionManagementUtility::addTypoScriptSetup(
+    '@import "EXT:typo3_tiptap/Configuration/TypoScript/setup.typoscript"'
+);

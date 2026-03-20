@@ -1,0 +1,12 @@
+/* Text alignment classes (default classes used by the justify plugin) */
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
