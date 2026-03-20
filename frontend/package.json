@@ -14,7 +14,6 @@
     "@tiptap/extension-drag-handle-vue-3": "^3.4.1",
     "@tiptap/extension-italic": "^3.6.2",
     "@tiptap/extension-node-range": "^3.4.1",
-    "@tiptap/extension-text-align": "^3.0.9",
     "@tiptap/extension-typography": "^3.4.2",
     "@tiptap/extensions": "^3.11.0",
     "@tiptap/pm": "^3.0.9",
