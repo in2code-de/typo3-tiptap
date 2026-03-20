@@ -100,7 +100,6 @@ export default function (unsafeConfig: unknown): void {
         },
       }]
     },
-
   })
 
   const commands: TipTapPluginCommand[] = enabledAlignments.map(alignment => ({
