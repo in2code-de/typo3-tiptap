@@ -1,4 +1,6 @@
+import type { Editor } from '@tiptap/core'
 import type { TipTapPluginCommand } from '../schema/plugins.ts'
+import { objectKeys, objectMap } from '@antfu/utils'
 import { Extension } from '@tiptap/core'
 import { defineTipTapPlugin, parseTipTapPluginYamlConfiguration } from '../configuration.ts'
 
@@ -19,61 +21,54 @@ const ALIGNMENT_LABELS: Record<AlignmentType, string> = {
   right: 'Align Right',
 }
 
-const ALIGNMENT_SHORTCUTS: Record<AlignmentType, string> = {
-  left: 'Mod-Shift-l',
-  center: 'Mod-Shift-e',
-  right: 'Mod-Shift-r',
+function toggleAlignment(editor: Editor, alignment: AlignmentType) {
+  const isActive = editor.isActive({ textAlign: alignment })
+  const newAlignment = isActive ? null : alignment
+
+  const chain = editor.chain().focus()
+  ALIGNABLE_NODE_TYPES.forEach(nodeType => chain.updateAttributes(nodeType, { textAlign: newAlignment }))
+  return chain.run()
 }
 
 /**
  * Text alignment plugin using CSS classes for TYPO3 compatibility
  *
- * @example With Tailwind classes
- * alignments: { left: "text-left", center: "text-center", right: "text-right" }
+ * Each alignment accepts: a class name string, false to disable, or omit to use the default.
  */
 export default function (unsafeConfig: unknown): void {
   const config = parseTipTapPluginYamlConfiguration({
     pluginId: 'justify',
     config: unsafeConfig,
     getValidationSchema: (z) => {
-      const safeClassNameSchema = z.string().regex(/^[\w-]+$/, 'Invalid CSS class name')
+      const alignmentValueSchema = z.union([
+        z.string().regex(/^[\w-]+$/, 'Invalid CSS class name'),
+        z.literal(false),
+      ]).optional()
 
       return z.object({
         alignments: z.object({
-          left: z.union([safeClassNameSchema, z.boolean()]).optional(),
-          center: z.union([safeClassNameSchema, z.boolean()]).optional(),
-          right: z.union([safeClassNameSchema, z.boolean()]).optional(),
+          left: alignmentValueSchema,
+          center: alignmentValueSchema,
+          right: alignmentValueSchema,
         }).refine(
-          obj => obj.left || obj.center || obj.right,
-          { message: 'At least one alignment class must be configured' },
+          obj => ALIGNMENT_TYPES.some(key => obj[key] !== false),
+          { message: 'At least one alignment must be enabled' },
         ),
       })
     },
   })
 
-  // Build alignment → class mapping for enabled alignments only
-  const alignmentToClass = Object.fromEntries(
-    ALIGNMENT_TYPES
-      .filter(key => config.alignments[key])
-      .map((key) => {
-        const value = config.alignments[key]
-        const className = typeof value === 'string' && value.trim()
-          ? value.trim()
-          : DEFAULT_CLASSES[key]
+  // Setup alignment class mapping, if not configured or overwritten by user fallback to default
+  const alignments = config.alignments as Record<AlignmentType, string | false | undefined>
+  const alignmentToClass = objectMap(alignments, (key, value) => {
+    if (value === false)
+      return undefined
+    return [key, typeof value === 'string' ? value : DEFAULT_CLASSES[key]]
+  })
 
-        return [key, className]
-      }),
-  ) as Partial<Record<AlignmentType, string>>
+  const enabledAlignments = objectKeys(alignmentToClass)
 
-  const enabledAlignments = Object.keys(alignmentToClass) as AlignmentType[]
-
-  // Reverse lookup: class → alignment
-  const classToAlignment = Object.fromEntries(
-    Object.entries(alignmentToClass).map(([k, v]) => [v, k]),
-  ) as Record<string, AlignmentType>
-
-  // All alignment classes for filtering
-  const allAlignmentClasses = new Set(Object.values(alignmentToClass))
+  const classToAlignment = objectMap(alignmentToClass, (key, value) => [value, key]) as Record<string, AlignmentType>
 
   const TextAlignClass = Extension.create({
     name: 'textAlignClass',
@@ -85,11 +80,12 @@ export default function (unsafeConfig: unknown): void {
           textAlign: {
             default: null,
             parseHTML: (element) => {
-              const alignmentClass = [...element.classList].find(cls => classToAlignment[cls])
-              if (alignmentClass) {
-                // Remove alignment classes from element so styles plugin doesn't capture them
-                allAlignmentClasses.forEach(cls => element.classList.remove(cls))
-                return classToAlignment[alignmentClass]
+              for (const cls of element.classList) {
+                if (classToAlignment[cls]) {
+                  // Remove the alignment class so styles plugin doesn't capture it
+                  element.classList.remove(cls)
+                  return classToAlignment[cls]
+                }
               }
               return null
             },
@@ -105,15 +101,6 @@ export default function (unsafeConfig: unknown): void {
       }]
     },
 
-    addKeyboardShortcuts() {
-      return Object.fromEntries(
-        enabledAlignments.map(alignment => [
-          ALIGNMENT_SHORTCUTS[alignment],
-          () => this.editor.commands.updateAttributes('paragraph', { textAlign: alignment })
-            || this.editor.commands.updateAttributes('heading', { textAlign: alignment }),
-        ]),
-      )
-    },
   })
 
   const commands: TipTapPluginCommand[] = enabledAlignments.map(alignment => ({
@@ -127,20 +114,12 @@ export default function (unsafeConfig: unknown): void {
     status: {
       isActive: ({ editor }) => editor.isActive({ textAlign: alignment }),
       isDisabled: ({ editor }) =>
-        !editor.can().updateAttributes('paragraph', { textAlign: alignment })
-        && !editor.can().updateAttributes('heading', { textAlign: alignment }),
+        ALIGNABLE_NODE_TYPES.every(nodeType =>
+          !editor.can().updateAttributes(nodeType, { textAlign: alignment }),
+        ),
     },
     onExecute: ({ editor }) => {
-      const isActive = editor.isActive({ textAlign: alignment })
-      const newAlignment = isActive ? null : alignment
-
-      // Use single chain to update both node types automatically
-      editor
-        .chain()
-        .focus()
-        .updateAttributes('paragraph', { textAlign: newAlignment })
-        .updateAttributes('heading', { textAlign: newAlignment })
-        .run()
+      toggleAlignment(editor, alignment)
     },
   }))
 

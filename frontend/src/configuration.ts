@@ -87,7 +87,7 @@ const bubbleMenu: TipTapMenuItem[] = [
     id: 'textAlignment',
     commands: [],
     dropdown: {
-      label: 'Text Alignment',
+      label: 'Text alignment',
       iconIdentifier: 'justify-left',
     },
   },
