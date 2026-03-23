@@ -85,6 +85,21 @@ function getParsedStyles(options: WebComponentOptions) {
   return styles.data.styles
 }
 
+/**
+ * Sanitizes TipTap HTML output before syncing to the textarea.
+ *
+ * ProseMirror always appends an empty paragraph at the end of the document so the user can
+ * place their cursor after the last block element (e.g. a list). This is necessary for
+ * editor UX but should not be persisted, as it renders as unwanted empty spacing in the frontend.
+ *
+ * Strips all trailing empty paragraphs (containing only whitespace or &nbsp;) while
+ * preserving empty paragraphs within the content. The regex is applied to getHTML() output
+ * (TipTap-serialized markup, not raw user input).
+ */
+function sanitizeEditorHtml(html: string): string {
+  return html.replace(/(\s*<p>(\s|&nbsp;)*<\/p>)+\s*$/, '')
+}
+
 function executeCommandHooks() {
   if (!editor.value)
     throw new Error('Editor is not initialized yet.')
@@ -198,7 +213,7 @@ onMounted(async () => {
       isHtmlSourceViewActive.value = getEditorSourceViewActiveStatus(editor.value)
       textareaRef.value.value = isHtmlSourceViewActive.value
         ? editor.value.getText()
-        : editor.value.getHTML()
+        : sanitizeEditorHtml(editor.value.getHTML())
 
       // tell TYPO3 that the textarea content has changed
       // important for close/save detection
