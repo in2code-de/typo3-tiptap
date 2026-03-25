@@ -1,8 +1,8 @@
-import { i as t } from "../index-Cx092m1B.js";
-import { d as e } from "../configuration-CIDhfjTK.js";
-function n() {
-  e({
-    extensions: [t],
+import { i as o } from "../index-Cx092m1B.js";
+import { d as e } from "../configuration-C_EeEZGV.js";
+function l() {
+  return e({
+    extensions: [o],
     commands: [
       {
         id: "bold",
@@ -13,16 +13,16 @@ function n() {
           bubbleMenuGroupId: "formatting"
         },
         status: {
-          isActive: ({ editor: o }) => o.isActive("bold"),
-          isDisabled: ({ editor: o }) => !o.can().toggleBold() || o.state.selection.empty
+          isActive: ({ editor: t }) => t.isActive("bold"),
+          isDisabled: ({ editor: t }) => !t.can().toggleBold() || t.state.selection.empty
         },
-        onExecute: ({ editor: o }) => {
-          o.chain().focus().toggleBold().updateAttributes("strong", { class: null }).run();
+        onExecute: ({ editor: t }) => {
+          t.chain().focus().toggleBold().updateAttributes("strong", { class: null }).run();
         }
       }
     ]
   });
 }
 export {
-  n as default
+  l as default
 };

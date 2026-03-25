@@ -1,6 +1,6 @@
 import { j as x, i as A, G as $, ag as _, T as k, E as O, a6 as P } from "../index-oLzXX581.js";
 import { c as j, t as B, C as G, f as z, g as R, s as K, m as v, a as H, b as F, d as E, e as U, h as q, i as Y, j as J, k as Q, l as X, n as Z } from "../index-H4DBvHL_.js";
-import { p as ee, d as te } from "../configuration-CIDhfjTK.js";
+import { p as ee, d as te } from "../configuration-C_EeEZGV.js";
 var L = x.create({
   name: "tableCell",
   addOptions() {
@@ -376,7 +376,7 @@ function fe(e) {
       withHeaderRow: l.boolean().default(!0)
     })
   });
-  te({
+  return te({
     extensions: [
       N.configure({
         resizable: !0

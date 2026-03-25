@@ -1,7 +1,7 @@
 import { i as n } from "../index-Bqn8FasZ.js";
-import { d as i } from "../configuration-CIDhfjTK.js";
-function l() {
-  i({
+import { d as i } from "../configuration-C_EeEZGV.js";
+function r() {
+  return i({
     extensions: [n],
     commands: [
       {
@@ -24,5 +24,5 @@ function l() {
   });
 }
 export {
-  l as default
+  r as default
 };

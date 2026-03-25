@@ -1,4 +1,4 @@
-import { d as s } from "../configuration-CIDhfjTK.js";
+import { d as r } from "../configuration-C_EeEZGV.js";
 const n = "data-tiptap-source-view-active";
 function o(t) {
   return t.view.dom.getAttribute(n) === "true";
@@ -7,7 +7,7 @@ function i(t, e) {
   t.view.dom.setAttribute(n, e.toString());
 }
 function a() {
-  s({
+  return r({
     commands: [
       {
         id: "source",

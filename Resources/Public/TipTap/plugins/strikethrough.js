@@ -1,6 +1,6 @@
-import { d as i } from "../configuration-CIDhfjTK.js";
+import { d as e } from "../configuration-C_EeEZGV.js";
 function o() {
-  i({
+  return e({
     commands: [
       {
         id: "strike",

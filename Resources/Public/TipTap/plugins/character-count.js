@@ -1,5 +1,5 @@
 import { C as i } from "../index-4m4BTiY4.js";
-import { p as o, d as a } from "../configuration-CIDhfjTK.js";
+import { p as o, d as a } from "../configuration-C_EeEZGV.js";
 function p(n) {
   const e = o({
     pluginId: "character-count",
@@ -11,7 +11,7 @@ function p(n) {
   function r(t) {
     return new DOMParser().parseFromString(t, "text/html").body.innerText.length;
   }
-  a({
+  return a({
     extensions: [
       i.configure({
         limit: e.limit,

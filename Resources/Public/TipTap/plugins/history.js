@@ -1,5 +1,5 @@
 import { U as t } from "../index-4m4BTiY4.js";
-import { p as a, d as s } from "../configuration-CIDhfjTK.js";
+import { p as a, d as s } from "../configuration-C_EeEZGV.js";
 function u(i) {
   const e = a({
     pluginId: "history",
@@ -10,7 +10,7 @@ function u(i) {
       error: 'Must be an object with a "types" property that is an array containing at least one of "undo" or "redo"'
     })
   }), n = [];
-  e.types.includes("undo") && n.push({
+  return e.types.includes("undo") && n.push({
     id: "undo",
     label: "Undo last action",
     iconIdentifier: "undo",

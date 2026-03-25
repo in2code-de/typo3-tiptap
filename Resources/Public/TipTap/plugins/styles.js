@@ -1,7 +1,14 @@
 import { t as y } from "../index-e_Ie-2wz.js";
 import { E as C } from "../index-oLzXX581.js";
-import { p as k, d as b, c as m } from "../configuration-CIDhfjTK.js";
-import { a0 as T, a4 as N } from "../styles-BZL4Oyh5.js";
+import { p as k, d as b } from "../configuration-C_EeEZGV.js";
+import { a0 as T, a4 as N } from "../styles-DkDB69Ie.js";
+function m(e, i = 300) {
+  let r, c = 0, t = !1;
+  return (...o) => {
+    const n = Date.now();
+    return (!t || n - c >= i) && (r = e(...o), c = n, t = !0), r;
+  };
+}
 function f(e) {
   return e.type.name === "heading" && e.attrs?.level ? `h${e.attrs.level}` : e.type.spec.parseDOM?.[0] && typeof e.type.spec.parseDOM[0] == "object" && "tag" in e.type.spec.parseDOM[0] && e.type.spec.parseDOM[0].tag || e.type.name;
 }
@@ -9,54 +16,54 @@ function g(e) {
   return e.type.spec.parseDOM?.[0] && typeof e.type.spec.parseDOM[0] == "object" && "tag" in e.type.spec.parseDOM[0] ? e.type.spec.parseDOM[0].tag.split("[")[0] : null;
 }
 function d(e) {
-  const { selection: i } = e, { from: r, to: c } = i, t = e.doc.resolve(r), l = e.doc.resolve(c);
-  if (t.sameParent(l)) {
-    let a = [];
+  const { selection: i } = e, { from: r, to: c } = i, t = e.doc.resolve(r), o = e.doc.resolve(c);
+  if (t.sameParent(o)) {
+    let n = [];
     if (r === c)
-      a = [...t.marks()];
+      n = [...t.marks()];
     else {
       const s = r + 1 < c ? r + 1 : r;
       try {
-        if (a = [...e.doc.resolve(s).marks()], c - r > 1)
-          for (let n = r + 1; n < c; n++) {
-            const p = [...e.doc.resolve(n).marks()];
-            a = a.filter(
+        if (n = [...e.doc.resolve(s).marks()], c - r > 1)
+          for (let a = r + 1; a < c; a++) {
+            const p = [...e.doc.resolve(a).marks()];
+            n = n.filter(
               (u) => p.some((h) => h.type === u.type)
             );
           }
       } catch {
-        a = [...t.marks()];
+        n = [...t.marks()];
       }
     }
-    const o = a.find((s) => {
-      const n = g(s);
-      return n && n !== "span";
+    const l = n.find((s) => {
+      const a = g(s);
+      return a && a !== "span";
     });
-    if (o)
+    if (l)
       return {
-        tagName: g(o),
+        tagName: g(l),
         // 'a' - from the mark
-        mark: o
+        mark: l
         // the actual mark
         // Don't include node when returning a mark
         // This makes it clear we're dealing with a mark, not a node
       };
     for (let s = t.depth; s >= 0; s--) {
-      const n = t.node(s);
-      if (n.type.name !== "doc")
+      const a = t.node(s);
+      if (a.type.name !== "doc")
         return {
-          node: n,
-          tagName: f(n)
+          node: a,
+          tagName: f(a)
           // No mark when returning a node
         };
     }
   }
-  for (let a = Math.min(t.depth, l.depth); a >= 0; a--) {
-    const o = t.node(a);
-    if (o.type.name !== "doc")
+  for (let n = Math.min(t.depth, o.depth); n >= 0; n--) {
+    const l = t.node(n);
+    if (l.type.name !== "doc")
       return {
-        node: o,
-        tagName: f(o)
+        node: l,
+        tagName: f(l)
       };
   }
   return {
@@ -126,16 +133,16 @@ const M = [
   addCommands() {
     return {
       toggleNodeClass: (e) => ({ editor: i, commands: r }) => {
-        const { selection: c } = i.state, t = c.$from.node(), l = d(i.state);
-        if (l.mark) {
-          r.extendMarkRange(l.mark.type);
-          const o = (l.mark.attrs.class || "").trim(), s = e.trim();
-          return o === s ? r.updateAttributes(l.mark.type.name, { class: null }) : r.updateAttributes(l.mark.type.name, {
+        const { selection: c } = i.state, t = c.$from.node(), o = d(i.state);
+        if (o.mark) {
+          r.extendMarkRange(o.mark.type);
+          const l = (o.mark.attrs.class || "").trim(), s = e.trim();
+          return l === s ? r.updateAttributes(o.mark.type.name, { class: null }) : r.updateAttributes(o.mark.type.name, {
             class: s.length > 0 ? s : null
           });
-        } else if (l.node) {
-          const o = (t.attrs.class || "").trim(), s = e.trim();
-          return o === s ? r.updateAttributes(t.type.name, { class: null }) : r.updateAttributes(t.type.name, {
+        } else if (o.node) {
+          const l = (t.attrs.class || "").trim(), s = e.trim();
+          return l === s ? r.updateAttributes(t.type.name, { class: null }) : r.updateAttributes(t.type.name, {
             class: s.length > 0 ? s : null
           });
         }
@@ -144,29 +151,29 @@ const M = [
       hasNodeClass: (e) => ({ editor: i }) => {
         const { selection: r } = i.state, c = r.$from.node(), t = d(i.state);
         if (t.mark) {
-          const a = (t.mark.attrs.class || "").split(" ").filter(Boolean).toSorted();
-          return e.split(" ").filter(Boolean).toSorted().every((s) => a.includes(s));
+          const n = (t.mark.attrs.class || "").split(" ").filter(Boolean).toSorted();
+          return e.split(" ").filter(Boolean).toSorted().every((s) => n.includes(s));
         } else if (t.node) {
-          const a = (c.attrs.class || "").split(" ").filter(Boolean).toSorted();
-          return e.split(" ").filter(Boolean).toSorted().every((s) => a.includes(s));
+          const n = (c.attrs.class || "").split(" ").filter(Boolean).toSorted();
+          return e.split(" ").filter(Boolean).toSorted().every((s) => n.includes(s));
         }
         return !1;
       }
     };
   }
 });
-function P(e) {
+function O(e) {
   const i = k({
     pluginId: "styles",
     config: e,
     getValidationSchema: () => N
   }), r = T(), c = (t) => t.replaceAll(" ", "_").toLowerCase();
-  b({
+  return b({
     extensions: [
       v
     ],
-    commands: i.styles.map((t, l) => {
-      const a = m(({ editor: n }) => n.commands.hasNodeClass(t.classes), 300), o = m(() => r.value?.tagName === t.element, 300), s = t.classes;
+    commands: i.styles.map((t, o) => {
+      const n = m(({ editor: a }) => a.commands.hasNodeClass(t.classes), 300), l = m(() => r.value?.tagName === t.element, 300), s = t.classes;
       return {
         id: c(`style:${t.name}`),
         label: t.name,
@@ -176,19 +183,19 @@ function P(e) {
           bubbleMenuGroupId: "styles"
         },
         status: {
-          isActive: a,
-          isVisible: o
+          isActive: n,
+          isVisible: l
         },
-        onExecute: ({ editor: n }) => {
-          n.chain().focus().toggleNodeClass(s).run();
+        onExecute: ({ editor: a }) => {
+          a.chain().focus().toggleNodeClass(s).run();
         },
         hooks: {
-          onEditorMounted: l === 0 ? ({ editor: n }) => {
+          onEditorMounted: o === 0 ? ({ editor: a }) => {
             const p = y(250, () => {
-              const u = d(n.state);
-              r.value = u, n.emit("parentNodeChanged", u);
+              const u = d(a.state);
+              r.value = u, a.emit("parentNodeChanged", u);
             });
-            n.on("selectionUpdate", p);
+            a.on("selectionUpdate", p);
           } : void 0
         }
       };
@@ -196,5 +203,5 @@ function P(e) {
   });
 }
 export {
-  P as default
+  O as default
 };

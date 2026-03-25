@@ -1,7 +1,7 @@
 import { i as e } from "../index-ChRtN2EZ.js";
-import { d as t } from "../configuration-CIDhfjTK.js";
+import { d as t } from "../configuration-C_EeEZGV.js";
 function n() {
-  t({
+  return t({
     extensions: [e],
     commands: [
       {

@@ -1,5 +1,5 @@
 import { B as o, O as n } from "../index-DcmiXLvf.js";
-import { p as r, d as u } from "../configuration-CIDhfjTK.js";
+import { p as r, d as u } from "../configuration-C_EeEZGV.js";
 function c(l) {
   const s = r({
     pluginId: "list",
@@ -10,7 +10,7 @@ function c(l) {
       ).min(1)
     })
   }), t = [], i = [];
-  s.types.includes("bullet") && (t.push(o), i.push({
+  return s.types.includes("bullet") && (t.push(o), i.push({
     id: "list-bullet",
     label: "Bullet List",
     iconIdentifier: "list-bullet",

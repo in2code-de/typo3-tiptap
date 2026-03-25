@@ -1,15 +1,15 @@
 import { i as d } from "../index-DW3_VDBk.js";
-import { p as r, d as g } from "../configuration-CIDhfjTK.js";
-function c(s) {
+import { p as r, d as u } from "../configuration-C_EeEZGV.js";
+function c(t) {
   const a = r({
     pluginId: "headings",
-    config: s,
+    config: t,
     getValidationSchema: (e) => {
       const n = e.custom((i) => {
         if (!Array.isArray(i) || i.length === 0)
           return !1;
-        const t = [1, 2, 3, 4, 5, 6];
-        return i.some((o) => t.includes(o));
+        const s = [1, 2, 3, 4, 5, 6];
+        return i.some((o) => s.includes(o));
       }, {
         message: "Must be an array of numbers between 1 and 6 with at least one element"
       });
@@ -18,7 +18,7 @@ function c(s) {
       });
     }
   });
-  g({
+  return u({
     extensions: [
       d.configure({
         levels: a.levels

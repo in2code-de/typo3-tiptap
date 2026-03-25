@@ -1,7 +1,7 @@
 import { o as c } from "../index-e_Ie-2wz.js";
 import { L as u } from "../index-Ov2AxGg1.js";
 import s from "@typo3/backend/modal.js";
-import { d as p } from "../configuration-CIDhfjTK.js";
+import { d as p } from "../configuration-C_EeEZGV.js";
 const f = u.extend({
   addAttributes() {
     return {
@@ -17,7 +17,7 @@ const f = u.extend({
   }
 });
 function b() {
-  p({
+  return p({
     extensions: [
       f.configure({
         openOnClick: !1,

@@ -1,13 +1,13 @@
 import { E as f } from "../index-oLzXX581.js";
-import { p as g, d as A } from "../configuration-CIDhfjTK.js";
+import { p as g, d as A } from "../configuration-C_EeEZGV.js";
 const d = ["left", "center", "right"], a = ["heading", "paragraph"], p = {
   left: "Align Left",
   center: "Align Center",
   right: "Align Right"
 };
 function x(l, n) {
-  const s = l.isActive({ textAlign: n }) ? null : n, o = l.chain().focus();
-  return a.forEach((r) => o.updateAttributes(r, { textAlign: s })), o.run();
+  const s = l.isActive({ textAlign: n }) ? null : n, r = l.chain().focus();
+  return a.forEach((o) => r.updateAttributes(o, { textAlign: s })), r.run();
 }
 function m(l) {
   const n = g({
@@ -21,7 +21,7 @@ function m(l) {
   }), i = {}, s = {};
   for (const t of d)
     n[t] !== !1 && (i[t] = n[t], s[n[t]] = t);
-  const o = Object.keys(i), r = f.create({
+  const r = Object.keys(i), o = f.create({
     name: "textAlignClass",
     addGlobalAttributes() {
       return [{
@@ -43,7 +43,7 @@ function m(l) {
         }
       }];
     }
-  }), c = o.map((t) => ({
+  }), c = r.map((t) => ({
     id: `justify-${t}`,
     label: p[t],
     iconIdentifier: `justify-${t}`,
@@ -61,8 +61,8 @@ function m(l) {
       x(e, t);
     }
   }));
-  A({
-    extensions: [r],
+  return A({
+    extensions: [o],
     commands: c
   });
 }
