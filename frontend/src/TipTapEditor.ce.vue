@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Extension } from '@tiptap/core'
-import type { TipTapConfiguration } from './configuration.ts'
+import type { TipTapConfiguration, TipTapPluginOptions } from './configuration.ts'
 import type { ParentNodeResult } from './plugins/styles.ts'
 import type { TipTapPluginCommand } from './schema/plugins.ts'
 import type { WebComponentOptions } from './schema/web-component.ts'
@@ -14,7 +14,7 @@ import CharacterCount from './components/CharacterCount.vue'
 import Dropdown from './components/Dropdown.vue'
 import Icon from './components/Icon.vue'
 import Stylesheets from './components/Stylesheets.vue'
-import { getConfiguration } from './configuration.ts'
+import { createConfiguration } from './configuration.ts'
 import { getEditorSourceViewActiveStatus } from './plugins/source.ts'
 import { stylesPluginConfigSchema } from './schema/plugin/styles.ts'
 import { WebComponentOptionsSchema } from './schema/web-component.ts'
@@ -138,18 +138,16 @@ function executeCommandHooks() {
   })
 }
 
-async function importPluginFiles() {
-  const imports = await Promise.all(
+async function importPluginFiles(): Promise<TipTapPluginOptions[]> {
+  return Promise.all(
     options.plugins?.map(async (plugin) => {
       const importValue = await import(/* @vite-ignore */ plugin.path)
       if (!importValue.default || !(typeof importValue.default === 'function'))
         throw new Error(`Plugin ${plugin.path} does not have a default export or it is not a function.`)
 
-      return () => importValue.default(plugin.config)
+      return importValue.default(plugin.config) as TipTapPluginOptions
     }) ?? [],
   )
-
-  imports.forEach(fn => fn())
 }
 
 function getCommandIsDisabledStatus(command: TipTapPluginCommand) {
@@ -175,8 +173,8 @@ function getCommandIsVisible(command: TipTapPluginCommand) {
 }
 
 onMounted(async () => {
-  await importPluginFiles()
-  configuration.value = getConfiguration()
+  const pluginOptions = await importPluginFiles()
+  configuration.value = createConfiguration(pluginOptions)
 
   // wait for slot content to be rendered
   await nextTick()

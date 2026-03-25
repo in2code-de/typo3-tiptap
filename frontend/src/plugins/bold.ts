@@ -6,7 +6,7 @@ import { defineTipTapPlugin } from '../configuration.ts'
  * Bold extension installed by TipTap starterkit
  */
 export default function () {
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     extensions: [Bold],
     commands: [
       {

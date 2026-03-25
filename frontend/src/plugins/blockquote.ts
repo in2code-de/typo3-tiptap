@@ -6,7 +6,7 @@ import { defineTipTapPlugin } from '../configuration.ts'
  * Blockquote extension installed by TipTap starterkit
  */
 export default function () {
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     extensions: [Blockquote],
     commands: [
       {

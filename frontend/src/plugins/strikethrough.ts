@@ -5,7 +5,7 @@ import { defineTipTapPlugin } from '../configuration.ts'
  * Strike extension installed by TipTap starterkit
  */
 export default function () {
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     commands: [
       {
         id: 'strike',

@@ -12,7 +12,7 @@ export function saveEditorSourceViewActiveStatus(editor: Editor, status: boolean
 }
 
 export default function () {
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     commands: [
       {
         id: 'source',

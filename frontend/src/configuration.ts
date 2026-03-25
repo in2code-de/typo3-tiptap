@@ -1,7 +1,8 @@
 import type { TipTapPluginCommand, TipTapPluginOptions } from './schema/plugins.ts'
 import * as zod from 'zod'
 import { TipTapPluginOptionsSchema } from './schema/plugins.ts'
-import { mergeArrays } from './utils.ts'
+
+export type { TipTapPluginOptions } from './schema/plugins.ts'
 
 interface TipTapMenuItem {
   id: string
@@ -18,128 +19,134 @@ export interface TipTapConfiguration {
   extensions: TipTapPluginOptions['extensions']
 }
 
-const toolbar: TipTapMenuItem[] = [
-  {
-    id: 'history',
-    commands: [],
-  },
-  {
-    id: 'styles',
-    commands: [],
-    dropdown: {
-      label: 'Styles',
-      iconIdentifier: 'styles',
+function createToolbarGroups(): TipTapMenuItem[] {
+  return [
+    {
+      id: 'history',
+      commands: [],
     },
-  },
-  {
-    id: 'heading',
-    commands: [],
-    dropdown: {
-      label: 'Headings',
-      iconIdentifier: 'heading',
+    {
+      id: 'styles',
+      commands: [],
+      dropdown: {
+        label: 'Styles',
+        iconIdentifier: 'styles',
+      },
     },
-  },
-  {
-    id: 'formatting',
-    commands: [],
-  },
-  {
-    id: 'general',
-    commands: [],
-  },
-  {
-    id: 'textAlignment',
-    commands: [],
-    dropdown: {
-      label: 'Text alignment',
-      iconIdentifier: 'justify-left',
+    {
+      id: 'heading',
+      commands: [],
+      dropdown: {
+        label: 'Headings',
+        iconIdentifier: 'heading',
+      },
     },
-  },
-  {
-    id: 'developer',
-    commands: [],
-  },
-]
+    {
+      id: 'formatting',
+      commands: [],
+    },
+    {
+      id: 'general',
+      commands: [],
+    },
+    {
+      id: 'textAlignment',
+      commands: [],
+      dropdown: {
+        label: 'Text alignment',
+        iconIdentifier: 'justify-left',
+      },
+    },
+    {
+      id: 'developer',
+      commands: [],
+    },
+  ]
+}
 
-// TODO: implement bubble menu groups
-const bubbleMenu: TipTapMenuItem[] = [
-  {
-    id: 'heading',
-    commands: [],
-    dropdown: {
-      label: 'Headings',
-      iconIdentifier: 'heading',
+function createBubbleMenuGroups(): TipTapMenuItem[] {
+  return [
+    {
+      id: 'heading',
+      commands: [],
+      dropdown: {
+        label: 'Headings',
+        iconIdentifier: 'heading',
+      },
     },
-  },
-  {
-    id: 'formatting',
-    commands: [],
-  },
-  {
-    id: 'table',
-    commands: [],
-  },
-  {
-    id: 'styles',
-    commands: [],
-    dropdown: {
-      label: 'Styles',
-      iconIdentifier: 'styles',
+    {
+      id: 'formatting',
+      commands: [],
     },
-  },
-  {
-    id: 'textAlignment',
-    commands: [],
-    dropdown: {
-      label: 'Text alignment',
-      iconIdentifier: 'justify-left',
+    {
+      id: 'table',
+      commands: [],
     },
-  },
-]
-
-const configuration: TipTapConfiguration = {
-  toolbar,
-  bubbleMenu,
-  extensions: [],
+    {
+      id: 'styles',
+      commands: [],
+      dropdown: {
+        label: 'Styles',
+        iconIdentifier: 'styles',
+      },
+    },
+    {
+      id: 'textAlignment',
+      commands: [],
+      dropdown: {
+        label: 'Text alignment',
+        iconIdentifier: 'justify-left',
+      },
+    },
+  ]
 }
 
 /**
- * Define a TipTap plugin with styles, commands, and stylesheets.
+ * Validate and return TipTap plugin options.
+ * Plugins should return the result of this function so the editor can collect
+ * all options and build an isolated configuration per instance.
  */
-export function defineTipTapPlugin(unsafePluginOptions: TipTapPluginOptions) {
+export function defineTipTapPlugin(unsafePluginOptions: TipTapPluginOptions): TipTapPluginOptions {
   const parseOutput = TipTapPluginOptionsSchema.safeParse(unsafePluginOptions)
   if (!parseOutput.success) {
     throw new Error(`Invalid TipTap plugin options: ${parseOutput.error.message}`)
   }
 
-  const { data: pluginOptions } = parseOutput
+  return parseOutput.data
+}
 
-  if (pluginOptions.extensions && Array.isArray(configuration.extensions))
-    configuration.extensions = mergeArrays(configuration.extensions, pluginOptions.extensions)
+/**
+ * Create a fresh, isolated TipTap configuration from a list of plugin options.
+ * Each editor instance should call this to avoid shared state between editors.
+ */
+export function createConfiguration(pluginOptionsList: TipTapPluginOptions[]): TipTapConfiguration {
+  const toolbar = createToolbarGroups()
+  const bubbleMenu = createBubbleMenuGroups()
+  const extensions = pluginOptionsList.flatMap(p => p.extensions ?? [])
 
-  if (pluginOptions.commands) {
-    pluginOptions.commands.forEach((command) => {
-      if (command.position.toolbarGroupId !== false && Array.isArray(toolbar)) {
-        const toolbarGroupId = configuration.toolbar.find(group => group.id === command.position.toolbarGroupId)
-        if (!toolbarGroupId) {
-          throw new Error(`Top bar group ${command.position.toolbarGroupId} not found for command id ${command.id}.`)
+  for (const pluginOptions of pluginOptionsList) {
+    if (pluginOptions.commands) {
+      for (const command of pluginOptions.commands) {
+        if (command.position.toolbarGroupId !== false) {
+          const toolbarGroup = toolbar.find(group => group.id === command.position.toolbarGroupId)
+          if (!toolbarGroup) {
+            throw new Error(`Top bar group ${command.position.toolbarGroupId} not found for command id ${command.id}.`)
+          }
+          toolbarGroup.commands.push(command)
         }
 
-        if (Array.isArray(toolbarGroupId.commands))
-          toolbarGroupId.commands.push(command)
-      }
-
-      if (command.position.bubbleMenuGroupId !== false && Array.isArray(bubbleMenu)) {
-        const bubbleMenuGroup = configuration.bubbleMenu.find(group => group.id === command.position.bubbleMenuGroupId)
-        if (!bubbleMenuGroup) {
-          throw new Error(`Bubble menu group ${command.position.bubbleMenuGroupId} not found for command id ${command.id}.`)
-        }
-
-        if (Array.isArray(bubbleMenuGroup.commands))
+        if (command.position.bubbleMenuGroupId !== false) {
+          const bubbleMenuGroup = bubbleMenu.find(group => group.id === command.position.bubbleMenuGroupId)
+          if (!bubbleMenuGroup) {
+            throw new Error(`Bubble menu group ${command.position.bubbleMenuGroupId} not found for command id ${command.id}.`)
+          }
           bubbleMenuGroup.commands.push(command)
+        }
       }
-    })
+    }
   }
+
+  return { toolbar, bubbleMenu, extensions }
 }
 
 export function parseTipTapPluginYamlConfiguration<T extends zod.ZodTypeAny>(props: {
@@ -163,5 +170,3 @@ ${parseOutput.error.message}`
 
   return parseOutput.data
 }
-
-export const getConfiguration = () => configuration

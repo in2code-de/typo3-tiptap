@@ -28,7 +28,7 @@ function toggleAlignment(editor: Editor, alignment: AlignmentType) {
  *
  * Each alignment accepts: a class name string, false to disable, or omit to use the default.
  */
-export default function (unsafeConfig: unknown): void {
+export default function (unsafeConfig: unknown) {
   const config = parseTipTapPluginYamlConfiguration({
     pluginId: 'justify',
     config: unsafeConfig ?? {},
@@ -103,7 +103,7 @@ export default function (unsafeConfig: unknown): void {
     },
   }))
 
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     extensions: [TextAlignClass],
     commands,
   })

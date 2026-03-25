@@ -23,7 +23,7 @@ export default function (unsafeConfig?: unknown) {
     }),
   })
 
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     extensions: [
       Table.configure({
         resizable: true,

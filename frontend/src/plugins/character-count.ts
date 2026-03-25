@@ -24,7 +24,7 @@ export default function (unsafeConfig: unknown) {
     return doc.body.innerText.length
   }
 
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     extensions: [
       CharacterCount.configure({
         limit: config.limit,

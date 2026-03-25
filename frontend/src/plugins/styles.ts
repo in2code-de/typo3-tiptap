@@ -320,7 +320,7 @@ export default function (unsafeConfig: unknown) {
 
   const generateId = (id: string) => id.replaceAll(' ', '_').toLowerCase()
 
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     extensions: [
       StyleExtension,
     ],

@@ -32,7 +32,7 @@ export const CustomLink = Link.extend({
  * Link extension installed by TipTap starterkit
  */
 export default function () {
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     extensions: [
       CustomLink.configure({
         openOnClick: false,
