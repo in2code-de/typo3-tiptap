@@ -292,6 +292,7 @@ onUnmounted(() => editor.value?.destroy())
               <button
                 v-if="getCommandIsVisible(command)"
                 :key="isHtmlSourceViewActive"
+                :title="command.label"
                 class="tiptap-toolbar__group-command"
                 :class="{
                   'is-active': command?.status?.isActive?.({ editor, linkBrowserUrl: options.linkBrowserUrl }) ?? false,
@@ -325,7 +326,7 @@ onUnmounted(() => editor.value?.destroy())
             :key="`tiptap-command-group-${groupIndex}`"
           >
             <ol
-              v-if="group.commands.some(command => !getCommandIsDisabledStatus(command))"
+              v-if="group.commands.some(command => getCommandIsVisible(command))"
               class="tiptap-toolbar__group"
             >
               <li v-if="group.dropdown">
@@ -356,11 +357,12 @@ onUnmounted(() => editor.value?.destroy())
               <template v-else>
                 <li
                   v-for="command in group.commands"
+                  v-show="getCommandIsVisible(command)"
                   :key="`tiptap-group-${group.id}-command-${command.id}`"
                 >
                   <button
-                    v-if="getCommandIsVisible(command)"
                     :key="isHtmlSourceViewActive"
+                    :title="command.label"
                     class="tiptap-toolbar__group-command"
                     :class="{
                       'is-active': command?.status?.isActive?.({
