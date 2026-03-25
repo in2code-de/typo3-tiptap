@@ -1,4 +1,4 @@
-import { P as C, bb as X, q as Y, F as R, S as G, T as B, N as H, D as x, c as k, b as O, a as M, bc as J, E, H as Z, ah as Q, aN as q, o as $ } from "./index-DYaQFPxE.js";
+import { P as C, be as X, bc as Y, F as R, S as G, T as B, N as _, D as x, c as k, b as O, a as M, bf as J, E, G as Z, ag as Q, aN as q, o as $ } from "./index-oLzXX581.js";
 function ee(i = {}) {
   return new C({
     view(e) {
@@ -150,7 +150,7 @@ class h extends O {
       for (; ; ) {
         let o = t > 0 ? s.firstChild : s.lastChild;
         if (!o) {
-          if (s.isAtom && !s.isText && !H.isSelectable(s)) {
+          if (s.isAtom && !s.isText && !_.isSelectable(s)) {
             e = e.doc.resolve(r + s.nodeSize * t), n = !1;
             continue e;
           }
@@ -180,7 +180,7 @@ class z {
     return h.valid(t) ? new h(t) : O.near(t);
   }
 }
-function _(i) {
+function H(i) {
   return i.isAtom || i.spec.isolating || i.spec.createGapCursor;
 }
 function ne(i) {
@@ -192,7 +192,7 @@ function ne(i) {
       continue;
     }
     for (let r = n.child(t - 1); ; r = r.lastChild) {
-      if (r.childCount == 0 && !r.inlineContent || _(r.type))
+      if (r.childCount == 0 && !r.inlineContent || H(r.type))
         return !0;
       if (r.inlineContent)
         return !1;
@@ -209,7 +209,7 @@ function re(i) {
       continue;
     }
     for (let r = n.child(t); ; r = r.firstChild) {
-      if (r.childCount == 0 && !r.inlineContent || _(r.type))
+      if (r.childCount == 0 && !r.inlineContent || H(r.type))
         return !0;
       if (r.inlineContent)
         return !1;
@@ -256,7 +256,7 @@ function oe(i, e, t) {
   if (!h.valid(n))
     return !1;
   let r = i.posAtCoords({ left: t.clientX, top: t.clientY });
-  return r && r.inside > -1 && H.isSelectable(i.state.doc.nodeAt(r.inside)) ? !1 : (i.dispatch(i.state.tr.setSelection(new h(n))), !0);
+  return r && r.inside > -1 && _.isSelectable(i.state.doc.nodeAt(r.inside)) ? !1 : (i.dispatch(i.state.tr.setSelection(new h(n))), !0);
 }
 function le(i, e) {
   if (e.inputType != "insertCompositionText" || !(i.state.selection instanceof h))

@@ -1,7 +1,7 @@
 import { t as y } from "../index-e_Ie-2wz.js";
-import { E as C } from "../index-DYaQFPxE.js";
-import { p as k, d as b, c as m } from "../configuration-CsNrhtrS.js";
-import { $ as T, a3 as N } from "../styles-VSStk_7S.js";
+import { E as C } from "../index-oLzXX581.js";
+import { p as k, d as b, c as m } from "../configuration-CIDhfjTK.js";
+import { a0 as T, a4 as N } from "../styles-BZL4Oyh5.js";
 function f(e) {
   return e.type.name === "heading" && e.attrs?.level ? `h${e.attrs.level}` : e.type.spec.parseDOM?.[0] && typeof e.type.spec.parseDOM[0] == "object" && "tag" in e.type.spec.parseDOM[0] && e.type.spec.parseDOM[0].tag || e.type.name;
 }

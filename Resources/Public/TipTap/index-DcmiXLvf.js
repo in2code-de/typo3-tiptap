@@ -1,4 +1,4 @@
-import { j as L, ba as k, i as m, b0 as E, E as H, aZ as M, aM as g, aF as B, aE as j, ap as $, an as K } from "./index-DYaQFPxE.js";
+import { j as L, bb as k, i as m, b1 as E, E as H, a_ as M, aM as g, aE as B, aD as j, ao as $, am as K } from "./index-oLzXX581.js";
 var V = Object.defineProperty, X = (t, e) => {
   for (var s in e)
     V(t, s, { get: e[s], enumerable: !0 });
@@ -131,9 +131,9 @@ X(W, {
   handleDelete: () => I,
   hasListBefore: () => S,
   hasListItemAfter: () => q,
-  hasListItemBefore: () => O,
-  listItemHasSubList: () => P,
-  nextListIsDeeper: () => _,
+  hasListItemBefore: () => _,
+  listItemHasSubList: () => O,
+  nextListIsDeeper: () => P,
   nextListIsHigher: () => D
 });
 var b = (t, e) => {
@@ -151,11 +151,11 @@ var b = (t, e) => {
 }, S = (t, e, s) => {
   const { $anchor: n } = t.selection, r = Math.max(0, n.pos - 2), i = t.doc.resolve(r).node();
   return !(!i || !s.includes(i.type.name));
-}, O = (t, e) => {
+}, _ = (t, e) => {
   var s;
   const { $anchor: n } = e.selection, r = e.doc.resolve(n.pos - 2);
   return !(r.index() === 0 || ((s = r.nodeBefore) == null ? void 0 : s.type.name) !== t);
-}, P = (t, e, s) => {
+}, O = (t, e, s) => {
   if (!s)
     return !1;
   const n = $(t, e.schema);
@@ -184,9 +184,9 @@ var b = (t, e) => {
   const n = b(e, t.state);
   if (!n)
     return !1;
-  const i = t.state.doc.resolve(n.$pos.pos - 2).node(n.depth), l = P(e, t.state, i);
-  return O(e, t.state) && !l ? t.commands.joinItemBackward() : t.chain().liftListItem(e).run();
-}, _ = (t, e) => {
+  const i = t.state.doc.resolve(n.$pos.pos - 2).node(n.depth), l = O(e, t.state, i);
+  return _(e, t.state) && !l ? t.commands.joinItemBackward() : t.chain().liftListItem(e).run();
+}, P = (t, e) => {
   const s = T(t, e), n = b(t, e);
   return !n || !s ? !1 : s > n.depth;
 }, D = (t, e) => {
@@ -196,7 +196,7 @@ var b = (t, e) => {
   if (!g(t.state, e) || !j(t.state, e))
     return !1;
   const { selection: s } = t.state, { $from: n, $to: r } = s;
-  return !s.empty && n.sameParent(r) ? !1 : _(e, t.state) ? t.chain().focus(t.state.selection.from + 4).lift(e).joinBackward().run() : D(e, t.state) ? t.chain().joinForward().joinBackward().run() : t.commands.joinItemForward();
+  return !s.empty && n.sameParent(r) ? !1 : P(e, t.state) ? t.chain().focus(t.state.selection.from + 4).lift(e).joinBackward().run() : D(e, t.state) ? t.chain().joinForward().joinBackward().run() : t.commands.joinItemForward();
 }, q = (t, e) => {
   var s;
   const { $anchor: n } = e.selection, r = e.doc.resolve(n.pos - n.parentOffset - 2);
@@ -245,8 +245,8 @@ var b = (t, e) => {
       }
     };
   }
-}), A = /^(\s*)(\d+)\.\s+(.*)$/, Z = /^\s/;
-function J(t) {
+}), A = /^(\s*)(\d+)\.\s+(.*)$/, J = /^\s/;
+function Q(t) {
   const e = [];
   let s = 0, n = 0;
   for (; s < t.length; ) {
@@ -263,7 +263,7 @@ function J(t) {
       if (u.trim() === "")
         c.push(u), o += `
 `, d += 1;
-      else if (u.match(Z))
+      else if (u.match(J))
         c.push(u), o += `
 ${u.slice(h + 2)}`, d += 1;
       else
@@ -324,7 +324,7 @@ function R(t, e, s) {
   }
   return r;
 }
-function Q(t, e) {
+function U(t, e) {
   return t.map((s) => {
     if (s.type !== "list_item")
       return e.parseChildren([s])[0];
@@ -348,7 +348,7 @@ function Q(t, e) {
     };
   });
 }
-var U = "listItem", C = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
+var Z = "listItem", C = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
   name: "orderedList",
   addOptions() {
     return {
@@ -389,7 +389,7 @@ var U = "listItem", C = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
   parseMarkdown: (t, e) => {
     if (t.type !== "list" || !t.ordered)
       return [];
-    const s = t.start || 1, n = t.items ? Q(t.items, e) : [];
+    const s = t.start || 1, n = t.items ? U(t.items, e) : [];
     return s !== 1 ? {
       type: "orderedList",
       attrs: { start: s },
@@ -411,7 +411,7 @@ var U = "listItem", C = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
     tokenize: (t, e, s) => {
       var n;
       const r = t.split(`
-`), [i, l] = J(r);
+`), [i, l] = Q(r);
       if (i.length === 0)
         return;
       const a = R(i, 0, s);
@@ -430,7 +430,7 @@ var U = "listItem", C = "textStyle", N = /^(\d+)\.\s$/, tt = L.create({
   },
   addCommands() {
     return {
-      toggleOrderedList: () => ({ commands: t, chain: e }) => this.options.keepAttributes ? e().toggleList(this.name, this.options.itemTypeName, this.options.keepMarks).updateAttributes(U, this.editor.getAttributes(C)).run() : t.toggleList(this.name, this.options.itemTypeName, this.options.keepMarks)
+      toggleOrderedList: () => ({ commands: t, chain: e }) => this.options.keepAttributes ? e().toggleList(this.name, this.options.itemTypeName, this.options.keepMarks).updateAttributes(Z, this.editor.getAttributes(C)).run() : t.toggleList(this.name, this.options.itemTypeName, this.options.keepMarks)
     };
   },
   addKeyboardShortcuts() {

@@ -1,5 +1,5 @@
-import { i as d } from "../index-DNfb0ZDK.js";
-import { p as r, d as g } from "../configuration-CsNrhtrS.js";
+import { i as d } from "../index-DW3_VDBk.js";
+import { p as r, d as g } from "../configuration-CIDhfjTK.js";
 function c(s) {
   const a = r({
     pluginId: "headings",
