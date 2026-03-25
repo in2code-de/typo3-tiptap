@@ -144,7 +144,7 @@ export default function (unsafeConfig) {
     }),
   })
 
-  defineTipTapPlugin({
+  return defineTipTapPlugin({
     // Optional: Add custom TipTap extensions here if needed
     extensions: [],
 
