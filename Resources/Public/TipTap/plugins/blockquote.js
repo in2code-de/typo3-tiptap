@@ -1,27 +1,23 @@
-import { i as e } from "../index-ChRtN2EZ.js";
-import { d as t } from "../configuration-C_EeEZGV.js";
+import { n as e } from "../configuration-BT9xaJ2A.js";
+import { n as t } from "../dist-CqIetMmg.js";
+//#region src/plugins/blockquote.ts
 function n() {
-  return t({
-    extensions: [e],
-    commands: [
-      {
-        id: "blockquote",
-        label: "Blockquote",
-        iconIdentifier: "blockquote",
-        position: {
-          toolbarGroupId: "formatting",
-          bubbleMenuGroupId: !1
-        },
-        status: {
-          isActive: ({ editor: o }) => o.isActive("blockquote")
-        },
-        onExecute: ({ editor: o }) => {
-          o.chain().focus().toggleBlockquote().run();
-        }
-      }
-    ]
-  });
+	return e({
+		extensions: [t],
+		commands: [{
+			id: "blockquote",
+			label: "Blockquote",
+			iconIdentifier: "blockquote",
+			position: {
+				toolbarGroupId: "formatting",
+				bubbleMenuGroupId: !1
+			},
+			status: { isActive: ({ editor: e }) => e.isActive("blockquote") },
+			onExecute: ({ editor: e }) => {
+				e.chain().focus().toggleBlockquote().run();
+			}
+		}]
+	});
 }
-export {
-  n as default
-};
+//#endregion
+export { n as default };

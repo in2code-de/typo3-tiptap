@@ -1,25 +1,19 @@
-import { C as i } from "../index-4m4BTiY4.js";
-import { p as o, d as a } from "../configuration-C_EeEZGV.js";
-function p(n) {
-  const e = o({
-    pluginId: "character-count",
-    config: n,
-    getValidationSchema: (t) => t.object({
-      limit: t.number().min(1)
-    })
-  });
-  function r(t) {
-    return new DOMParser().parseFromString(t, "text/html").body.innerText.length;
-  }
-  return a({
-    extensions: [
-      i.configure({
-        limit: e.limit,
-        textCounter: (t) => r(t)
-      })
-    ]
-  });
+import { n as e, r as t } from "../configuration-BT9xaJ2A.js";
+import { t as n } from "../dist-BmtwYQ_m.js";
+//#region src/plugins/character-count.ts
+function r(r) {
+	let i = t({
+		pluginId: "character-count",
+		config: r,
+		getValidationSchema: (e) => e.object({ limit: e.number().min(1) })
+	});
+	function a(e) {
+		return new DOMParser().parseFromString(e, "text/html").body.innerText.length;
+	}
+	return e({ extensions: [n.configure({
+		limit: i.limit,
+		textCounter: (e) => a(e)
+	})] });
 }
-export {
-  p as default
-};
+//#endregion
+export { r as default };

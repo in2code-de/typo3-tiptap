@@ -1,71 +1,68 @@
-import { E as f } from "../index-oLzXX581.js";
-import { p as g, d as A } from "../configuration-C_EeEZGV.js";
-const d = ["left", "center", "right"], a = ["heading", "paragraph"], p = {
-  left: "Align Left",
-  center: "Align Center",
-  right: "Align Right"
+import { n as e, r as t } from "../configuration-BT9xaJ2A.js";
+import { i as n } from "../dist-BppL3qHu.js";
+//#region src/plugins/justify.ts
+var r = [
+	"left",
+	"center",
+	"right"
+], i = ["heading", "paragraph"], a = {
+	left: "Align Left",
+	center: "Align Center",
+	right: "Align Right"
 };
-function x(l, n) {
-  const s = l.isActive({ textAlign: n }) ? null : n, r = l.chain().focus();
-  return a.forEach((o) => r.updateAttributes(o, { textAlign: s })), r.run();
+function o(e, t) {
+	let n = e.isActive({ textAlign: t }) ? null : t, r = e.chain().focus();
+	return i.forEach((e) => r.updateAttributes(e, { textAlign: n })), r.run();
 }
-function m(l) {
-  const n = g({
-    pluginId: "justify",
-    config: l ?? {},
-    getValidationSchema: (t) => t.object({
-      left: t.union([t.string(), t.literal(!1)]).default("text-left"),
-      center: t.union([t.string(), t.literal(!1)]).default("text-center"),
-      right: t.union([t.string(), t.literal(!1)]).default("text-right")
-    })
-  }), i = {}, s = {};
-  for (const t of d)
-    n[t] !== !1 && (i[t] = n[t], s[n[t]] = t);
-  const r = Object.keys(i), o = f.create({
-    name: "textAlignClass",
-    addGlobalAttributes() {
-      return [{
-        types: [...a],
-        attributes: {
-          textAlign: {
-            default: null,
-            parseHTML: (t) => {
-              for (const e of t.classList)
-                if (s[e])
-                  return t.classList.remove(e), s[e];
-              return null;
-            },
-            renderHTML: (t) => {
-              const e = t.textAlign;
-              return !e || !i[e] ? {} : { class: i[e] };
-            }
-          }
-        }
-      }];
-    }
-  }), c = r.map((t) => ({
-    id: `justify-${t}`,
-    label: p[t],
-    iconIdentifier: `justify-${t}`,
-    position: {
-      toolbarGroupId: "textAlignment",
-      bubbleMenuGroupId: "textAlignment"
-    },
-    status: {
-      isActive: ({ editor: e }) => e.isActive({ textAlign: t }),
-      isDisabled: ({ editor: e }) => a.every(
-        (u) => !e.can().updateAttributes(u, { textAlign: t })
-      )
-    },
-    onExecute: ({ editor: e }) => {
-      x(e, t);
-    }
-  }));
-  return A({
-    extensions: [o],
-    commands: c
-  });
+function s(s) {
+	let c = t({
+		pluginId: "justify",
+		config: s ?? {},
+		getValidationSchema: (e) => e.object({
+			left: e.union([e.string(), e.literal(!1)]).default("text-left"),
+			center: e.union([e.string(), e.literal(!1)]).default("text-center"),
+			right: e.union([e.string(), e.literal(!1)]).default("text-right")
+		})
+	}), l = {}, u = {};
+	for (let e of r) c[e] !== !1 && (l[e] = c[e], u[c[e]] = e);
+	let d = Object.keys(l), f = n.create({
+		name: "textAlignClass",
+		addGlobalAttributes() {
+			return [{
+				types: [...i],
+				attributes: { textAlign: {
+					default: null,
+					parseHTML: (e) => {
+						for (let t of e.classList) if (u[t]) return e.classList.remove(t), u[t];
+						return null;
+					},
+					renderHTML: (e) => {
+						let t = e.textAlign;
+						return !t || !l[t] ? {} : { class: l[t] };
+					}
+				} }
+			}];
+		}
+	}), p = d.map((e) => ({
+		id: `justify-${e}`,
+		label: a[e],
+		iconIdentifier: `justify-${e}`,
+		position: {
+			toolbarGroupId: "textAlignment",
+			bubbleMenuGroupId: "textAlignment"
+		},
+		status: {
+			isActive: ({ editor: t }) => t.isActive({ textAlign: e }),
+			isDisabled: ({ editor: t }) => i.every((n) => !t.can().updateAttributes(n, { textAlign: e }))
+		},
+		onExecute: ({ editor: t }) => {
+			o(t, e);
+		}
+	}));
+	return e({
+		extensions: [f],
+		commands: p
+	});
 }
-export {
-  m as default
-};
+//#endregion
+export { s as default };

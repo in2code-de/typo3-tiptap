@@ -1,28 +1,26 @@
-import { i as t } from "../index-BdSithC_.js";
-import { d as e } from "../configuration-C_EeEZGV.js";
+import { n as e } from "../configuration-BT9xaJ2A.js";
+import { n as t } from "../dist-D5bVvPqr.js";
+//#region src/plugins/italic.ts
 function n() {
-  return e({
-    extensions: [t],
-    commands: [
-      {
-        id: "italic",
-        label: "Italic",
-        iconIdentifier: "italic",
-        position: {
-          toolbarGroupId: "formatting",
-          bubbleMenuGroupId: "formatting"
-        },
-        status: {
-          isActive: ({ editor: i }) => i.isActive("italic"),
-          isDisabled: ({ editor: i }) => !i.can().toggleItalic() || i.state.selection.empty
-        },
-        onExecute: ({ editor: i }) => {
-          i.chain().focus().toggleItalic().run();
-        }
-      }
-    ]
-  });
+	return e({
+		extensions: [t],
+		commands: [{
+			id: "italic",
+			label: "Italic",
+			iconIdentifier: "italic",
+			position: {
+				toolbarGroupId: "formatting",
+				bubbleMenuGroupId: "formatting"
+			},
+			status: {
+				isActive: ({ editor: e }) => e.isActive("italic"),
+				isDisabled: ({ editor: e }) => !e.can().toggleItalic() || e.state.selection.empty
+			},
+			onExecute: ({ editor: e }) => {
+				e.chain().focus().toggleItalic().run();
+			}
+		}]
+	});
 }
-export {
-  n as default
-};
+//#endregion
+export { n as default };

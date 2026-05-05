@@ -1,28 +1,26 @@
-import { i as o } from "../index-Cx092m1B.js";
-import { d as e } from "../configuration-C_EeEZGV.js";
-function l() {
-  return e({
-    extensions: [o],
-    commands: [
-      {
-        id: "bold",
-        label: "Bold",
-        iconIdentifier: "bold",
-        position: {
-          toolbarGroupId: "formatting",
-          bubbleMenuGroupId: "formatting"
-        },
-        status: {
-          isActive: ({ editor: t }) => t.isActive("bold"),
-          isDisabled: ({ editor: t }) => !t.can().toggleBold() || t.state.selection.empty
-        },
-        onExecute: ({ editor: t }) => {
-          t.chain().focus().toggleBold().updateAttributes("strong", { class: null }).run();
-        }
-      }
-    ]
-  });
+import { n as e } from "../configuration-BT9xaJ2A.js";
+import { n as t } from "../dist-BpFqfqnc.js";
+//#region src/plugins/bold.ts
+function n() {
+	return e({
+		extensions: [t],
+		commands: [{
+			id: "bold",
+			label: "Bold",
+			iconIdentifier: "bold",
+			position: {
+				toolbarGroupId: "formatting",
+				bubbleMenuGroupId: "formatting"
+			},
+			status: {
+				isActive: ({ editor: e }) => e.isActive("bold"),
+				isDisabled: ({ editor: e }) => !e.can().toggleBold() || e.state.selection.empty
+			},
+			onExecute: ({ editor: e }) => {
+				e.chain().focus().toggleBold().updateAttributes("strong", { class: null }).run();
+			}
+		}]
+	});
 }
-export {
-  l as default
-};
+//#endregion
+export { n as default };
