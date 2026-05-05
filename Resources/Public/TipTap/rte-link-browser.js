@@ -12,7 +12,7 @@ var i = new class {
 	}
 	finalizeFunction(r) {
 		if (!this.editor) throw Error("Editor instance is not set in RteLinkBrowser");
-		let i = {};
+		let i = { target: "_self" };
 		e(t.getLinkAttributeValues()).forEach(([e, t]) => {
 			!t || typeof t != "string" || (i[e] = t);
 		}), this.editor.chain().focus().extendMarkRange("link").setLink({

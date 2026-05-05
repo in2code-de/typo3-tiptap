@@ -22,7 +22,11 @@ function a() {
 				"http",
 				"https",
 				"t3"
-			]
+			],
+			HTMLAttributes: {
+				rel: null,
+				target: null
+			}
 		})],
 		commands: [{
 			id: "link",
