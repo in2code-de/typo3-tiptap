@@ -69,6 +69,8 @@ editor:
                 - path: '@typo3-tiptap/tiptap/plugins/underline.js'
                 - path: '@typo3-tiptap/tiptap/plugins/italic.js'
                 - path: '@typo3-tiptap/tiptap/plugins/strikethrough.js'
+                - path: '@typo3-tiptap/tiptap/plugins/superscript.js'
+                - path: '@typo3-tiptap/tiptap/plugins/subscript.js'
                 - path: '@typo3-tiptap/tiptap/plugins/link.js'
                 - path: '@typo3-tiptap/tiptap/plugins/list.js'
                   config:
