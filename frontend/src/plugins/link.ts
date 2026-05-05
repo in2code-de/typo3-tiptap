@@ -38,6 +38,10 @@ export default function () {
         openOnClick: false,
         defaultProtocol: 'https',
         protocols: ['http', 'https', 't3'],
+        HTMLAttributes: {
+          rel: null,
+          target: null,
+        },
       }),
     ],
     commands: [

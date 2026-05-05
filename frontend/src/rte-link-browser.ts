@@ -31,7 +31,10 @@ class RteLinkBrowser {
       throw new Error('Editor instance is not set in RteLinkBrowser')
     }
 
-    const linkAttributes: Record<string, string> = {}
+    const linkAttributes: Record<string, string> = {
+      target: '_self',
+    }
+
     objectEntries(LinkBrowser.getLinkAttributeValues()).forEach(([key, value]) => {
       if (!value || typeof value !== 'string')
         return
