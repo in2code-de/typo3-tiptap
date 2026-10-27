@@ -15,9 +15,9 @@ import Dropdown from './components/Dropdown.vue'
 import Icon from './components/Icon.vue'
 import Stylesheets from './components/Stylesheets.vue'
 import { createConfiguration } from './configuration.ts'
-import { getEditorSourceViewActiveStatus } from './plugins/source.ts'
 import { stylesPluginConfigSchema } from './schema/plugin/styles.ts'
 import { WebComponentOptionsSchema } from './schema/web-component.ts'
+import { getEditorSourceViewActiveStatus } from './source-view.ts'
 
 const props = defineProps<{
   options: string
