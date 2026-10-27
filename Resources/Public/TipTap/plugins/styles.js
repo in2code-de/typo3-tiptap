@@ -1,16 +1,7 @@
 import { n as e, r as t } from "../configuration-BT9xaJ2A.js";
-import { h as n, t as r } from "../styles-DnnnwRYO.js";
-import { i } from "../dist-BppL3qHu.js";
-import { n as a } from "../dist-CGWReKV2.js";
-//#region src/utils.ts
-function o(e, t = 300) {
-	let n, r = 0, i = !1;
-	return (...a) => {
-		let o = Date.now();
-		return (!i || o - r >= t) && (n = e(...a), r = o, i = !0), n;
-	};
-}
-//#endregion
+import { _ as n, r, t as i } from "../styles-BrKaae6w.js";
+import { i as a } from "../dist-BppL3qHu.js";
+import { n as o } from "../dist-CGWReKV2.js";
 //#region src/plugins/styles.ts
 function s(e) {
 	return e.type.name === "heading" && e.attrs?.level ? `h${e.attrs.level}` : e.type.spec.parseDOM?.[0] && typeof e.type.spec.parseDOM[0] == "object" && "tag" in e.type.spec.parseDOM[0] && e.type.spec.parseDOM[0].tag || e.type.name;
@@ -62,7 +53,7 @@ function l(e) {
 		tagName: "doc"
 	};
 }
-var u = /* @__PURE__ */ "paragraph.heading.blockquote.codeBlock.bulletList.orderedList.listItem.horizontalRule.hardBreak.taskList.taskItem.table.tableRow.tableCell.tableHeader.image.video.audio.figure.figcaption.superscript.subscript.columns.column.details.summary.div.span.bold.italic.underline.strike.code.link".split("."), d = i.create({
+var u = /* @__PURE__ */ "paragraph.heading.blockquote.codeBlock.bulletList.orderedList.listItem.horizontalRule.hardBreak.taskList.taskItem.table.tableRow.tableCell.tableHeader.image.video.audio.figure.figcaption.superscript.subscript.columns.column.details.summary.div.span.bold.italic.underline.strike.code.link".split("."), d = a.create({
 	name: "styles",
 	addGlobalAttributes() {
 		return [{
@@ -102,16 +93,16 @@ var u = /* @__PURE__ */ "paragraph.heading.blockquote.codeBlock.bulletList.order
 		};
 	}
 });
-function f(i) {
+function f(a) {
 	let s = t({
 		pluginId: "styles",
-		config: i,
-		getValidationSchema: () => r
+		config: a,
+		getValidationSchema: () => i
 	}), c = n(), u = (e) => e.replaceAll(" ", "_").toLowerCase();
 	return e({
 		extensions: [d],
 		commands: s.styles.map((e, t) => {
-			let n = o(({ editor: t }) => t.commands.hasNodeClass(e.classes), 300), r = o(() => c.value?.tagName === e.element, 300), i = e.classes;
+			let n = r(({ editor: t }) => t.commands.hasNodeClass(e.classes), 300), i = r(() => c.value?.tagName === e.element, 300), a = e.classes;
 			return {
 				id: u(`style:${e.name}`),
 				label: e.name,
@@ -122,13 +113,13 @@ function f(i) {
 				},
 				status: {
 					isActive: n,
-					isVisible: r
+					isVisible: i
 				},
 				onExecute: ({ editor: e }) => {
-					e.chain().focus().toggleNodeClass(i).run();
+					e.chain().focus().toggleNodeClass(a).run();
 				},
 				hooks: { onEditorMounted: t === 0 ? ({ editor: e }) => {
-					let t = a(250, () => {
+					let t = o(250, () => {
 						let t = l(e.state);
 						c.value = t, e.emit("parentNodeChanged", t);
 					});

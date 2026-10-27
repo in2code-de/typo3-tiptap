@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { TipTapPluginOptions } from '../types'
 import { nextTick, onUnmounted, ref, watch } from 'vue'
+import { addCacheBustingParameter } from '../utils.ts'
 
 const props = defineProps<{
   stylesheets: TipTapPluginOptions['styleSheets']
@@ -31,7 +32,7 @@ async function loadStylesheet(url: string): Promise<void> {
   }
 
   // Fetch CSS content
-  const response = await fetch(url)
+  const response = await fetch(addCacheBustingParameter(url))
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`)
   }

@@ -18,6 +18,7 @@ import { createConfiguration } from './configuration.ts'
 import { stylesPluginConfigSchema } from './schema/plugin/styles.ts'
 import { WebComponentOptionsSchema } from './schema/web-component.ts'
 import { getEditorSourceViewActiveStatus } from './source-view.ts'
+import { addCacheBustingParameter } from './utils.ts'
 
 const props = defineProps<{
   options: string
@@ -141,7 +142,7 @@ function executeCommandHooks() {
 async function importPluginFiles(): Promise<TipTapPluginOptions[]> {
   return Promise.all(
     options.plugins?.map(async (plugin) => {
-      const importValue = await import(/* @vite-ignore */ plugin.path)
+      const importValue = await import(/* @vite-ignore */ addCacheBustingParameter(plugin.path))
       if (!importValue.default || !(typeof importValue.default === 'function'))
         throw new Error(`Plugin ${plugin.path} does not have a default export or it is not a function.`)
 
