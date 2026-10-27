@@ -10,7 +10,7 @@ import { i as mr, n as hr, r as gr, t as _r } from "./dist-CAgHnqBy.js";
 import { t as vr } from "./dist-BWgsjEEi.js";
 import { a as yr, i as br, n as xr, r as Sr } from "./dist-BmtwYQ_m.js";
 import { t as Cr } from "./tables-NWFOyHuO.js";
-import { getEditorSourceViewActiveStatus as wr } from "./plugins/source.js";
+import { t as wr } from "./source-view-CBKUoe0j.js";
 //#region node_modules/@vue/runtime-core/dist/runtime-core.esm-bundler.js
 function Tr(e, t, n, r) {
 	try {

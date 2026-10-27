@@ -1,4 +1,4 @@
-import { t as e } from "./dist-DMA-Qmgt.js";
+import { t as e } from "./dist-CGWReKV2.js";
 import t from "@typo3/backend/link-browser.js";
 import n from "@typo3/backend/modal.js";
 import r from "@typo3/core/event/regular-event.js";

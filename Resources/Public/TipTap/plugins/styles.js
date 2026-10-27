@@ -1,7 +1,7 @@
 import { n as e, r as t } from "../configuration-BT9xaJ2A.js";
 import { h as n, t as r } from "../styles-DnnnwRYO.js";
 import { i } from "../dist-BppL3qHu.js";
-import { n as a } from "../dist-DMA-Qmgt.js";
+import { n as a } from "../dist-CGWReKV2.js";
 //#region src/utils.ts
 function o(e, t = 300) {
 	let n, r = 0, i = !1;

@@ -1,6 +1,6 @@
 import { n as e } from "../configuration-BT9xaJ2A.js";
 import { t } from "../dist-91yalACB.js";
-import { t as n } from "../dist-DMA-Qmgt.js";
+import { t as n } from "../dist-CGWReKV2.js";
 import r from "@typo3/backend/modal.js";
 //#region src/plugins/link.ts
 var i = t.extend({ addAttributes() {
